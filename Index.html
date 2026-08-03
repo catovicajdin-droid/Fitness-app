@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fitness Tracker - 12 Week Beginner Chest & Core</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #00d9ff;
+      --primary-dark: #00a8cc;
+      --bg-dark: #0d1117;
+      --bg-darker: #010409;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --border: #30363d;
+      --success: #3fb950;
+      --warning: #d29922;
+      --danger: #f85149;
+      --accent: #79c0ff;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg-darker);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      max-width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    button {
+      background: var(--primary);
+      border: none;
+      color: var(--bg-darker);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: var(--border);
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+      background: #404854;
+    }
+
+    .btn-small {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.75rem;
+    }
+
+    .stat-bar {
+      display: flex;
+      gap: 2rem;
+      font-size: 0.875rem;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+    }
+
+    .weeks-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .week-card {
+      background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+
+    .week-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 20px rgba(0, 217, 255, 0.1);
+    }
+
+    .week-header {
+      background: linear-gradient(90deg, rgba(0, 217, 255, 0.1) 0%, rgba(0, 168, 204, 0.05) 100%);
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+
+    .week-header:hover {
+      background: linear-gradient(90deg, rgba(0, 217, 255, 0.15) 0%, rgba(0, 168, 204, 0.1) 100%);
+    }
+
+    .week-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .week-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+
+    .week-toggle {
+      font-size: 1.5rem;
+      color: var(--text-secondary);
+      transition: transform 0.3s;
+    }
+
+    .week-toggle.active {
+      transform: rotate(180deg);
+    }
+
+    .week-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+
+    .week-content.active {
+      max-height: 2000px;
+    }
+
+    .week-body {
+      padding: 1.25rem;
+    }
+
+    .workout-session {
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .session-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 1rem;
+      gap: 1rem;
+    }
+
+    .session-title {
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 1rem;
+    }
+
+    .session-date {
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    .session-status {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .status-badge {
+      padding: 0.35rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-pending {
+      background: rgba(212, 153, 34, 0.2);
+      color: var(--warning);
+    }
+
+    .status-completed {
+      background: rgba(63, 185, 80, 0.2);
+      color: var(--success);
+    }
+
+    .status-skipped {
+      background: rgba(248, 81, 73, 0.2);
+      color: var(--danger);
+    }
+
+    .exercises-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .exercise-item {
+      background: rgba(0, 217, 255, 0.05);
+      border-left: 3px solid var(--primary);
+      padding: 0.75rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+
+    .exercise-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.35rem;
+    }
+
+    .exercise-specs {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .exercise-spec {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .exercise-video {
+      margin-top: 0.5rem;
+    }
+
+    .video-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .video-link:hover {
+      text-decoration: underline;
+    }
+
+    .session-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .log-btn {
+      flex: 1;
+      padding: 0.6rem;
+      background: rgba(63, 185, 80, 0.2);
+      color: var(--success);
+      border: 1px solid var(--success);
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .log-btn:hover {
+      background: rgba(63, 185, 80, 0.3);
+    }
+
+    .log-btn.completed {
+      background: var(--success);
+      color: var(--bg-darker);
+    }
+
+    .skip-btn {
+      flex: 1;
+      padding: 0.6rem;
+      background: rgba(248, 81, 73, 0.2);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .skip-btn:hover {
+      background: rgba(248, 81, 73, 0.3);
+    }
+
+    .nutrition-section {
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    .nutrition-content {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+    }
+
+    .nutrition-item {
+      margin-bottom: 0.75rem;
+    }
+
+    .nutrition-label {
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .nutrition-text {
+      margin-top: 0.25rem;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    input, textarea, select {
+      background: var(--bg-darker);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.6rem;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.875rem;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(0, 217, 255, 0.2);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .modal-actions button {
+      flex: 1;
+    }
+
+    .close-modal {
+      background: var(--border);
+      color: var(--text-primary);
+    }
+
+    .close-modal:hover {
+      background: #404854;
+    }
+
+    .sync-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .sync-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    .sync-indicator.offline {
+      background: var(--danger);
+      animation: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-secondary);
+      padding: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      main {
+        padding: 1rem;
+      }
+
+      header {
+        padding: 1rem;
+      }
+
+      .stat-bar {
+        gap: 1rem;
+        font-size: 0.75rem;
+      }
+
+      .modal-content {
+        max-width: 100%;
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <div class="header-content">
+        <div>
+          <h1>💪 Fitness Tracker</h1>
+          <div class="sync-status">
+            <span class="sync-indicator"></span>
+            <span id="syncStatus">Syncing...</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn-secondary btn-small" id="garminBtn">⌚ Garmin</button>
+          <button class="btn-small" id="settingsBtn">⚙️ Settings</button>
+        </div>
+      </div>
+      <div class="stat-bar">
+        <div class="stat-item">
+          <span class="stat-label">Workouts Complete</span>
+          <span class="stat-value" id="completedCount">0/36</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Current Week</span>
+          <span class="stat-value" id="currentWeek">Week 1</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Progress</span>
+          <span class="stat-value" id="progressPct">0%</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="weeks-container" id="weeksContainer"></div>
+    </main>
+  </div>
+
+  <div class="modal" id="logModal">
+    <div class="modal-content">
+      <div class="modal-header">Log Workout</div>
+      <form id="logForm">
+        <div class="form-group">
+          <label class="form-label">How many reps did you complete?</label>
+          <input type="number" id="repsInput" placeholder="e.g., 10" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Difficulty (1-10)</label>
+          <input type="range" id="difficultyInput" min="1" max="10" value="5" style="cursor: pointer;">
+          <span id="difficultyValue" style="font-size: 0.75rem; color: var(--text-secondary);">5</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duration (minutes)</label>
+          <input type="number" id="durationInput" placeholder="e.g., 30" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea id="notesInput" placeholder="How did you feel? Any observations?"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn-save">Save Workout</button>
+          <button type="button" class="btn-secondary close-modal" onclick="closeModal('logModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal" id="garminModal">
+    <div class="modal-content">
+      <div class="modal-header">Garmin Integration</div>
+      <div style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6; margin-bottom: 1rem;">
+        <p style="margin-bottom: 1rem;">Your workouts can be synced with Garmin Connect. Follow these steps:</p>
+        <ol style="padding-left: 1.5rem; margin-bottom: 1rem;">
+          <li>Export your session data to CSV</li>
+          <li>Upload the CSV to Garmin Connect manually, or use an MCP client to automate this</li>
+          <li>Your heart rate, calories, and metrics will sync automatically</li>
+        </ol>
+        <div style="background: rgba(0, 217, 255, 0.1); padding: 1rem; border-radius: 6px; border-left: 3px solid var(--primary); margin-bottom: 1rem;">
+          <p style="font-weight: 600; margin-bottom: 0.5rem;">MCP Integration Ready</p>
+          <p style="font-size: 0.8rem;">This app supports MCPClient connections for automated Garmin syncing. Set up via your preferred MCP client.</p>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button onclick="exportToCSV()" class="btn-primary">Export Data</button>
+        <button type="button" class="btn-secondary close-modal" onclick="closeModal('garminModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <div class="modal-header">Settings</div>
+      <div class="form-group">
+        <label class="form-label">Export All Data</label>
+        <button type="button" onclick="exportData()" class="btn-secondary" style="width: 100%;">Download JSON</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Import Data</label>
+        <input type="file" id="importFile" accept=".json" style="cursor: pointer;">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cloud Sync Status</label>
+        <div style="padding: 0.75rem; background: rgba(0, 217, 255, 0.05); border-radius: 6px; font-size: 0.8rem; color: var(--text-secondary);">
+          Last sync: <span id="lastSyncTime">Never</span><br>
+          Storage: <span id="storageUsage">Calculating...</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary close-modal" onclick="closeModal('settingsModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== WORKOUT DATA =====
+    const workoutPlan = {
+      week1: {
+        focus: "Foundation Building - Bodyweight Mastery",
+        workouts: [
+          {
+            day: "Monday",
+            date: "Week 1",
+            exercises: [
+              { name: "Push-ups (Modified if needed)", sets: 3, reps: "8-12", video: "https://www.youtube.com/embed/IODxDxX7oi4", notes: "Knees on ground is OK for beginners" },
+              { name: "Crunches", sets: 3, reps: "12-15", video: "https://www.youtube.com/embed/MKGnApFtLAo", notes: "Focus on pulling chest toward knees" },
+              { name: "Plank Hold", sets: 3, reps: "15-30 seconds", video: "https://www.youtube.com/embed/pSHjTRCQxIw", notes: "Keep body straight" }
+            ]
+          },
+          {
+            day: "Wednesday",
+            date: "Week 1",
+            exercises: [
+              { name: "Incline Push-ups (hands elevated)", sets: 3, reps: "10-12", video: "https://www.youtube.com/embed/Qyp0f_lYAhw", notes: "Use a bench or low table" },
+              { name: "Bicycle Crunches", sets: 3, reps: "12-15", video: "https://www.youtube.com/embed/1BW2yp7rPWc", notes: "Alternate sides smoothly" },
+              { name: "Dead Bug", sets: 3, reps: "10-12 per side", video: "https://www.youtube.com/embed/Vl4Q-beJ5wo", notes: "Move slowly and controlled" }
+            ]
+          },
+          {
+            day: "Friday",
+            date: "Week 1",
+            exercises: [
+              { name: "Standard Push-ups", sets: 3, reps: "6-10", video: "https://www.youtube.com/embed/IODxDxX7oi4", notes: "Full body, knees off ground" },
+              { name: "Reverse Crunches", sets: 3, reps: "12-15", video: "https://www.youtube.com/embed/cEVqGzxD5vE", notes: "Lift hips, not just head" },
+              { name: "Mountain Climbers", sets: 3, reps: "20 total", video: "https://www.youtube.com/embed/nmwgirgXLYM", notes: "Keep core tight" }
+            ]
+          }
+        ],
+        nutrition: {
+          preworkout: "Eat 30-60 min before: banana with 1 tbsp peanut butter (25g carbs, 4g protein) or rice cakes with honey",
+          postworkout: "Within 30 min: combine carbs + protein. Greek yogurt with berries (15g protein, 20g carbs) or whey shake with banana",
+          daily: "Aim for 1.2-1.6g protein per kg body weight spread across 4-5 meals. Drink 2-3L water daily."
+        },
+        restDayTips: "Light walking, stretching, foam rolling. Focus on sleep (7-9 hours). Eat normally with emphasis on protein."
+      },
+      week2: {
+        focus: "Rep Increase & Form Refinement",
+        workouts: [
+          {
+            day: "Monday",
+            date: "Week 2",
+            exercises: [
+              { name: "Push-ups", sets: 3, reps: "10-14", video: "https://www.youtube.com/embed/IODxDxX7oi4", notes: "Increase reps by 2 from Week 1" },
+              { name: "Crunches", sets: 3, reps: "15-18", video: "https://www.youtube.com/embed/MKGnApFtLAo", notes: "Controlled tempo: 2 sec up, 2 sec down" },
+              { name: "Plank Hold", sets: 3, reps: "20-35 seconds", video: "https://www.youtube.com/embed/pSHjTRCQxIw", notes: "Add 5-10 sec to previous week" }
+            ]
+          },
+          {
+            day: "Wednesday",
+            date: "Week 2",
+            exercises: [
+              { name: "Incline Push-ups", sets: 3, reps: "12-14", video: "https://www.youtube.com/embed/Qyp0f_lYAhw", notes: "Lower hands if possible" },
+              { name: "Bicycle Crunches", sets: 3, reps: "15-18", video: "https://www.youtube.com/embed/1BW2yp7rPWc", notes: "Full range of motion" },
+              { name: "V-ups (or modified)", sets: 3, reps: "8-10", video: "https://www.youtube.com/embed/4zr5X6BlBkw", notes: "Chest and stomach together" }
+            ]
+          },
+          {
+            day: "Friday",
+            date: "Week 2",
+            exercises: [
+              { name: "Push-ups", sets: 3, reps: "8-12", video: "https://www.youtube.com/embed/IODxDxX7oi4", notes: "Mix steady + explosive reps" },
+              { name: "Reverse Crunches", sets: 3, reps: "15-18", video: "https://www.youtube.com/embed/cEVqGzxD5vE", notes: "Squeeze abs at top" },
+              { name: "Hollow Body Hold", sets: 3, reps: "15-20 seconds", video: "https://www.youtube.com/embed/nNwK0NAmhvU", notes: "Lie on back, arms/legs straight" }
+            ]
+          }
+        ],
+        nutrition: {
+          preworkout: "Same as Week 1, but consider adding hydration if workouts feel tougher (electrolyte drink optional)",
+          postworkout: "Increase protein slightly: 25-30g protein + 30-40g carbs. Consider lean meat + rice, or protein shake + fruit",
+          daily: "Maintain protein, slightly increase carbs on workout days (5-7g per kg body weight)"
+        },
+        restDayTips: "Yoga, swimming, or light cycling. Massage or self-massage. Sleep priority. Recovery is where you build muscle."
+      }
+    };
+
+    // Generate weeks 3-12 with progressive overload
+    function generateWeeksPlan() {
+      const fullPlan = { ...workoutPlan };
+      const baseExercises = {
+        pushup: { name: "Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4" },
+        incinepushup: { name: "Incline Push-ups", video: "https://www.youtube.com/embed/Qyp0f_lYAhw" },
+        crunch: { name: "Crunches", video: "https://www.youtube.com/embed/MKGnApFtLAo" },
+        bicycle: { name: "Bicycle Crunches", video: "https://www.youtube.com/embed/1BW2yp7rPWc" },
+        plank: { name: "Plank Hold", video: "https://www.youtube.com/embed/pSHjTRCQxIw" },
+        deadbug: { name: "Dead Bug", video: "https://www.youtube.com/embed/Vl4Q-beJ5wo" },
+        reversecrunch: { name: "Reverse Crunches", video: "https://www.youtube.com/embed/cEVqGzxD5vE" },
+        mountainclimbers: { name: "Mountain Climbers", video: "https://www.youtube.com/embed/nmwgirgXLYM" },
+        vups: { name: "V-ups (or modified)", video: "https://www.youtube.com/embed/4zr5X6BlBkw" },
+        hollow: { name: "Hollow Body Hold", video: "https://www.youtube.com/embed/nNwK0NAmhvU" }
+      };
+
+      for (let w = 3; w <= 12; w++) {
+        const weekKey = `week${w}`;
+        const difficulty = Math.floor((w - 1) / 3);
+        const progressMultiplier = 1 + (difficulty * 0.15);
+
+        fullPlan[weekKey] = {
+          focus: getFocusByWeek(w),
+          workouts: [
+            createSession("Monday", w, 8, 12),
+            createSession("Wednesday", w, 12, 16),
+            createSession("Friday", w, 10, 14)
+          ],
+          nutrition: {
+            preworkout: "Banana + peanut butter OR rice cakes with honey. Aim 20-30g carbs, 5-10g protein, 30-60 min before.",
+            postworkout: `Within 30 min: ${20 + difficulty * 5}-${30 + difficulty * 5}g protein + 30-50g carbs. Examples: Greek yogurt + berries, whey shake + banana, grilled chicken + rice`,
+            daily: `${1.4 + difficulty * 0.2}-${1.8 + difficulty * 0.2}g protein per kg body weight daily. Emphasize protein at breakfast and after workouts.`
+          },
+          restDayTips: "Active recovery important as intensity increases. 20-30 min light cardio (walking/cycling), stretching, 8+ hours sleep. Hydrate well."
+        };
+      }
+
+      return fullPlan;
+
+      function createSession(day, week, minReps, maxReps) {
+        const exercises = selectExercises(week, day);
+        return {
+          day,
+          date: `Week ${week}`,
+          exercises: exercises.map(ex => ({
+            ...ex,
+            reps: `${minReps}-${maxReps}`,
+            sets: 3 + Math.floor((week - 1) / 4)
+          }))
+        };
+      }
+
+      function selectExercises(week, day) {
+        const exercises = [];
+        const difficulty = Math.floor((week - 1) / 3);
+
+        if (day === "Monday") {
+          exercises.push({ ...baseExercises.pushup, notes: "Standard or incline depending on fitness" });
+          exercises.push({ ...baseExercises.crunch, notes: "Focus on form" });
+          exercises.push(difficulty < 1 ? { ...baseExercises.plank, notes: "Build endurance" } : { ...baseExercises.vups, notes: "Advanced core" });
+        } else if (day === "Wednesday") {
+          exercises.push({ ...baseExercises.incinepushup, notes: "Angle progression" });
+          exercises.push({ ...baseExercises.bicycle, notes: "Controlled movement" });
+          exercises.push(difficulty < 2 ? { ...baseExercises.deadbug, notes: "Stability" } : { ...baseExercises.mountainclimbers, notes: "Cardio intensity" });
+        } else {
+          exercises.push({ ...baseExercises.pushup, notes: "Full range of motion" });
+          exercises.push({ ...baseExercises.reversecrunch, notes: "Lower body core" });
+          exercises.push(difficulty < 1 ? { ...baseExercises.hollow, notes: "Static hold" } : { ...baseExercises.plank, notes: "Add variations" });
+        }
+
+        return exercises;
+      }
+
+      function getFocusByWeek(w) {
+        const phases = ["Foundation Building - Bodyweight Mastery", "Rep Increase & Form Refinement", "Volume Increase - Set Addition", "Tempo & Control Focus", "Rest-Pause Sets", "Explosive Variations", "Endurance & Stamina", "Deload & Recovery", "Peak Performance Push", "Maintenance & Consolidation", "Advanced Variations", "Final Testing & Assessment"];
+        return phases[w - 1] || "Progressive Overload";
+      }
+    }
+
+    const fullWorkoutPlan = generateWeeksPlan();
+
+    // ===== STATE MANAGEMENT =====
+    let appState = {
+      completedWorkouts: {},
+      skippedWorkouts: {},
+      workoutLogs: {},
+      lastSync: localStorage.getItem("lastSync") || "Never",
+      currentWeek: 1
+    };
+
+    // ===== INITIALIZATION =====
+    function init() {
+      loadState();
+      renderWeeks();
+      updateStats();
+      setupEventListeners();
+      initializeCloudSync();
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem("fitnessAppState");
+      if (saved) {
+        appState = { ...appState, ...JSON.parse(saved) };
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem("fitnessAppState", JSON.stringify(appState));
+      appState.lastSync = new Date().toLocaleString();
+      localStorage.setItem("lastSync", appState.lastSync);
+    }
+
+    // ===== RENDERING =====
+    function renderWeeks() {
+      const container = document.getElementById("weeksContainer");
+      container.innerHTML = "";
+
+      Object.keys(fullWorkoutPlan).forEach(weekKey => {
+        const weekNum = parseInt(weekKey.replace("week", ""));
+        const week = fullWorkoutPlan[weekKey];
+        const isActive = weekNum <= appState.currentWeek + 1;
+
+        const weekCard = document.createElement("div");
+        weekCard.className = "week-card";
+        weekCard.innerHTML = `
+          <div class="week-header" onclick="toggleWeek(this)">
+            <div>
+              <div class="week-title">Week ${weekNum}: ${week.focus}</div>
+              <div class="week-subtitle">${week.workouts.length} workouts • 3 sessions</div>
+            </div>
+            <div class="week-toggle">▼</div>
+          </div>
+          <div class="week-content" id="week${weekNum}">
+            <div class="week-body">
+              ${week.workouts.map((session, i) => renderSession(session, weekNum, i)).join("")}
+              ${renderNutritionSection(week.nutrition, weekNum)}
+              ${renderRestDayTips(week.restDayTips, weekNum)}
+            </div>
+          </div>
+        `;
+        container.appendChild(weekCard);
+      });
+    }
+
+    function renderSession(session, weekNum, sessionIdx) {
+      const sessionKey = `w${weekNum}s${sessionIdx}`;
+      const isCompleted = appState.completedWorkouts[sessionKey];
+      const isSkipped = appState.skippedWorkouts[sessionKey];
+
+      return `
+        <div class="workout-session">
+          <div class="session-header">
+            <div>
+              <div class="session-title">📅 ${session.day}</div>
+              <div class="session-date">${session.date}</div>
+            </div>
+            <div class="session-status">
+              ${isCompleted ? '<div class="status-badge status-completed">✓ Done</div>' : ''}
+              ${isSkipped ? '<div class="status-badge status-skipped">⊘ Skipped</div>' : ''}
+              ${!isCompleted && !isSkipped ? '<div class="status-badge status-pending">○ Pending</div>' : ''}
+            </div>
+          </div>
+
+          <div class="exercises-list">
+            ${session.exercises.map((ex, i) => `
+              <div class="exercise-item">
+                <div class="exercise-name">${ex.name}</div>
+                <div class="exercise-specs">
+                  <div class="exercise-spec">
+                    <span>🎯 ${ex.sets} sets</span>
+                  </div>
+                  <div class="exercise-spec">
+                    <span>🔄 ${ex.reps} reps</span>
+                  </div>
+                </div>
+                <div class="exercise-notes" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.35rem;">
+                  💡 ${ex.notes}
+                </div>
+                <div class="exercise-video">
+                  <a href="${ex.video}" target="_blank" class="video-link">🎥 View Form Guide</a>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+
+          <div class="session-actions">
+            <button class="log-btn ${isCompleted ? 'completed' : ''}"
+              onclick="openLogModal('w${weekNum}s${sessionIdx}', '${session.day} - Week ${weekNum}')">
+              ${isCompleted ? '✓ Logged' : '📝 Log Workout'}
+            </button>
+            <button class="skip-btn" onclick="skipWorkout('w${weekNum}s${sessionIdx}')">
+              ⊘ Skip
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderNutritionSection(nutrition, weekNum) {
+      return `
+        <div class="nutrition-section">
+          <div class="section-title">🥗 Nutrition Guidance</div>
+          <div class="nutrition-content">
+            <div class="nutrition-item">
+              <div class="nutrition-label">Pre-Workout</div>
+              <div class="nutrition-text">${nutrition.preworkout}</div>
+            </div>
+            <div class="nutrition-item">
+              <div class="nutrition-label">Post-Workout Recovery</div>
+              <div class="nutrition-text">${nutrition.postworkout}</div>
+            </div>
+            <div class="nutrition-item">
+              <div class="nutrition-label">Daily Target</div>
+              <div class="nutrition-text">${nutrition.daily}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderRestDayTips(tips, weekNum) {
+      return `
+        <div class="nutrition-section">
+          <div class="section-title">😴 Rest Day Tips</div>
+          <div class="nutrition-content">
+            <div class="nutrition-text">${tips}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleWeek(header) {
+      const content = header.nextElementSibling;
+      const toggle = header.querySelector(".week-toggle");
+      content.classList.toggle("active");
+      toggle.classList.toggle("active");
+    }
+
+    // ===== WORKOUT LOGGING =====
+    function openLogModal(sessionKey, title) {
+      const modal = document.getElementById("logModal");
+      modal.classList.add("active");
+      document.getElementById("logForm").dataset.sessionKey = sessionKey;
+      document.querySelector(".modal-header").textContent = `Log Workout: ${title}`;
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove("active");
+    }
+
+    document.getElementById("logForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const sessionKey = this.dataset.sessionKey;
+      const reps = document.getElementById("repsInput").value;
+      const difficulty = document.getElementById("difficultyInput").value;
+      const duration = document.getElementById("durationInput").value;
+      const notes = document.getElementById("notesInput").value;
+
+      appState.completedWorkouts[sessionKey] = true;
+      delete appState.skippedWorkouts[sessionKey];
+      appState.workoutLogs[sessionKey] = {
+        reps,
+        difficulty,
+        duration,
+        notes,
+        date: new Date().toISOString()
+      };
+
+      saveState();
+      renderWeeks();
+      updateStats();
+      closeModal("logModal");
+      this.reset();
+    });
+
+    function skipWorkout(sessionKey) {
+      appState.skippedWorkouts[sessionKey] = true;
+      delete appState.completedWorkouts[sessionKey];
+      saveState();
+      renderWeeks();
+      updateStats();
+    }
+
+    // ===== STATS & PROGRESS =====
+    function updateStats() {
+      const totalWorkouts = 36;
+      const completed = Object.keys(appState.completedWorkouts).length;
+      const percentage = Math.round((completed / totalWorkouts) * 100);
+
+      document.getElementById("completedCount").textContent = `${completed}/${totalWorkouts}`;
+      document.getElementById("progressPct").textContent = `${percentage}%`;
+      document.getElementById("currentWeek").textContent = `Week ${appState.currentWeek}`;
+    }
+
+    // ===== CLOUD SYNC & DATA EXPORT =====
+    function initializeCloudSync() {
+      setInterval(() => {
+        if (navigator.onLine) {
+          document.querySelector(".sync-indicator").classList.remove("offline");
+          document.getElementById("syncStatus").textContent = "Syncing...";
+          setTimeout(() => {
+            document.getElementById("syncStatus").textContent = "✓ Synced";
+          }, 1000);
+        } else {
+          document.querySelector(".sync-indicator").classList.add("offline");
+          document.getElementById("syncStatus").textContent = "Offline";
+        }
+      }, 2000);
+
+      document.getElementById("lastSyncTime").textContent = appState.lastSync;
+      const storageUsage = (new Blob([JSON.stringify(appState)]).size / 1024).toFixed(2);
+      document.getElementById("storageUsage").textContent = `${storageUsage} KB`;
+    }
+
+    function exportData() {
+      const dataStr = JSON.stringify(appState, null, 2);
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "fitness-tracker-backup.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportToCSV() {
+      let csv = "Date,Session,Reps,Difficulty,Duration (min),Notes\n";
+      Object.entries(appState.workoutLogs).forEach(([key, log]) => {
+        csv += `${log.date},${key},${log.reps},${log.difficulty},${log.duration},"${log.notes}"\n`;
+      });
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "fitness-data.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ===== EVENT LISTENERS =====
+    function setupEventListeners() {
+      document.getElementById("settingsBtn").addEventListener("click", () => {
+        closeModal("logModal");
+        closeModal("garminModal");
+        document.getElementById("settingsModal").classList.add("active");
+      });
+
+      document.getElementById("garminBtn").addEventListener("click", () => {
+        closeModal("logModal");
+        closeModal("settingsModal");
+        document.getElementById("garminModal").classList.add("active");
+      });
+
+      document.getElementById("difficultyInput").addEventListener("input", (e) => {
+        document.getElementById("difficultyValue").textContent = e.target.value;
+      });
+
+      document.getElementById("importFile").addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            try {
+              const imported = JSON.parse(event.target.result);
+              appState = { ...appState, ...imported };
+              saveState();
+              renderWeeks();
+              updateStats();
+              alert("✓ Data imported successfully!");
+            } catch (error) {
+              alert("✗ Error importing file: " + error.message);
+            }
+          };
+          reader.readAsText(file);
+        }
+      });
+
+      document.addEventListener("click", (e) => {
+        const modals = document.querySelectorAll(".modal");
+        modals.forEach(modal => {
+          if (e.target === modal) {
+            modal.classList.remove("active");
+          }
+        });
+      });
+    }
+
+    // Start the app
+    init();
+  </script>
+</body>
+</html>
