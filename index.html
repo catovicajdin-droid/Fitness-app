@@ -364,10 +364,16 @@
       font-size: 0.75rem;
       font-weight: 600;
       display: inline-block;
+      padding: 0.4rem 0.6rem;
+      background: rgba(0, 217, 255, 0.1);
+      border-radius: 4px;
+      border: 1px solid var(--primary);
+      transition: all 0.2s;
     }
 
     .video-link:hover {
-      text-decoration: underline;
+      background: rgba(0, 217, 255, 0.2);
+      transform: translateY(-1px);
     }
 
     .session-actions {
@@ -694,6 +700,20 @@
   </div>
 
   <script>
+    // ===== EXERCISE VIDEO SEARCHES =====
+    const videoSearches = {
+      pushup: "https://www.youtube.com/results?search_query=beginner+push+ups+proper+form+tutorial",
+      crunch: "https://www.youtube.com/results?search_query=how+to+do+crunches+proper+form",
+      plank: "https://www.youtube.com/results?search_query=plank+hold+beginner+tutorial",
+      inclinepushup: "https://www.youtube.com/results?search_query=incline+push+ups+easier+form",
+      bicycle: "https://www.youtube.com/results?search_query=bicycle+crunches+proper+form+tutorial",
+      deadbug: "https://www.youtube.com/results?search_query=dead+bug+exercise+beginner+guide",
+      reversecrunch: "https://www.youtube.com/results?search_query=reverse+crunches+tutorial+form",
+      mountainclimbers: "https://www.youtube.com/results?search_query=mountain+climbers+exercise+tutorial",
+      vups: "https://www.youtube.com/results?search_query=v+ups+core+exercise+beginner",
+      hollow: "https://www.youtube.com/results?search_query=hollow+body+hold+tutorial"
+    };
+
     // ===== WORKOUT DATA =====
     const workoutPlan = {
       week1: {
@@ -704,9 +724,9 @@
             date: "Week 1",
             warmup: "5 min light cardio (walk in place or gentle jogging). 10 arm circles each direction. 10 bodyweight squats. Gentle torso rotations.",
             exercises: [
-              { name: "Push-ups (Modified if needed)", sets: 3, reps: "8-12", video: "https://www.youtube.com/embed/IODxDxX7oi4", notes: "Knees on ground is OK for beginners. Keep neck neutral." },
-              { name: "Crunches", sets: 3, reps: "12-15", video: "https://www.youtube.com/embed/Xyd_fa5zoEU", notes: "Focus on pulling chest toward knees. No neck pulling." },
-              { name: "Plank Hold", sets: 3, reps: "15-30 seconds", video: "https://www.youtube.com/embed/pSHjTRCQxIw", notes: "Keep body straight. Core engaged. Breathe steadily." }
+              { name: "Push-ups (Modified if needed)", sets: 3, reps: "8-12", searchKey: "pushup", notes: "Knees on ground is OK for beginners. Keep neck neutral." },
+              { name: "Crunches", sets: 3, reps: "12-15", searchKey: "crunch", notes: "Focus on pulling chest toward knees. No neck pulling." },
+              { name: "Plank Hold", sets: 3, reps: "15-30 seconds", searchKey: "plank", notes: "Keep body straight. Core engaged. Breathe steadily." }
             ],
             recovery: "Light stretching: 30 sec each - chest stretch (doorway), child's pose, cat-cow stretch. Drink 500ml water. Eat carbs + protein within 30 min."
           },
@@ -715,9 +735,9 @@
             date: "Week 1",
             warmup: "5 min easy movement. 15 arm swings. Gentle pushups against wall (5-10 reps). Shoulder rolls.",
             exercises: [
-              { name: "Incline Push-ups (hands elevated)", sets: 3, reps: "10-12", video: "https://www.youtube.com/embed/Qyp0f_lYAhw", notes: "Use a bench or low table. Less load on shoulders." },
-              { name: "Bicycle Crunches", sets: 3, reps: "12-15", video: "https://www.youtube.com/embed/1BW2yp7rPWc", notes: "Alternate sides smoothly. Control the movement." },
-              { name: "Dead Bug", sets: 3, reps: "10-12 per side", video: "https://www.youtube.com/embed/Vl4Q-beJ5wo", notes: "Move slowly and controlled. Belly button toward spine." }
+              { name: "Incline Push-ups (hands elevated)", sets: 3, reps: "10-12", searchKey: "inclinepushup", notes: "Use a bench or low table. Less load on shoulders." },
+              { name: "Bicycle Crunches", sets: 3, reps: "12-15", searchKey: "bicycle", notes: "Alternate sides smoothly. Control the movement." },
+              { name: "Dead Bug", sets: 3, reps: "10-12 per side", searchKey: "deadbug", notes: "Move slowly and controlled. Belly button toward spine." }
             ],
             recovery: "Foam roll (if available) or self-massage calves, quads. Hydrate. Get 7-8 hours sleep. Light walk next day helps."
           },
@@ -726,9 +746,9 @@
             date: "Week 1",
             warmup: "5 min light jog or march. 10 burpees (no push-up, just squat). Wrist circles. Neck gentle side-to-side.",
             exercises: [
-              { name: "Standard Push-ups", sets: 3, reps: "6-10", video: "https://www.youtube.com/embed/IODxDxX7oi4", notes: "Full body, knees off ground. If too hard, use incline." },
-              { name: "Reverse Crunches", sets: 3, reps: "12-15", video: "https://www.youtube.com/embed/cEVqGzxD5vE", notes: "Lift hips toward chest, not head. Controlled." },
-              { name: "Mountain Climbers", sets: 3, reps: "20 total", video: "https://www.youtube.com/embed/nmwgirgXLYM", notes: "Keep core tight. Alternate legs at steady pace." }
+              { name: "Standard Push-ups", sets: 3, reps: "6-10", searchKey: "pushup", notes: "Full body, knees off ground. If too hard, use incline." },
+              { name: "Reverse Crunches", sets: 3, reps: "12-15", searchKey: "reversecrunch", notes: "Lift hips toward chest, not head. Controlled." },
+              { name: "Mountain Climbers", sets: 3, reps: "20 total", searchKey: "mountainclimbers", notes: "Keep core tight. Alternate legs at steady pace." }
             ],
             recovery: "Full body stretch routine: 30 sec each major muscle. Ice bath optional (1-2 min if soreness). Protein shake + carbs post-workout."
           }
@@ -747,9 +767,9 @@
             date: "Week 2",
             warmup: "5 min walking. 15 arm circles. 10 light push-ups. Neck/shoulder stretches.",
             exercises: [
-              { name: "Push-ups", sets: 3, reps: "10-14", video: "https://www.youtube.com/embed/IODxDxX7oi4", notes: "Increase reps by 2 from Week 1. Focus on form over speed." },
-              { name: "Crunches", sets: 3, reps: "15-18", video: "https://www.youtube.com/embed/Xyd_fa5zoEU", notes: "Controlled tempo: 2 sec up, 2 sec down." },
-              { name: "Plank Hold", sets: 3, reps: "20-35 seconds", video: "https://www.youtube.com/embed/pSHjTRCQxIw", notes: "Add 5-10 sec to previous week. Brace core." }
+              { name: "Push-ups", sets: 3, reps: "10-14", searchKey: "pushup", notes: "Increase reps by 2 from Week 1. Focus on form over speed." },
+              { name: "Crunches", sets: 3, reps: "15-18", searchKey: "crunch", notes: "Controlled tempo: 2 sec up, 2 sec down." },
+              { name: "Plank Hold", sets: 3, reps: "20-35 seconds", searchKey: "plank", notes: "Add 5-10 sec to previous week. Brace core." }
             ],
             recovery: "Stretch all major muscle groups. Massage any tight areas. Sleep 8+ hours. Hydrate heavily."
           },
@@ -758,9 +778,9 @@
             date: "Week 2",
             warmup: "6 min easy cardio. Wall push-ups (10 reps). Shoulder mobility drills.",
             exercises: [
-              { name: "Incline Push-ups", sets: 3, reps: "12-14", video: "https://www.youtube.com/embed/Qyp0f_lYAhw", notes: "Lower hands if possible (more incline = easier). Progressive." },
-              { name: "Bicycle Crunches", sets: 3, reps: "15-18", video: "https://www.youtube.com/embed/1BW2yp7rPWc", notes: "Full range of motion. Explosive but controlled." },
-              { name: "V-ups (or modified)", sets: 3, reps: "8-10", video: "https://www.youtube.com/embed/4zr5X6BlBkw", notes: "Chest and stomach contract together. Advanced core." }
+              { name: "Incline Push-ups", sets: 3, reps: "12-14", searchKey: "inclinepushup", notes: "Lower hands if possible (more incline = easier). Progressive." },
+              { name: "Bicycle Crunches", sets: 3, reps: "15-18", searchKey: "bicycle", notes: "Full range of motion. Explosive but controlled." },
+              { name: "V-ups (or modified)", sets: 3, reps: "8-10", searchKey: "vups", notes: "Chest and stomach contract together. Advanced core." }
             ],
             recovery: "Yoga-inspired stretching. Focus on hip flexors and lower back. Eat protein-rich snack."
           },
@@ -769,9 +789,9 @@
             date: "Week 2",
             warmup: "5 min mixed (walk + light jog). 15 arm swings. Bodyweight squats.",
             exercises: [
-              { name: "Push-ups", sets: 3, reps: "8-12", video: "https://www.youtube.com/embed/IODxDxX7oi4", notes: "Mix steady + explosive reps for power." },
-              { name: "Reverse Crunches", sets: 3, reps: "15-18", video: "https://www.youtube.com/embed/cEVqGzxD5vE", notes: "Squeeze abs at top. Slow negative." },
-              { name: "Hollow Body Hold", sets: 3, reps: "15-20 seconds", video: "https://www.youtube.com/embed/nNwK0NAmhvU", notes: "Lie on back, arms/legs straight, core tight." }
+              { name: "Push-ups", sets: 3, reps: "8-12", searchKey: "pushup", notes: "Mix steady + explosive reps for power." },
+              { name: "Reverse Crunches", sets: 3, reps: "15-18", searchKey: "reversecrunch", notes: "Squeeze abs at top. Slow negative." },
+              { name: "Hollow Body Hold", sets: 3, reps: "15-20 seconds", searchKey: "hollow", notes: "Lie on back, arms/legs straight, core tight." }
             ],
             recovery: "Complete rest or light walking. Hydrate 3L water. 2-3g glycine (gelatin) for collagen recovery (optional)."
           }
@@ -788,16 +808,16 @@
     function generateWeeksPlan() {
       const fullPlan = { ...workoutPlan };
       const baseExercises = {
-        pushup: { name: "Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4" },
-        incinepushup: { name: "Incline Push-ups", video: "https://www.youtube.com/embed/Qyp0f_lYAhw" },
-        crunch: { name: "Crunches", video: "https://www.youtube.com/embed/Xyd_fa5zoEU" },
-        bicycle: { name: "Bicycle Crunches", video: "https://www.youtube.com/embed/1BW2yp7rPWc" },
-        plank: { name: "Plank Hold", video: "https://www.youtube.com/embed/pSHjTRCQxIw" },
-        deadbug: { name: "Dead Bug", video: "https://www.youtube.com/embed/Vl4Q-beJ5wo" },
-        reversecrunch: { name: "Reverse Crunches", video: "https://www.youtube.com/embed/cEVqGzxD5vE" },
-        mountainclimbers: { name: "Mountain Climbers", video: "https://www.youtube.com/embed/nmwgirgXLYM" },
-        vups: { name: "V-ups (or modified)", video: "https://www.youtube.com/embed/4zr5X6BlBkw" },
-        hollow: { name: "Hollow Body Hold", video: "https://www.youtube.com/embed/nNwK0NAmhvU" }
+        pushup: { name: "Push-ups", searchKey: "pushup" },
+        incinepushup: { name: "Incline Push-ups", searchKey: "inclinepushup" },
+        crunch: { name: "Crunches", searchKey: "crunch" },
+        bicycle: { name: "Bicycle Crunches", searchKey: "bicycle" },
+        plank: { name: "Plank Hold", searchKey: "plank" },
+        deadbug: { name: "Dead Bug", searchKey: "deadbug" },
+        reversecrunch: { name: "Reverse Crunches", searchKey: "reversecrunch" },
+        mountainclimbers: { name: "Mountain Climbers", searchKey: "mountainclimbers" },
+        vups: { name: "V-ups (or modified)", searchKey: "vups" },
+        hollow: { name: "Hollow Body Hold", searchKey: "hollow" }
       };
 
       for (let w = 3; w <= 12; w++) {
@@ -997,7 +1017,7 @@
                   <div class="exercise-spec">🔄 ${ex.reps} reps</div>
                 </div>
                 <div class="exercise-notes">💡 ${ex.notes}</div>
-                <a href="${ex.video}" target="_blank" class="video-link">🎥 View Form Guide</a>
+                <a href="${videoSearches[ex.searchKey]}" target="_blank" class="video-link">🎥 Search YouTube Tutorials</a>
               </div>
             `).join("")}
           </div>
