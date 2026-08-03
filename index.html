@@ -34,7 +34,7 @@
 
     .app-container {
       max-width: 100%;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
@@ -194,7 +194,7 @@
     }
 
     .week-content.active {
-      max-height: 2000px;
+      max-height: 3000px;
     }
 
     .week-body {
@@ -259,10 +259,69 @@
       color: var(--danger);
     }
 
+    .section-box {
+      background: rgba(0, 217, 255, 0.05);
+      border-left: 3px solid var(--primary);
+      padding: 0.875rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .section-box::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .section-box::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .section-box::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    .section-box::-webkit-scrollbar-thumb:hover {
+      background: var(--text-secondary);
+    }
+
+    .section-title {
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      font-size: 0.95rem;
+    }
+
+    .section-content {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+    }
+
+    .content-item {
+      margin-bottom: 0.75rem;
+    }
+
+    .content-label {
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .content-text {
+      margin-top: 0.25rem;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+
     .exercises-list {
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
+      margin-bottom: 1rem;
     }
 
     .exercise-item {
@@ -284,6 +343,7 @@
       gap: 1rem;
       font-size: 0.75rem;
       color: var(--text-secondary);
+      margin-bottom: 0.5rem;
     }
 
     .exercise-spec {
@@ -292,8 +352,10 @@
       gap: 0.25rem;
     }
 
-    .exercise-video {
-      margin-top: 0.5rem;
+    .exercise-notes {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
     }
 
     .video-link {
@@ -301,6 +363,7 @@
       text-decoration: none;
       font-size: 0.75rem;
       font-weight: 600;
+      display: inline-block;
     }
 
     .video-link:hover {
@@ -354,45 +417,6 @@
       background: rgba(248, 81, 73, 0.3);
     }
 
-    .nutrition-section {
-      background: var(--bg-dark);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .section-title {
-      font-weight: 600;
-      color: var(--accent);
-      margin-bottom: 0.75rem;
-      font-size: 0.95rem;
-    }
-
-    .nutrition-content {
-      font-size: 0.85rem;
-      line-height: 1.6;
-      color: var(--text-primary);
-    }
-
-    .nutrition-item {
-      margin-bottom: 0.75rem;
-    }
-
-    .nutrition-label {
-      font-weight: 600;
-      color: var(--primary);
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .nutrition-text {
-      margin-top: 0.25rem;
-      color: var(--text-secondary);
-      font-size: 0.8rem;
-    }
-
     .modal {
       display: none;
       position: fixed;
@@ -418,8 +442,21 @@
       padding: 2rem;
       max-width: 500px;
       width: 100%;
-      max-height: 80vh;
+      max-height: 85vh;
       overflow-y: auto;
+    }
+
+    .modal-content::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .modal-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .modal-content::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
     }
 
     .modal-header {
@@ -512,12 +549,6 @@
       }
     }
 
-    .empty-state {
-      text-align: center;
-      color: var(--text-secondary);
-      padding: 2rem;
-    }
-
     @media (max-width: 768px) {
       main {
         padding: 1rem;
@@ -598,8 +629,8 @@
           <textarea id="notesInput" placeholder="How did you feel? Any observations?"></textarea>
         </div>
         <div class="modal-actions">
-          <button type="submit" class="btn-save">Save Workout</button>
-          <button type="button" class="btn-secondary close-modal" onclick="closeModal('logModal')">Cancel</button>
+          <button type="submit">Save Workout</button>
+          <button type="button" class="close-modal" onclick="closeModal('logModal')">Cancel</button>
         </div>
       </form>
     </div>
@@ -608,21 +639,32 @@
   <div class="modal" id="garminModal">
     <div class="modal-content">
       <div class="modal-header">Garmin Integration</div>
-      <div style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6; margin-bottom: 1rem;">
-        <p style="margin-bottom: 1rem;">Your workouts can be synced with Garmin Connect. Follow these steps:</p>
-        <ol style="padding-left: 1.5rem; margin-bottom: 1rem;">
-          <li>Export your session data to CSV</li>
-          <li>Upload the CSV to Garmin Connect manually, or use an MCP client to automate this</li>
-          <li>Your heart rate, calories, and metrics will sync automatically</li>
-        </ol>
-        <div style="background: rgba(0, 217, 255, 0.1); padding: 1rem; border-radius: 6px; border-left: 3px solid var(--primary); margin-bottom: 1rem;">
-          <p style="font-weight: 600; margin-bottom: 0.5rem;">MCP Integration Ready</p>
-          <p style="font-size: 0.8rem;">This app supports MCPClient connections for automated Garmin syncing. Set up via your preferred MCP client.</p>
+      <div style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">
+        <div class="section-box">
+          <div class="section-title">How It Works</div>
+          <div class="section-content">
+            <div class="content-item">
+              <div class="content-label">Option 1: Manual Export (Recommended for Now)</div>
+              <div class="content-text">Click "Export Data" below to download your workouts as CSV. Then upload this file to Garmin Connect manually. Takes 30 seconds.</div>
+            </div>
+            <div class="content-item">
+              <div class="content-label">Option 2: Automatic Sync (Future)</div>
+              <div class="content-text">With a backend server, your app can automatically pull data from Garmin (heart rate, calories, activity duration) and sync it here. Requires: Garmin API approval + server setup.</div>
+            </div>
+            <div class="content-item">
+              <div class="content-label">Data Synced</div>
+              <div class="content-text">Reps, difficulty rating, duration, heart rate (when available), calories burned, workout date/time, notes.</div>
+            </div>
+            <div class="content-item">
+              <div class="content-label">MCP Integration Ready</div>
+              <div class="content-text">This app supports MCPClient connections for automated Garmin syncing when you set up an MCP-compatible backend.</div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-actions">
-        <button onclick="exportToCSV()" class="btn-primary">Export Data</button>
-        <button type="button" class="btn-secondary close-modal" onclick="closeModal('garminModal')">Close</button>
+        <button onclick="exportToCSV()">📊 Export CSV</button>
+        <button type="button" class="close-modal" onclick="closeModal('garminModal')">Close</button>
       </div>
     </div>
   </div>
@@ -631,8 +673,8 @@
     <div class="modal-content">
       <div class="modal-header">Settings</div>
       <div class="form-group">
-        <label class="form-label">Export All Data</label>
-        <button type="button" onclick="exportData()" class="btn-secondary" style="width: 100%;">Download JSON</button>
+        <label class="form-label">Export All Data (JSON)</label>
+        <button type="button" onclick="exportData()" class="btn-secondary" style="width: 100%;">Download Backup</button>
       </div>
       <div class="form-group">
         <label class="form-label">Import Data</label>
@@ -640,13 +682,13 @@
       </div>
       <div class="form-group">
         <label class="form-label">Cloud Sync Status</label>
-        <div style="padding: 0.75rem; background: rgba(0, 217, 255, 0.05); border-radius: 6px; font-size: 0.8rem; color: var(--text-secondary);">
+        <div style="padding: 0.75rem; background: rgba(0, 217, 255, 0.05); border-radius: 6px; font-size: 0.8rem; color: var(--text-secondary); border: 1px solid var(--border);">
           Last sync: <span id="lastSyncTime">Never</span><br>
           Storage: <span id="storageUsage">Calculating...</span>
         </div>
       </div>
       <div class="modal-actions">
-        <button type="button" class="btn-secondary close-modal" onclick="closeModal('settingsModal')">Close</button>
+        <button type="button" class="close-modal" onclick="closeModal('settingsModal')">Close</button>
       </div>
     </div>
   </div>
@@ -660,37 +702,42 @@
           {
             day: "Monday",
             date: "Week 1",
+            warmup: "5 min light cardio (walk in place or gentle jogging). 10 arm circles each direction. 10 bodyweight squats. Gentle torso rotations.",
             exercises: [
-              { name: "Push-ups (Modified if needed)", sets: 3, reps: "8-12", video: "https://www.youtube.com/embed/IODxDxX7oi4", notes: "Knees on ground is OK for beginners" },
-              { name: "Crunches", sets: 3, reps: "12-15", video: "https://www.youtube.com/embed/MKGnApFtLAo", notes: "Focus on pulling chest toward knees" },
-              { name: "Plank Hold", sets: 3, reps: "15-30 seconds", video: "https://www.youtube.com/embed/pSHjTRCQxIw", notes: "Keep body straight" }
-            ]
+              { name: "Push-ups (Modified if needed)", sets: 3, reps: "8-12", video: "https://www.youtube.com/embed/IODxDxX7oi4", notes: "Knees on ground is OK for beginners. Keep neck neutral." },
+              { name: "Crunches", sets: 3, reps: "12-15", video: "https://www.youtube.com/embed/Xyd_fa5zoEU", notes: "Focus on pulling chest toward knees. No neck pulling." },
+              { name: "Plank Hold", sets: 3, reps: "15-30 seconds", video: "https://www.youtube.com/embed/pSHjTRCQxIw", notes: "Keep body straight. Core engaged. Breathe steadily." }
+            ],
+            recovery: "Light stretching: 30 sec each - chest stretch (doorway), child's pose, cat-cow stretch. Drink 500ml water. Eat carbs + protein within 30 min."
           },
           {
             day: "Wednesday",
             date: "Week 1",
+            warmup: "5 min easy movement. 15 arm swings. Gentle pushups against wall (5-10 reps). Shoulder rolls.",
             exercises: [
-              { name: "Incline Push-ups (hands elevated)", sets: 3, reps: "10-12", video: "https://www.youtube.com/embed/Qyp0f_lYAhw", notes: "Use a bench or low table" },
-              { name: "Bicycle Crunches", sets: 3, reps: "12-15", video: "https://www.youtube.com/embed/1BW2yp7rPWc", notes: "Alternate sides smoothly" },
-              { name: "Dead Bug", sets: 3, reps: "10-12 per side", video: "https://www.youtube.com/embed/Vl4Q-beJ5wo", notes: "Move slowly and controlled" }
-            ]
+              { name: "Incline Push-ups (hands elevated)", sets: 3, reps: "10-12", video: "https://www.youtube.com/embed/Qyp0f_lYAhw", notes: "Use a bench or low table. Less load on shoulders." },
+              { name: "Bicycle Crunches", sets: 3, reps: "12-15", video: "https://www.youtube.com/embed/1BW2yp7rPWc", notes: "Alternate sides smoothly. Control the movement." },
+              { name: "Dead Bug", sets: 3, reps: "10-12 per side", video: "https://www.youtube.com/embed/Vl4Q-beJ5wo", notes: "Move slowly and controlled. Belly button toward spine." }
+            ],
+            recovery: "Foam roll (if available) or self-massage calves, quads. Hydrate. Get 7-8 hours sleep. Light walk next day helps."
           },
           {
             day: "Friday",
             date: "Week 1",
+            warmup: "5 min light jog or march. 10 burpees (no push-up, just squat). Wrist circles. Neck gentle side-to-side.",
             exercises: [
-              { name: "Standard Push-ups", sets: 3, reps: "6-10", video: "https://www.youtube.com/embed/IODxDxX7oi4", notes: "Full body, knees off ground" },
-              { name: "Reverse Crunches", sets: 3, reps: "12-15", video: "https://www.youtube.com/embed/cEVqGzxD5vE", notes: "Lift hips, not just head" },
-              { name: "Mountain Climbers", sets: 3, reps: "20 total", video: "https://www.youtube.com/embed/nmwgirgXLYM", notes: "Keep core tight" }
-            ]
+              { name: "Standard Push-ups", sets: 3, reps: "6-10", video: "https://www.youtube.com/embed/IODxDxX7oi4", notes: "Full body, knees off ground. If too hard, use incline." },
+              { name: "Reverse Crunches", sets: 3, reps: "12-15", video: "https://www.youtube.com/embed/cEVqGzxD5vE", notes: "Lift hips toward chest, not head. Controlled." },
+              { name: "Mountain Climbers", sets: 3, reps: "20 total", video: "https://www.youtube.com/embed/nmwgirgXLYM", notes: "Keep core tight. Alternate legs at steady pace." }
+            ],
+            recovery: "Full body stretch routine: 30 sec each major muscle. Ice bath optional (1-2 min if soreness). Protein shake + carbs post-workout."
           }
         ],
         nutrition: {
-          preworkout: "Eat 30-60 min before: banana with 1 tbsp peanut butter (25g carbs, 4g protein) or rice cakes with honey",
-          postworkout: "Within 30 min: combine carbs + protein. Greek yogurt with berries (15g protein, 20g carbs) or whey shake with banana",
-          daily: "Aim for 1.2-1.6g protein per kg body weight spread across 4-5 meals. Drink 2-3L water daily."
-        },
-        restDayTips: "Light walking, stretching, foam rolling. Focus on sleep (7-9 hours). Eat normally with emphasis on protein."
+          preworkout: "30-60 min before: banana with 1 tbsp peanut butter (25g carbs, 4g protein) OR rice cakes with honey. Light, no heaviness.",
+          postworkout: "Within 30 min: Greek yogurt with berries (15g protein, 20g carbs) OR whey shake with banana. Hydrate 500ml water.",
+          daily: "Aim for 1.2-1.6g protein per kg body weight spread across 4-5 meals. Drink 2-3L water daily. Emphasize protein at breakfast and post-workout."
+        }
       },
       week2: {
         focus: "Rep Increase & Form Refinement",
@@ -698,37 +745,42 @@
           {
             day: "Monday",
             date: "Week 2",
+            warmup: "5 min walking. 15 arm circles. 10 light push-ups. Neck/shoulder stretches.",
             exercises: [
-              { name: "Push-ups", sets: 3, reps: "10-14", video: "https://www.youtube.com/embed/IODxDxX7oi4", notes: "Increase reps by 2 from Week 1" },
-              { name: "Crunches", sets: 3, reps: "15-18", video: "https://www.youtube.com/embed/MKGnApFtLAo", notes: "Controlled tempo: 2 sec up, 2 sec down" },
-              { name: "Plank Hold", sets: 3, reps: "20-35 seconds", video: "https://www.youtube.com/embed/pSHjTRCQxIw", notes: "Add 5-10 sec to previous week" }
-            ]
+              { name: "Push-ups", sets: 3, reps: "10-14", video: "https://www.youtube.com/embed/IODxDxX7oi4", notes: "Increase reps by 2 from Week 1. Focus on form over speed." },
+              { name: "Crunches", sets: 3, reps: "15-18", video: "https://www.youtube.com/embed/Xyd_fa5zoEU", notes: "Controlled tempo: 2 sec up, 2 sec down." },
+              { name: "Plank Hold", sets: 3, reps: "20-35 seconds", video: "https://www.youtube.com/embed/pSHjTRCQxIw", notes: "Add 5-10 sec to previous week. Brace core." }
+            ],
+            recovery: "Stretch all major muscle groups. Massage any tight areas. Sleep 8+ hours. Hydrate heavily."
           },
           {
             day: "Wednesday",
             date: "Week 2",
+            warmup: "6 min easy cardio. Wall push-ups (10 reps). Shoulder mobility drills.",
             exercises: [
-              { name: "Incline Push-ups", sets: 3, reps: "12-14", video: "https://www.youtube.com/embed/Qyp0f_lYAhw", notes: "Lower hands if possible" },
-              { name: "Bicycle Crunches", sets: 3, reps: "15-18", video: "https://www.youtube.com/embed/1BW2yp7rPWc", notes: "Full range of motion" },
-              { name: "V-ups (or modified)", sets: 3, reps: "8-10", video: "https://www.youtube.com/embed/4zr5X6BlBkw", notes: "Chest and stomach together" }
-            ]
+              { name: "Incline Push-ups", sets: 3, reps: "12-14", video: "https://www.youtube.com/embed/Qyp0f_lYAhw", notes: "Lower hands if possible (more incline = easier). Progressive." },
+              { name: "Bicycle Crunches", sets: 3, reps: "15-18", video: "https://www.youtube.com/embed/1BW2yp7rPWc", notes: "Full range of motion. Explosive but controlled." },
+              { name: "V-ups (or modified)", sets: 3, reps: "8-10", video: "https://www.youtube.com/embed/4zr5X6BlBkw", notes: "Chest and stomach contract together. Advanced core." }
+            ],
+            recovery: "Yoga-inspired stretching. Focus on hip flexors and lower back. Eat protein-rich snack."
           },
           {
             day: "Friday",
             date: "Week 2",
+            warmup: "5 min mixed (walk + light jog). 15 arm swings. Bodyweight squats.",
             exercises: [
-              { name: "Push-ups", sets: 3, reps: "8-12", video: "https://www.youtube.com/embed/IODxDxX7oi4", notes: "Mix steady + explosive reps" },
-              { name: "Reverse Crunches", sets: 3, reps: "15-18", video: "https://www.youtube.com/embed/cEVqGzxD5vE", notes: "Squeeze abs at top" },
-              { name: "Hollow Body Hold", sets: 3, reps: "15-20 seconds", video: "https://www.youtube.com/embed/nNwK0NAmhvU", notes: "Lie on back, arms/legs straight" }
-            ]
+              { name: "Push-ups", sets: 3, reps: "8-12", video: "https://www.youtube.com/embed/IODxDxX7oi4", notes: "Mix steady + explosive reps for power." },
+              { name: "Reverse Crunches", sets: 3, reps: "15-18", video: "https://www.youtube.com/embed/cEVqGzxD5vE", notes: "Squeeze abs at top. Slow negative." },
+              { name: "Hollow Body Hold", sets: 3, reps: "15-20 seconds", video: "https://www.youtube.com/embed/nNwK0NAmhvU", notes: "Lie on back, arms/legs straight, core tight." }
+            ],
+            recovery: "Complete rest or light walking. Hydrate 3L water. 2-3g glycine (gelatin) for collagen recovery (optional)."
           }
         ],
         nutrition: {
-          preworkout: "Same as Week 1, but consider adding hydration if workouts feel tougher (electrolyte drink optional)",
-          postworkout: "Increase protein slightly: 25-30g protein + 30-40g carbs. Consider lean meat + rice, or protein shake + fruit",
-          daily: "Maintain protein, slightly increase carbs on workout days (5-7g per kg body weight)"
-        },
-        restDayTips: "Yoga, swimming, or light cycling. Massage or self-massage. Sleep priority. Recovery is where you build muscle."
+          preworkout: "Same as Week 1, but increase hydration if workouts feel tougher. Optional: electrolyte drink (coconut water).",
+          postworkout: "Increase protein: 25-30g protein + 30-40g carbs. Examples: lean meat + rice, or protein shake + fruit + oats.",
+          daily: "Maintain 1.4-1.6g protein/kg. Slightly increase carbs on workout days (5-7g/kg). Total calories: maintenance + 200-300 kcal."
+        }
       }
     };
 
@@ -738,7 +790,7 @@
       const baseExercises = {
         pushup: { name: "Push-ups", video: "https://www.youtube.com/embed/IODxDxX7oi4" },
         incinepushup: { name: "Incline Push-ups", video: "https://www.youtube.com/embed/Qyp0f_lYAhw" },
-        crunch: { name: "Crunches", video: "https://www.youtube.com/embed/MKGnApFtLAo" },
+        crunch: { name: "Crunches", video: "https://www.youtube.com/embed/Xyd_fa5zoEU" },
         bicycle: { name: "Bicycle Crunches", video: "https://www.youtube.com/embed/1BW2yp7rPWc" },
         plank: { name: "Plank Hold", video: "https://www.youtube.com/embed/pSHjTRCQxIw" },
         deadbug: { name: "Dead Bug", video: "https://www.youtube.com/embed/Vl4Q-beJ5wo" },
@@ -751,7 +803,6 @@
       for (let w = 3; w <= 12; w++) {
         const weekKey = `week${w}`;
         const difficulty = Math.floor((w - 1) / 3);
-        const progressMultiplier = 1 + (difficulty * 0.15);
 
         fullPlan[weekKey] = {
           focus: getFocusByWeek(w),
@@ -762,10 +813,9 @@
           ],
           nutrition: {
             preworkout: "Banana + peanut butter OR rice cakes with honey. Aim 20-30g carbs, 5-10g protein, 30-60 min before.",
-            postworkout: `Within 30 min: ${20 + difficulty * 5}-${30 + difficulty * 5}g protein + 30-50g carbs. Examples: Greek yogurt + berries, whey shake + banana, grilled chicken + rice`,
-            daily: `${1.4 + difficulty * 0.2}-${1.8 + difficulty * 0.2}g protein per kg body weight daily. Emphasize protein at breakfast and after workouts.`
-          },
-          restDayTips: "Active recovery important as intensity increases. 20-30 min light cardio (walking/cycling), stretching, 8+ hours sleep. Hydrate well."
+            postworkout: `Within 30 min: ${20 + difficulty * 5}-${30 + difficulty * 5}g protein + 30-50g carbs. Greek yogurt + berries, whey shake + banana, or grilled chicken + rice.`,
+            daily: `${1.4 + difficulty * 0.2}-${1.8 + difficulty * 0.2}g protein per kg body weight daily. Emphasize protein at breakfast and after workouts. Stay hydrated.`
+          }
         };
       }
 
@@ -773,14 +823,17 @@
 
       function createSession(day, week, minReps, maxReps) {
         const exercises = selectExercises(week, day);
+        const sets = 3 + Math.floor((week - 1) / 4);
         return {
           day,
           date: `Week ${week}`,
+          warmup: getWarmup(week),
           exercises: exercises.map(ex => ({
             ...ex,
             reps: `${minReps}-${maxReps}`,
-            sets: 3 + Math.floor((week - 1) / 4)
-          }))
+            sets
+          })),
+          recovery: getRecovery(week)
         };
       }
 
@@ -789,24 +842,59 @@
         const difficulty = Math.floor((week - 1) / 3);
 
         if (day === "Monday") {
-          exercises.push({ ...baseExercises.pushup, notes: "Standard or incline depending on fitness" });
-          exercises.push({ ...baseExercises.crunch, notes: "Focus on form" });
-          exercises.push(difficulty < 1 ? { ...baseExercises.plank, notes: "Build endurance" } : { ...baseExercises.vups, notes: "Advanced core" });
+          exercises.push({ ...baseExercises.pushup, notes: "Standard or incline depending on fitness level" });
+          exercises.push({ ...baseExercises.crunch, notes: "Focus on form and controlled movement" });
+          exercises.push(difficulty < 1 ? { ...baseExercises.plank, notes: "Build endurance progressively" } : { ...baseExercises.vups, notes: "Advanced core engagement" });
         } else if (day === "Wednesday") {
-          exercises.push({ ...baseExercises.incinepushup, notes: "Angle progression" });
-          exercises.push({ ...baseExercises.bicycle, notes: "Controlled movement" });
-          exercises.push(difficulty < 2 ? { ...baseExercises.deadbug, notes: "Stability" } : { ...baseExercises.mountainclimbers, notes: "Cardio intensity" });
+          exercises.push({ ...baseExercises.incinepushup, notes: "Angle progression based on strength" });
+          exercises.push({ ...baseExercises.bicycle, notes: "Controlled, alternating movement" });
+          exercises.push(difficulty < 2 ? { ...baseExercises.deadbug, notes: "Core stability focus" } : { ...baseExercises.mountainclimbers, notes: "Cardio + core intensity" });
         } else {
-          exercises.push({ ...baseExercises.pushup, notes: "Full range of motion" });
-          exercises.push({ ...baseExercises.reversecrunch, notes: "Lower body core" });
-          exercises.push(difficulty < 1 ? { ...baseExercises.hollow, notes: "Static hold" } : { ...baseExercises.plank, notes: "Add variations" });
+          exercises.push({ ...baseExercises.pushup, notes: "Full range of motion emphasis" });
+          exercises.push({ ...baseExercises.reversecrunch, notes: "Lower body core engagement" });
+          exercises.push(difficulty < 1 ? { ...baseExercises.hollow, notes: "Static hold for endurance" } : { ...baseExercises.plank, notes: "Add side variations if ready" });
         }
 
         return exercises;
       }
 
+      function getWarmup(week) {
+        const phase = Math.floor((week - 1) / 3);
+        const warmups = [
+          "5 min light cardio (walk/jog). 15 arm circles. 10 bodyweight squats. Gentle rotations.",
+          "6 min mixed cardio. 20 arm swings. Wall push-ups (10 reps). Shoulder mobility work.",
+          "7 min easy run/jog. Dynamic stretches. Inchworms (5-8 reps). Hip circles.",
+          "8 min warm-up with light intensity. Full body dynamic stretching. Activated core engagement."
+        ];
+        return warmups[phase] || warmups[0];
+      }
+
+      function getRecovery(week) {
+        const phase = Math.floor((week - 1) / 3);
+        const recovery = [
+          "Light stretching: 30 sec each - chest, hamstrings, hip flexors. Drink 500ml water. Protein + carbs within 30 min.",
+          "Yoga-style stretching focusing on worked muscles. Hydrate 1L. Sleep 8+ hours. Light walk tomorrow helps.",
+          "Foam rolling or self-massage. Ice bath 1-2 min optional. Protein shake + banana. Prioritize 8+ hours sleep.",
+          "Complete rest or 20 min easy walk. Hydrate heavily. Mobility work. Plan next week's progression."
+        ];
+        return recovery[phase] || recovery[0];
+      }
+
       function getFocusByWeek(w) {
-        const phases = ["Foundation Building - Bodyweight Mastery", "Rep Increase & Form Refinement", "Volume Increase - Set Addition", "Tempo & Control Focus", "Rest-Pause Sets", "Explosive Variations", "Endurance & Stamina", "Deload & Recovery", "Peak Performance Push", "Maintenance & Consolidation", "Advanced Variations", "Final Testing & Assessment"];
+        const phases = [
+          "Foundation Building - Bodyweight Mastery",
+          "Rep Increase & Form Refinement",
+          "Volume Increase - Set Addition",
+          "Tempo & Control Focus",
+          "Rest-Pause Sets",
+          "Explosive Variations",
+          "Endurance & Stamina",
+          "Deload & Recovery",
+          "Peak Performance Push",
+          "Maintenance & Consolidation",
+          "Advanced Variations",
+          "Final Testing & Assessment"
+        ];
         return phases[w - 1] || "Progressive Overload";
       }
     }
@@ -852,7 +940,6 @@
       Object.keys(fullWorkoutPlan).forEach(weekKey => {
         const weekNum = parseInt(weekKey.replace("week", ""));
         const week = fullWorkoutPlan[weekKey];
-        const isActive = weekNum <= appState.currentWeek + 1;
 
         const weekCard = document.createElement("div");
         weekCard.className = "week-card";
@@ -867,8 +954,6 @@
           <div class="week-content" id="week${weekNum}">
             <div class="week-body">
               ${week.workouts.map((session, i) => renderSession(session, weekNum, i)).join("")}
-              ${renderNutritionSection(week.nutrition, weekNum)}
-              ${renderRestDayTips(week.restDayTips, weekNum)}
             </div>
           </div>
         `;
@@ -895,26 +980,33 @@
             </div>
           </div>
 
+          <div class="section-box">
+            <div class="section-title">🔥 Warm-up</div>
+            <div class="section-content">
+              <div class="content-text">${session.warmup}</div>
+            </div>
+          </div>
+
           <div class="exercises-list">
+            <div style="font-weight: 600; color: var(--accent); margin-bottom: 0.5rem;">💪 Exercises</div>
             ${session.exercises.map((ex, i) => `
               <div class="exercise-item">
                 <div class="exercise-name">${ex.name}</div>
                 <div class="exercise-specs">
-                  <div class="exercise-spec">
-                    <span>🎯 ${ex.sets} sets</span>
-                  </div>
-                  <div class="exercise-spec">
-                    <span>🔄 ${ex.reps} reps</span>
-                  </div>
+                  <div class="exercise-spec">🎯 ${ex.sets} sets</div>
+                  <div class="exercise-spec">🔄 ${ex.reps} reps</div>
                 </div>
-                <div class="exercise-notes" style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.35rem;">
-                  💡 ${ex.notes}
-                </div>
-                <div class="exercise-video">
-                  <a href="${ex.video}" target="_blank" class="video-link">🎥 View Form Guide</a>
-                </div>
+                <div class="exercise-notes">💡 ${ex.notes}</div>
+                <a href="${ex.video}" target="_blank" class="video-link">🎥 View Form Guide</a>
               </div>
             `).join("")}
+          </div>
+
+          <div class="section-box">
+            <div class="section-title">🏥 Recovery</div>
+            <div class="section-content">
+              <div class="content-text">${session.recovery}</div>
+            </div>
           </div>
 
           <div class="session-actions">
@@ -925,39 +1017,6 @@
             <button class="skip-btn" onclick="skipWorkout('w${weekNum}s${sessionIdx}')">
               ⊘ Skip
             </button>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderNutritionSection(nutrition, weekNum) {
-      return `
-        <div class="nutrition-section">
-          <div class="section-title">🥗 Nutrition Guidance</div>
-          <div class="nutrition-content">
-            <div class="nutrition-item">
-              <div class="nutrition-label">Pre-Workout</div>
-              <div class="nutrition-text">${nutrition.preworkout}</div>
-            </div>
-            <div class="nutrition-item">
-              <div class="nutrition-label">Post-Workout Recovery</div>
-              <div class="nutrition-text">${nutrition.postworkout}</div>
-            </div>
-            <div class="nutrition-item">
-              <div class="nutrition-label">Daily Target</div>
-              <div class="nutrition-text">${nutrition.daily}</div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderRestDayTips(tips, weekNum) {
-      return `
-        <div class="nutrition-section">
-          <div class="section-title">😴 Rest Day Tips</div>
-          <div class="nutrition-content">
-            <div class="nutrition-text">${tips}</div>
           </div>
         </div>
       `;
@@ -1031,13 +1090,10 @@
       setInterval(() => {
         if (navigator.onLine) {
           document.querySelector(".sync-indicator").classList.remove("offline");
-          document.getElementById("syncStatus").textContent = "Syncing...";
-          setTimeout(() => {
-            document.getElementById("syncStatus").textContent = "✓ Synced";
-          }, 1000);
+          document.getElementById("syncStatus").textContent = "✓ Synced";
         } else {
           document.querySelector(".sync-indicator").classList.add("offline");
-          document.getElementById("syncStatus").textContent = "Offline";
+          document.getElementById("syncStatus").textContent = "⊘ Offline";
         }
       }, 2000);
 
@@ -1060,7 +1116,7 @@
     function exportToCSV() {
       let csv = "Date,Session,Reps,Difficulty,Duration (min),Notes\n";
       Object.entries(appState.workoutLogs).forEach(([key, log]) => {
-        csv += `${log.date},${key},${log.reps},${log.difficulty},${log.duration},"${log.notes}"\n`;
+        csv += `${log.date},${key},${log.reps},${log.difficulty},${log.duration},"${log.notes.replace(/"/g, '""')}"\n`;
       });
       const blob = new Blob([csv], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
