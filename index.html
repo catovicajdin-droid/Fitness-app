@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fitness Tracker - 12 Week Beginner Chest & Core</title>
+
   <style>
     * {
       margin: 0;
@@ -53,6 +54,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1rem;
+      gap: 1rem;
     }
 
     h1 {
@@ -87,6 +89,12 @@
       transform: translateY(0);
     }
 
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .btn-secondary {
       background: var(--border);
       color: var(--text-primary);
@@ -99,6 +107,18 @@
     .btn-small {
       padding: 0.4rem 0.8rem;
       font-size: 0.75rem;
+    }
+
+    .btn-danger {
+      background: rgba(248, 81, 73, 0.2);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    .btn-success {
+      background: rgba(63, 185, 80, 0.2);
+      color: var(--success);
+      border: 1px solid var(--success);
     }
 
     .stat-bar {
@@ -194,7 +214,7 @@
     }
 
     .week-content.active {
-      max-height: 3000px;
+      max-height: 4000px;
     }
 
     .week-body {
@@ -269,21 +289,20 @@
       overflow-y: auto;
     }
 
-    .section-box::-webkit-scrollbar {
+    .section-box::-webkit-scrollbar,
+    .modal-content::-webkit-scrollbar {
       width: 6px;
     }
 
-    .section-box::-webkit-scrollbar-track {
+    .section-box::-webkit-scrollbar-track,
+    .modal-content::-webkit-scrollbar-track {
       background: transparent;
     }
 
-    .section-box::-webkit-scrollbar-thumb {
+    .section-box::-webkit-scrollbar-thumb,
+    .modal-content::-webkit-scrollbar-thumb {
       background: var(--border);
       border-radius: 3px;
-    }
-
-    .section-box::-webkit-scrollbar-thumb:hover {
-      background: var(--text-secondary);
     }
 
     .section-title {
@@ -297,18 +316,6 @@
       font-size: 0.85rem;
       line-height: 1.6;
       color: var(--text-primary);
-    }
-
-    .content-item {
-      margin-bottom: 0.75rem;
-    }
-
-    .content-label {
-      font-weight: 600;
-      color: var(--primary);
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
     .content-text {
@@ -344,6 +351,7 @@
       font-size: 0.75rem;
       color: var(--text-secondary);
       margin-bottom: 0.5rem;
+      flex-wrap: wrap;
     }
 
     .exercise-spec {
@@ -460,23 +468,10 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 2rem;
-      max-width: 600px;
+      max-width: 700px;
       width: 100%;
-      max-height: 85vh;
+      max-height: 90vh;
       overflow-y: auto;
-    }
-
-    .modal-content::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .modal-content::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .modal-content::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 4px;
     }
 
     .modal-header {
@@ -499,7 +494,9 @@
       color: var(--text-secondary);
     }
 
-    input, textarea, select {
+    input,
+    textarea,
+    select {
       background: var(--bg-darker);
       border: 1px solid var(--border);
       color: var(--text-primary);
@@ -509,7 +506,9 @@
       font-size: 0.875rem;
     }
 
-    input:focus, textarea:focus, select:focus {
+    input:focus,
+    textarea:focus,
+    select:focus {
       outline: none;
       border-color: var(--primary);
       box-shadow: 0 0 0 2px rgba(0, 217, 255, 0.2);
@@ -518,7 +517,7 @@
     textarea {
       resize: vertical;
       min-height: 80px;
-      font-family: 'Monaco', 'Courier New', monospace;
+      font-family: Monaco, "Courier New", monospace;
       font-size: 0.75rem;
     }
 
@@ -550,22 +549,10 @@
       color: var(--success);
       font-size: 0.85rem;
       margin-bottom: 1rem;
-      animation: slideIn 0.3s ease-out;
     }
 
     .copy-success.show {
       display: block;
-    }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
     }
 
     .instructions-box {
@@ -604,10 +591,38 @@
       animation: none;
     }
 
+    .catalog-status {
+      min-height: 1.25rem;
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .catalog-status.success {
+      color: var(--success);
+    }
+
+    .catalog-status.error {
+      color: var(--danger);
+    }
+
+    .catalog-textarea {
+      min-height: 180px;
+      width: 100%;
+    }
+
+    .help-list {
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      line-height: 1.6;
+      padding-left: 1.25rem;
+    }
+
     @keyframes pulse {
       0%, 100% {
         opacity: 1;
       }
+
       50% {
         opacity: 0.5;
       }
@@ -622,9 +637,14 @@
         padding: 1rem;
       }
 
+      .header-content {
+        align-items: flex-start;
+      }
+
       .stat-bar {
         gap: 1rem;
         font-size: 0.75rem;
+        flex-wrap: wrap;
       }
 
       .modal-content {
@@ -638,6 +658,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="app-container">
     <header>
@@ -649,19 +670,25 @@
             <span id="syncStatus">Syncing...</span>
           </div>
         </div>
+
         <div class="header-actions">
-          <button class="btn-secondary btn-small" id="settingsBtn">⚙️ Settings</button>
+          <button class="btn-secondary btn-small" id="settingsBtn">
+            ⚙️ Settings
+          </button>
         </div>
       </div>
+
       <div class="stat-bar">
         <div class="stat-item">
           <span class="stat-label">Workouts Complete</span>
           <span class="stat-value" id="completedCount">0/36</span>
         </div>
+
         <div class="stat-item">
           <span class="stat-label">Current Week</span>
           <span class="stat-value" id="currentWeek">Week 1</span>
         </div>
+
         <div class="stat-item">
           <span class="stat-label">Progress</span>
           <span class="stat-value" id="progressPct">0%</span>
@@ -676,24 +703,67 @@
 
   <div class="modal" id="logModal">
     <div class="modal-content">
-      <div class="modal-header">Log Workout Completed</div>
+      <div class="modal-header" id="logModalHeader">
+        Log Workout Completed
+      </div>
+
       <form id="logForm">
         <div class="form-group">
-          <label class="form-label">Difficulty (1-10)</label>
-          <input type="range" id="difficultyInput" min="1" max="10" value="5" style="cursor: pointer;">
-          <span id="difficultyValue" style="font-size: 0.75rem; color: var(--text-secondary);">5</span>
+          <label class="form-label" for="difficultyInput">
+            Difficulty (1-10)
+          </label>
+
+          <input
+            type="range"
+            id="difficultyInput"
+            min="1"
+            max="10"
+            value="5"
+            style="cursor: pointer;"
+          >
+
+          <span
+            id="difficultyValue"
+            style="font-size: 0.75rem; color: var(--text-secondary);"
+          >
+            5
+          </span>
         </div>
+
         <div class="form-group">
-          <label class="form-label">Duration (minutes)</label>
-          <input type="number" id="durationInput" placeholder="e.g., 30" required>
+          <label class="form-label" for="durationInput">
+            Duration (minutes)
+          </label>
+
+          <input
+            type="number"
+            id="durationInput"
+            placeholder="e.g., 30"
+            required
+          >
         </div>
+
         <div class="form-group">
-          <label class="form-label">Notes</label>
-          <textarea id="notesInput" placeholder="How did you feel? Any observations?"></textarea>
+          <label class="form-label" for="notesInput">
+            Notes
+          </label>
+
+          <textarea
+            id="notesInput"
+            placeholder="How did you feel? Any observations?"
+          ></textarea>
         </div>
+
         <div class="modal-actions">
           <button type="submit">✓ Log It</button>
-          <button type="button" class="close-modal" onclick="closeModal('logModal')">Cancel</button>
+
+          <button
+            type="button"
+            class="close-modal"
+            onclick="closeModal('logModal')"
+          >
+            Cancel
+          </button>
         </div>
       </form>
     </div>
@@ -705,24 +775,50 @@
 
       <div class="instructions-box">
         <strong>How it works:</strong><br>
-        1. Copy the script below (one click)<br>
-        2. Open Garmin Connect in a new tab<br>
-        3. Press F12 → Console tab<br>
-        4. Paste the script and press Enter<br>
-        5. Workout template appears in your Garmin calendar
+        1. Copy the generated script.<br>
+        2. Open Garmin Connect while logged in.<br>
+        3. Press F12 and select Console.<br>
+        4. Paste the script and press Enter.<br>
+        5. Garmin creates the structured workout.<br><br>
+        The script uses Garmin's exercise names and categories from the imported catalog.
       </div>
 
-      <div class="copy-success" id="copySuccess">✓ Script copied to clipboard!</div>
+      <div class="copy-success" id="copySuccess">
+        ✓ Script copied to clipboard!
+      </div>
 
       <div class="form-group">
-        <label class="form-label">Garmin Upload Script</label>
-        <textarea id="garminScriptOutput" readonly style="max-height: 300px; font-size: 0.7rem;"></textarea>
+        <label class="form-label" for="garminScriptOutput">
+          Garmin Upload Script
+        </label>
+
+        <textarea
+          id="garminScriptOutput"
+          readonly
+          style="max-height: 360px; font-size: 0.7rem;"
+        ></textarea>
       </div>
 
       <div class="modal-actions">
-        <button type="button" onclick="copyGarminScript()">📋 Copy Script</button>
-        <button type="button" onclick="openGarminConnect()" class="btn-secondary">🌐 Open Garmin</button>
-        <button type="button" class="close-modal" onclick="closeModal('garminModal')">Done</button>
+        <button type="button" onclick="copyGarminScript()">
+          📋 Copy Script
+        </button>
+
+        <button
+          type="button"
+          onclick="openGarminConnect()"
+          class="btn-secondary"
+        >
+          🌐 Open Garmin
+        </button>
+
+        <button
+          type="button"
+          class="close-modal"
+          onclick="closeModal('garminModal')"
+        >
+          Done
+        </button>
       </div>
     </div>
   </div>
@@ -730,29 +826,118 @@
   <div class="modal" id="settingsModal">
     <div class="modal-content">
       <div class="modal-header">Settings</div>
+
       <div class="form-group">
         <label class="form-label">Export All Data (JSON)</label>
-        <button type="button" onclick="exportData()" class="btn-secondary" style="width: 100%;">Download Backup</button>
+
+        <button
+          type="button"
+          onclick="exportData()"
+          class="btn-secondary"
+          style="width: 100%;"
+        >
+          Download Backup
+        </button>
       </div>
+
       <div class="form-group">
-        <label class="form-label">Import Data</label>
-        <input type="file" id="importFile" accept=".json" style="cursor: pointer;">
+        <label class="form-label" for="importFile">
+          Import Data
+        </label>
+
+        <input
+          type="file"
+          id="importFile"
+          accept=".json"
+          style="cursor: pointer;"
+        >
       </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          Garmin Exercise Catalog
+        </label>
+
+        <div class="instructions-box">
+          Paste the complete Garmin catalog you extracted from Garmin Connect.
+          It should include lines beginning with
+          <code>exercise_type_</code> and category entries such as
+          <code>PUSH_UP_PUSH_UP=Push-up</code>.
+        </div>
+
+        <textarea
+          id="garminCatalogInput"
+          class="catalog-textarea"
+          placeholder="Paste the Garmin exercise catalog here..."
+        ></textarea>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            onclick="importGarminCatalog()"
+          >
+            Import Catalog
+          </button>
+
+          <button
+            type="button"
+            class="btn-secondary"
+            onclick="testGarminCatalog()"
+          >
+            Test Catalog
+          </button>
+
+          <button
+            type="button"
+            class="btn-danger"
+            onclick="clearGarminCatalog()"
+          >
+            Clear
+          </button>
+        </div>
+
+        <div
+          id="garminCatalogStatus"
+          class="catalog-status"
+          role="status"
+        ></div>
+      </div>
+
       <div class="form-group">
         <label class="form-label">Cloud Sync Status</label>
-        <div style="padding: 0.75rem; background: rgba(0, 217, 255, 0.05); border-radius: 6px; font-size: 0.8rem; color: var(--text-secondary); border: 1px solid var(--border);">
-          Last sync: <span id="lastSyncTime">Never</span><br>
-          Storage: <span id="storageUsage">Calculating...</span>
+
+        <div
+          style="
+            padding: 0.75rem;
+            background: rgba(0, 217, 255, 0.05);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+          "
+        >
+          Last sync:
+          <span id="lastSyncTime">Never</span><br>
+          Storage:
+          <span id="storageUsage">Calculating...</span>
         </div>
       </div>
+
       <div class="modal-actions">
-        <button type="button" class="close-modal" onclick="closeModal('settingsModal')">Close</button>
+        <button
+          type="button"
+          class="close-modal"
+          onclick="closeModal('settingsModal')"
+        >
+          Close
+        </button>
       </div>
     </div>
   </div>
 
   <script>
-    // ===== EXERCISE VIDEO SEARCHES =====
+    "use strict";
+
     const videoSearches = {
       pushup: "https://www.youtube.com/results?search_query=beginner+push+ups+proper+form+tutorial",
       crunch: "https://www.youtube.com/results?search_query=how+to+do+crunches+proper+form",
@@ -766,7 +951,6 @@
       hollow: "https://www.youtube.com/results?search_query=hollow+body+hold+tutorial"
     };
 
-    // ===== WORKOUT DATA =====
     const workoutPlan = {
       week1: {
         focus: "Foundation Building - Bodyweight Mastery",
@@ -776,9 +960,27 @@
             date: "Week 1",
             warmup: "5 min light cardio (walk in place or gentle jogging). 10 arm circles each direction. 10 bodyweight squats. Gentle torso rotations.",
             exercises: [
-              { name: "Push-ups (Modified if needed)", sets: 3, reps: "8-12", searchKey: "pushup", notes: "Knees on ground is OK for beginners. Keep neck neutral." },
-              { name: "Crunches", sets: 3, reps: "12-15", searchKey: "crunch", notes: "Focus on pulling chest toward knees. No neck pulling." },
-              { name: "Plank Hold", sets: 3, reps: "15-30 seconds", searchKey: "plank", notes: "Keep body straight. Core engaged. Breathe steadily." }
+              {
+                name: "Push-ups (Modified if needed)",
+                sets: 3,
+                reps: "8-12",
+                searchKey: "pushup",
+                notes: "Knees on ground is OK for beginners. Keep neck neutral."
+              },
+              {
+                name: "Crunches",
+                sets: 3,
+                reps: "12-15",
+                searchKey: "crunch",
+                notes: "Focus on pulling chest toward knees. No neck pulling."
+              },
+              {
+                name: "Plank Hold",
+                sets: 3,
+                reps: "15-30 seconds",
+                searchKey: "plank",
+                notes: "Keep body straight. Core engaged. Breathe steadily."
+              }
             ],
             recovery: "Light stretching: 30 sec each - chest stretch (doorway), child's pose, cat-cow stretch. Drink 500ml water. Eat carbs + protein within 30 min."
           },
@@ -787,106 +989,229 @@
             date: "Week 1",
             warmup: "5 min easy movement. 15 arm swings. Gentle pushups against wall (5-10 reps). Shoulder rolls.",
             exercises: [
-              { name: "Incline Push-ups (hands elevated)", sets: 3, reps: "10-12", searchKey: "inclinepushup", notes: "Use a bench or low table. Less load on shoulders." },
-              { name: "Bicycle Crunches", sets: 3, reps: "12-15", searchKey: "bicycle", notes: "Alternate sides smoothly. Control the movement." },
-              { name: "Dead Bug", sets: 3, reps: "10-12 per side", searchKey: "deadbug", notes: "Move slowly and controlled. Belly button toward spine." }
+              {
+                name: "Incline Push-ups (hands elevated)",
+                sets: 3,
+                reps: "10-12",
+                searchKey: "inclinepushup",
+                notes: "Use a bench or low table. Less load on shoulders."
+              },
+              {
+                name: "Bicycle Crunches",
+                sets: 3,
+                reps: "12-15",
+                searchKey: "bicycle",
+                notes: "Alternate sides smoothly. Control the movement."
+              },
+              {
+                name: "Dead Bug",
+                sets: 3,
+                reps: "10-12 per side",
+                searchKey: "deadbug",
+                notes: "Move slowly and controlled. Belly button toward spine."
+              }
             ],
-            recovery: "Foam roll (if available) or self-massage calves, quads. Hydrate. Get 7-8 hours sleep. Light walk next day helps."
+            recovery: "Foam roll if available or self-massage calves and quads. Hydrate. Get 7-8 hours sleep. Light walking the next day helps."
           },
           {
             day: "Friday",
             date: "Week 1",
-            warmup: "5 min light jog or march. 10 burpees (no push-up, just squat). Wrist circles. Neck gentle side-to-side.",
+            warmup: "5 min light jog or march. 10 burpees without push-up. Wrist circles. Gentle neck movements.",
             exercises: [
-              { name: "Standard Push-ups", sets: 3, reps: "6-10", searchKey: "pushup", notes: "Full body, knees off ground. If too hard, use incline." },
-              { name: "Reverse Crunches", sets: 3, reps: "12-15", searchKey: "reversecrunch", notes: "Lift hips toward chest, not head. Controlled." },
-              { name: "Mountain Climbers", sets: 3, reps: "20 total", searchKey: "mountainclimbers", notes: "Keep core tight. Alternate legs at steady pace." }
+              {
+                name: "Standard Push-ups",
+                sets: 3,
+                reps: "6-10",
+                searchKey: "pushup",
+                notes: "Full body, knees off ground. If too hard, use incline."
+              },
+              {
+                name: "Reverse Crunches",
+                sets: 3,
+                reps: "12-15",
+                searchKey: "reversecrunch",
+                notes: "Lift hips toward chest, not head. Controlled."
+              },
+              {
+                name: "Mountain Climbers",
+                sets: 3,
+                reps: "20 total",
+                searchKey: "mountainclimbers",
+                notes: "Keep core tight. Alternate legs at steady pace."
+              }
             ],
-            recovery: "Full body stretch routine: 30 sec each major muscle. Ice bath optional (1-2 min if soreness). Protein shake + carbs post-workout."
+            recovery: "Full body stretch routine: 30 sec each major muscle. Ice bath optional. Protein shake plus carbs post-workout."
           }
         ],
         nutrition: {
-          preworkout: "30-60 min before: banana with 1 tbsp peanut butter (25g carbs, 4g protein) OR rice cakes with honey. Light, no heaviness.",
-          postworkout: "Within 30 min: Greek yogurt with berries (15g protein, 20g carbs) OR whey shake with banana. Hydrate 500ml water.",
-          daily: "Aim for 1.2-1.6g protein per kg body weight spread across 4-5 meals. Drink 2-3L water daily. Emphasize protein at breakfast and post-workout."
+          preworkout: "30-60 min before: banana with 1 tbsp peanut butter OR rice cakes with honey.",
+          postworkout: "Within 30 min: Greek yogurt with berries OR whey shake with banana. Hydrate with 500ml water.",
+          daily: "Aim for 1.2-1.6g protein per kg body weight spread across 4-5 meals. Drink 2-3L water daily."
         }
       },
+
       week2: {
         focus: "Rep Increase & Form Refinement",
         workouts: [
           {
             day: "Monday",
             date: "Week 2",
-            warmup: "5 min walking. 15 arm circles. 10 light push-ups. Neck/shoulder stretches.",
+            warmup: "5 min walking. 15 arm circles. 10 light push-ups. Neck and shoulder stretches.",
             exercises: [
-              { name: "Push-ups", sets: 3, reps: "10-14", searchKey: "pushup", notes: "Increase reps by 2 from Week 1. Focus on form over speed." },
-              { name: "Crunches", sets: 3, reps: "15-18", searchKey: "crunch", notes: "Controlled tempo: 2 sec up, 2 sec down." },
-              { name: "Plank Hold", sets: 3, reps: "20-35 seconds", searchKey: "plank", notes: "Add 5-10 sec to previous week. Brace core." }
+              {
+                name: "Push-ups",
+                sets: 3,
+                reps: "10-14",
+                searchKey: "pushup",
+                notes: "Increase reps by 2 from Week 1. Focus on form over speed."
+              },
+              {
+                name: "Crunches",
+                sets: 3,
+                reps: "15-18",
+                searchKey: "crunch",
+                notes: "Controlled tempo: 2 sec up, 2 sec down."
+              },
+              {
+                name: "Plank Hold",
+                sets: 3,
+                reps: "20-35 seconds",
+                searchKey: "plank",
+                notes: "Add 5-10 sec to previous week. Brace core."
+              }
             ],
-            recovery: "Stretch all major muscle groups. Massage any tight areas. Sleep 8+ hours. Hydrate heavily."
+            recovery: "Stretch all major muscle groups. Massage tight areas. Sleep 8+ hours. Hydrate heavily."
           },
           {
             day: "Wednesday",
             date: "Week 2",
-            warmup: "6 min easy cardio. Wall push-ups (10 reps). Shoulder mobility drills.",
+            warmup: "6 min easy cardio. Wall push-ups. Shoulder mobility drills.",
             exercises: [
-              { name: "Incline Push-ups", sets: 3, reps: "12-14", searchKey: "inclinepushup", notes: "Lower hands if possible (more incline = easier). Progressive." },
-              { name: "Bicycle Crunches", sets: 3, reps: "15-18", searchKey: "bicycle", notes: "Full range of motion. Explosive but controlled." },
-              { name: "V-ups (or modified)", sets: 3, reps: "8-10", searchKey: "vups", notes: "Chest and stomach contract together. Advanced core." }
+              {
+                name: "Incline Push-ups",
+                sets: 3,
+                reps: "12-14",
+                searchKey: "inclinepushup",
+                notes: "Lower hands if possible. Progressive angle increase."
+              },
+              {
+                name: "Bicycle Crunches",
+                sets: 3,
+                reps: "15-18",
+                searchKey: "bicycle",
+                notes: "Full range of motion. Explosive but controlled."
+              },
+              {
+                name: "V-ups (or modified)",
+                sets: 3,
+                reps: "8-10",
+                searchKey: "vups",
+                notes: "Chest and stomach contract together. Advanced core."
+              }
             ],
-            recovery: "Yoga-inspired stretching. Focus on hip flexors and lower back. Eat protein-rich snack."
+            recovery: "Yoga-inspired stretching. Focus on hip flexors and lower back. Eat a protein-rich snack."
           },
           {
             day: "Friday",
             date: "Week 2",
-            warmup: "5 min mixed (walk + light jog). 15 arm swings. Bodyweight squats.",
+            warmup: "5 min mixed walking and light jogging. Arm swings. Bodyweight squats.",
             exercises: [
-              { name: "Push-ups", sets: 3, reps: "8-12", searchKey: "pushup", notes: "Mix steady + explosive reps for power." },
-              { name: "Reverse Crunches", sets: 3, reps: "15-18", searchKey: "reversecrunch", notes: "Squeeze abs at top. Slow negative." },
-              { name: "Hollow Body Hold", sets: 3, reps: "15-20 seconds", searchKey: "hollow", notes: "Lie on back, arms/legs straight, core tight." }
+              {
+                name: "Push-ups",
+                sets: 3,
+                reps: "8-12",
+                searchKey: "pushup",
+                notes: "Mix steady and explosive reps for power."
+              },
+              {
+                name: "Reverse Crunches",
+                sets: 3,
+                reps: "15-18",
+                searchKey: "reversecrunch",
+                notes: "Squeeze abs at top. Slow negative."
+              },
+              {
+                name: "Hollow Body Hold",
+                sets: 3,
+                reps: "15-20 seconds",
+                searchKey: "hollow",
+                notes: "Lie on back, arms and legs straight, core tight."
+              }
             ],
-            recovery: "Complete rest or light walking. Hydrate 3L water. 2-3g glycine (gelatin) for collagen recovery (optional)."
+            recovery: "Complete rest or light walking. Hydrate. Prioritize sleep."
           }
         ],
         nutrition: {
-          preworkout: "Same as Week 1, but increase hydration if workouts feel tougher. Optional: electrolyte drink (coconut water).",
-          postworkout: "Increase protein: 25-30g protein + 30-40g carbs. Examples: lean meat + rice, or protein shake + fruit + oats.",
-          daily: "Maintain 1.4-1.6g protein/kg. Slightly increase carbs on workout days (5-7g/kg). Total calories: maintenance + 200-300 kcal."
+          preworkout: "Same as Week 1. Increase hydration if workouts feel tougher.",
+          postworkout: "Increase protein to 25-30g plus 30-40g carbohydrates.",
+          daily: "Maintain 1.4-1.6g protein per kg body weight. Increase carbohydrates on workout days."
         }
       }
     };
 
-    // Generate weeks 3-12 with progressive overload
     function generateWeeksPlan() {
-      const fullPlan = { ...workoutPlan };
-      const baseExercises = {
-        pushup: { name: "Push-ups", searchKey: "pushup" },
-        incinepushup: { name: "Incline Push-ups", searchKey: "inclinepushup" },
-        crunch: { name: "Crunches", searchKey: "crunch" },
-        bicycle: { name: "Bicycle Crunches", searchKey: "bicycle" },
-        plank: { name: "Plank Hold", searchKey: "plank" },
-        deadbug: { name: "Dead Bug", searchKey: "deadbug" },
-        reversecrunch: { name: "Reverse Crunches", searchKey: "reversecrunch" },
-        mountainclimbers: { name: "Mountain Climbers", searchKey: "mountainclimbers" },
-        vups: { name: "V-ups (or modified)", searchKey: "vups" },
-        hollow: { name: "Hollow Body Hold", searchKey: "hollow" }
+      const fullPlan = {
+        week1: workoutPlan.week1,
+        week2: workoutPlan.week2
       };
 
-      for (let w = 3; w <= 12; w++) {
-        const weekKey = `week${w}`;
-        const difficulty = Math.floor((w - 1) / 3);
+      const baseExercises = {
+        pushup: {
+          name: "Push-ups",
+          searchKey: "pushup"
+        },
+        inclinepushup: {
+          name: "Incline Push-ups",
+          searchKey: "inclinepushup"
+        },
+        crunch: {
+          name: "Crunches",
+          searchKey: "crunch"
+        },
+        bicycle: {
+          name: "Bicycle Crunches",
+          searchKey: "bicycle"
+        },
+        plank: {
+          name: "Plank Hold",
+          searchKey: "plank"
+        },
+        deadbug: {
+          name: "Dead Bug",
+          searchKey: "deadbug"
+        },
+        reversecrunch: {
+          name: "Reverse Crunches",
+          searchKey: "reversecrunch"
+        },
+        mountainclimbers: {
+          name: "Mountain Climbers",
+          searchKey: "mountainclimbers"
+        },
+        vups: {
+          name: "V-ups",
+          searchKey: "vups"
+        },
+        hollow: {
+          name: "Hollow Body Hold",
+          searchKey: "hollow"
+        }
+      };
 
-        fullPlan[weekKey] = {
-          focus: getFocusByWeek(w),
+      for (let week = 3; week <= 12; week++) {
+        const difficulty = Math.floor((week - 1) / 3);
+
+        fullPlan[`week${week}`] = {
+          focus: getFocusByWeek(week),
           workouts: [
-            createSession("Monday", w, 8, 12),
-            createSession("Wednesday", w, 12, 16),
-            createSession("Friday", w, 10, 14)
+            createSession("Monday", week, 8, 12),
+            createSession("Wednesday", week, 12, 16),
+            createSession("Friday", week, 10, 14)
           ],
           nutrition: {
-            preworkout: "Banana + peanut butter OR rice cakes with honey. Aim 20-30g carbs, 5-10g protein, 30-60 min before.",
-            postworkout: `Within 30 min: ${20 + difficulty * 5}-${30 + difficulty * 5}g protein + 30-50g carbs. Greek yogurt + berries, whey shake + banana, or grilled chicken + rice.`,
-            daily: `${1.4 + difficulty * 0.2}-${1.8 + difficulty * 0.2}g protein per kg body weight daily. Emphasize protein at breakfast and after workouts. Stay hydrated.`
+            preworkout: "Banana with peanut butter OR rice cakes with honey. Aim for 20-30g carbohydrates before training.",
+            postworkout: `${20 + difficulty * 5}-${30 + difficulty * 5}g protein plus 30-50g carbohydrates within 30 minutes.`,
+            daily: `${1.4 + difficulty * 0.2}-${1.8 + difficulty * 0.2}g protein per kg body weight daily.`
           }
         };
       }
@@ -896,12 +1221,13 @@
       function createSession(day, week, minReps, maxReps) {
         const exercises = selectExercises(week, day);
         const sets = 3 + Math.floor((week - 1) / 4);
+
         return {
           day,
           date: `Week ${week}`,
           warmup: getWarmup(week),
-          exercises: exercises.map(ex => ({
-            ...ex,
+          exercises: exercises.map(exercise => ({
+            ...exercise,
             reps: `${minReps}-${maxReps}`,
             sets
           })),
@@ -910,49 +1236,100 @@
       }
 
       function selectExercises(week, day) {
-        const exercises = [];
         const difficulty = Math.floor((week - 1) / 3);
 
         if (day === "Monday") {
-          exercises.push({ ...baseExercises.pushup, notes: "Standard or incline depending on fitness level" });
-          exercises.push({ ...baseExercises.crunch, notes: "Focus on form and controlled movement" });
-          exercises.push(difficulty < 1 ? { ...baseExercises.plank, notes: "Build endurance progressively" } : { ...baseExercises.vups, notes: "Advanced core engagement" });
-        } else if (day === "Wednesday") {
-          exercises.push({ ...baseExercises.incinepushup, notes: "Angle progression based on strength" });
-          exercises.push({ ...baseExercises.bicycle, notes: "Controlled, alternating movement" });
-          exercises.push(difficulty < 2 ? { ...baseExercises.deadbug, notes: "Core stability focus" } : { ...baseExercises.mountainclimbers, notes: "Cardio + core intensity" });
-        } else {
-          exercises.push({ ...baseExercises.pushup, notes: "Full range of motion emphasis" });
-          exercises.push({ ...baseExercises.reversecrunch, notes: "Lower body core engagement" });
-          exercises.push(difficulty < 1 ? { ...baseExercises.hollow, notes: "Static hold for endurance" } : { ...baseExercises.plank, notes: "Add side variations if ready" });
+          return [
+            {
+              ...baseExercises.pushup,
+              notes: "Standard or incline depending on fitness level."
+            },
+            {
+              ...baseExercises.crunch,
+              notes: "Focus on form and controlled movement."
+            },
+            difficulty < 1
+              ? {
+                  ...baseExercises.plank,
+                  notes: "Build endurance progressively."
+                }
+              : {
+                  ...baseExercises.vups,
+                  notes: "Advanced core engagement."
+                }
+          ];
         }
 
-        return exercises;
+        if (day === "Wednesday") {
+          return [
+            {
+              ...baseExercises.inclinepushup,
+              notes: "Progressively lower the hand position as strength improves."
+            },
+            {
+              ...baseExercises.bicycle,
+              notes: "Controlled alternating movement."
+            },
+            difficulty < 2
+              ? {
+                  ...baseExercises.deadbug,
+                  notes: "Core stability focus."
+                }
+              : {
+                  ...baseExercises.mountainclimbers,
+                  notes: "Cardio and core intensity."
+                }
+          ];
+        }
+
+        return [
+          {
+            ...baseExercises.pushup,
+            notes: "Full range of motion emphasis."
+          },
+          {
+            ...baseExercises.reversecrunch,
+            notes: "Lower-body core engagement."
+          },
+          difficulty < 1
+            ? {
+                ...baseExercises.hollow,
+                notes: "Static hold for endurance."
+              }
+            : {
+                ...baseExercises.plank,
+                notes: "Add side variations if ready."
+              }
+        ];
       }
 
       function getWarmup(week) {
         const phase = Math.floor((week - 1) / 3);
+
         const warmups = [
-          "5 min light cardio (walk/jog). 15 arm circles. 10 bodyweight squats. Gentle rotations.",
-          "6 min mixed cardio. 20 arm swings. Wall push-ups (10 reps). Shoulder mobility work.",
-          "7 min easy run/jog. Dynamic stretches. Inchworms (5-8 reps). Hip circles.",
-          "8 min warm-up with light intensity. Full body dynamic stretching. Activated core engagement."
+          "5 min light cardio. 15 arm circles. 10 bodyweight squats. Gentle rotations.",
+          "6 min mixed cardio. 20 arm swings. Wall push-ups. Shoulder mobility work.",
+          "7 min easy run or jog. Dynamic stretches. Inchworms. Hip circles.",
+          "8 min warm-up with light intensity. Full-body dynamic stretching. Core activation."
         ];
+
         return warmups[phase] || warmups[0];
       }
 
       function getRecovery(week) {
         const phase = Math.floor((week - 1) / 3);
+
         const recovery = [
-          "Light stretching: 30 sec each - chest, hamstrings, hip flexors. Drink 500ml water. Protein + carbs within 30 min.",
-          "Yoga-style stretching focusing on worked muscles. Hydrate 1L. Sleep 8+ hours. Light walk tomorrow helps.",
-          "Foam rolling or self-massage. Ice bath 1-2 min optional. Protein shake + banana. Prioritize 8+ hours sleep.",
-          "Complete rest or 20 min easy walk. Hydrate heavily. Mobility work. Plan next week's progression."
+          "Light stretching for chest, hamstrings and hip flexors. Drink water. Eat protein and carbohydrates within 30 minutes.",
+          "Yoga-style stretching focusing on worked muscles. Hydrate. Sleep at least 8 hours.",
+          "Foam rolling or self-massage. Protein shake and banana. Prioritize recovery.",
+          "Complete rest or a 20-minute easy walk. Hydrate and perform mobility work."
         ];
+
         return recovery[phase] || recovery[0];
       }
 
-      function getFocusByWeek(w) {
+      function getFocusByWeek(week) {
         const phases = [
           "Foundation Building - Bodyweight Mastery",
           "Rep Increase & Form Refinement",
@@ -967,130 +1344,926 @@
           "Advanced Variations",
           "Final Testing & Assessment"
         ];
-        return phases[w - 1] || "Progressive Overload";
+
+        return phases[week - 1] || "Progressive Overload";
       }
     }
 
     const fullWorkoutPlan = generateWeeksPlan();
 
-    // ===== STATE MANAGEMENT =====
     let appState = {
       completedWorkouts: {},
       skippedWorkouts: {},
       workoutLogs: {},
       lastSync: localStorage.getItem("lastSync") || "Never",
-      currentWeek: 1
+      currentWeek: 1,
+      garminCatalog: null
     };
 
-    // ===== INITIALIZATION =====
-    function init() {
-      loadState();
-      renderWeeks();
-      updateStats();
-      setupEventListeners();
-      initializeCloudSync();
+    function normalizeText(value) {
+      return String(value || "")
+        .normalize("NFKD")
+        .replace(/[^\w\s]/g, "")
+        .replace(/_/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
     }
 
-    function loadState() {
-      const saved = localStorage.getItem("fitnessAppState");
-      if (saved) {
-        appState = { ...appState, ...JSON.parse(saved) };
+    function setCatalogStatus(message, type = "") {
+      const element = document.getElementById("garminCatalogStatus");
+
+      if (!element) {
+        return;
+      }
+
+      element.textContent = message;
+      element.className = `catalog-status ${type}`;
+    }
+
+    function parseGarminCatalog(text) {
+      const lines = String(text || "")
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(Boolean);
+
+      const categoryPrefixes = new Set();
+      const exerciseEntries = new Map();
+      const categoryEntries = [];
+
+      for (const line of lines) {
+        const separator = line.indexOf("=");
+
+        if (separator < 1) {
+          continue;
+        }
+
+        const key = line.slice(0, separator).trim();
+        const label = line.slice(separator + 1).trim();
+
+        if (!label) {
+          continue;
+        }
+
+        if (key.startsWith("category_type_")) {
+          categoryPrefixes.add(key.slice("category_type_".length));
+        }
+
+        if (key.startsWith("exercise_type_")) {
+          const exerciseName = key.slice("exercise_type_".length);
+
+          exerciseEntries.set(exerciseName, {
+            exerciseName,
+            displayName: label,
+            category: null
+          });
+        }
+      }
+
+      const sortedCategories = [...categoryPrefixes]
+        .sort((a, b) => b.length - a.length);
+
+      for (const line of lines) {
+        const separator = line.indexOf("=");
+
+        if (separator < 1) {
+          continue;
+        }
+
+        const key = line.slice(0, separator).trim();
+        const label = line.slice(separator + 1).trim();
+
+        for (const category of sortedCategories) {
+          const prefix = `${category}_`;
+
+          if (!key.startsWith(prefix)) {
+            continue;
+          }
+
+          categoryEntries.push({
+            category,
+            exerciseName: key.slice(prefix.length),
+            displayName: label
+          });
+
+          break;
+        }
+      }
+
+      for (const exercise of exerciseEntries.values()) {
+        const exactCategory = categoryEntries.find(entry =>
+          entry.exerciseName === exercise.exerciseName
+        );
+
+        if (exactCategory) {
+          exercise.category = exactCategory.category;
+          continue;
+        }
+
+        const matchingCategory = categoryEntries.find(entry =>
+          normalizeText(entry.displayName) === normalizeText(exercise.displayName)
+        );
+
+        if (matchingCategory) {
+          exercise.category = matchingCategory.category;
+        }
+      }
+
+      const exercises = [...exerciseEntries.values()]
+        .filter(exercise => exercise.category)
+        .sort((a, b) =>
+          a.displayName.localeCompare(b.displayName)
+        );
+
+      const byName = {};
+      const byKey = {};
+
+      for (const exercise of exercises) {
+        byName[normalizeText(exercise.displayName)] = exercise;
+        byKey[normalizeText(exercise.exerciseName)] = exercise;
+      }
+
+      return {
+        version: 1,
+        importedAt: new Date().toISOString(),
+        count: exercises.length,
+        exercises,
+        byName,
+        byKey
+      };
+    }
+
+    function saveGarminCatalog(catalog) {
+      const savedCatalog = {
+        version: catalog.version,
+        importedAt: catalog.importedAt,
+        count: catalog.count,
+        exercises: catalog.exercises
+      };
+
+      localStorage.setItem(
+        "garminExerciseCatalog",
+        JSON.stringify(savedCatalog)
+      );
+
+      appState.garminCatalog = savedCatalog;
+      saveState();
+    }
+
+    function loadGarminCatalog() {
+      try {
+        const raw = localStorage.getItem("garminExerciseCatalog");
+
+        if (!raw) {
+          return null;
+        }
+
+        const saved = JSON.parse(raw);
+
+        if (!Array.isArray(saved.exercises)) {
+          return null;
+        }
+
+        const byName = {};
+        const byKey = {};
+
+        for (const exercise of saved.exercises) {
+          byName[normalizeText(exercise.displayName)] = exercise;
+          byKey[normalizeText(exercise.exerciseName)] = exercise;
+        }
+
+        return {
+          ...saved,
+          byName,
+          byKey
+        };
+      } catch {
+        return null;
       }
     }
 
-    function saveState() {
-      localStorage.setItem("fitnessAppState", JSON.stringify(appState));
-      appState.lastSync = new Date().toLocaleString();
-      localStorage.setItem("lastSync", appState.lastSync);
+    const garminAliases = {
+      "push ups": "Push-up",
+      "pushups": "Push-up",
+      "push up": "Push-up",
+      "push ups modified if needed": "Push-up",
+      "standard push ups": "Push-up",
+      "incline push ups": "Incline Push-up",
+      "incline push ups hands elevated": "Incline Push-up",
+      "crunches": "Crunch",
+      "plank hold": "Plank",
+      "dead bug": "Dead Bug",
+      "bicycle crunches": "Bicycle Crunch",
+      "reverse crunches": "Reverse Crunch",
+      "mountain climbers": "Mountain Climber",
+      "v ups": "V-up",
+      "hollow body hold": "Plank",
+      "hollow body hold modified": "Plank"
+    };
+
+    function resolveGarminExercise(appExerciseName) {
+      const catalog = appState.garminCatalog
+        ? rebuildCatalogIndexes(appState.garminCatalog)
+        : loadGarminCatalog();
+
+      if (!catalog) {
+        throw new Error(
+          "Import the Garmin exercise catalog in Settings before generating a workout."
+        );
+      }
+
+      appState.garminCatalog = catalog;
+
+      const originalName = String(appExerciseName || "").trim();
+      const normalizedName = normalizeText(originalName);
+      const withoutParentheses = normalizedName
+        .replace(/\([^)]*\)/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      const alias =
+        garminAliases[normalizedName] ||
+        garminAliases[withoutParentheses] ||
+        originalName;
+
+      const normalizedAlias = normalizeText(alias);
+
+      const directMatch =
+        catalog.byName[normalizedName] ||
+        catalog.byName[withoutParentheses] ||
+        catalog.byName[normalizedAlias] ||
+        catalog.byKey[normalizedName] ||
+        catalog.byKey[normalizedAlias];
+
+      if (directMatch) {
+        return directMatch;
+      }
+
+      const partialMatch = catalog.exercises.find(exercise => {
+        const catalogName = normalizeText(exercise.displayName);
+
+        return (
+          catalogName.includes(normalizedAlias) ||
+          normalizedAlias.includes(catalogName)
+        );
+      });
+
+      if (partialMatch) {
+        return partialMatch;
+      }
+
+      throw new Error(
+        `No Garmin exercise match found for "${originalName}".`
+      );
     }
 
-    // ===== RENDERING =====
+    function rebuildCatalogIndexes(catalog) {
+      const byName = {};
+      const byKey = {};
+
+      for (const exercise of catalog.exercises || []) {
+        byName[normalizeText(exercise.displayName)] = exercise;
+        byKey[normalizeText(exercise.exerciseName)] = exercise;
+      }
+
+      return {
+        ...catalog,
+        byName,
+        byKey
+      };
+    }
+
+    function importGarminCatalog() {
+      const input = document.getElementById("garminCatalogInput");
+      const text = input.value.trim();
+
+      if (!text) {
+        setCatalogStatus(
+          "Paste the Garmin catalog into the box first.",
+          "error"
+        );
+        return;
+      }
+
+      try {
+        const catalog = parseGarminCatalog(text);
+
+        if (!catalog.count) {
+          throw new Error(
+            "No exercise_type entries with categories were found."
+          );
+        }
+
+        saveGarminCatalog(catalog);
+
+        setCatalogStatus(
+          `Imported ${catalog.count} Garmin exercises successfully.`,
+          "success"
+        );
+      } catch (error) {
+        setCatalogStatus(error.message, "error");
+      }
+    }
+
+    function testGarminCatalog() {
+      const catalog = appState.garminCatalog || loadGarminCatalog();
+
+      if (!catalog) {
+        setCatalogStatus(
+          "Import the Garmin catalog first.",
+          "error"
+        );
+        return;
+      }
+
+      appState.garminCatalog = rebuildCatalogIndexes(catalog);
+
+      const testNames = [
+        "Push-ups",
+        "Incline Push-ups",
+        "Crunches",
+        "Plank Hold",
+        "Dead Bug",
+        "Bicycle Crunches",
+        "Reverse Crunches",
+        "Mountain Climbers",
+        "V-ups"
+      ];
+
+      const results = testNames.map(name => {
+        try {
+          const match = resolveGarminExercise(name);
+
+          return {
+            requested: name,
+            displayName: match.displayName,
+            exerciseName: match.exerciseName,
+            category: match.category
+          };
+        } catch {
+          return {
+            requested: name,
+            displayName: "NOT FOUND",
+            exerciseName: "",
+            category: ""
+          };
+        }
+      });
+
+      console.table(results);
+
+      const failed = results.filter(
+        result => result.displayName === "NOT FOUND"
+      );
+
+      if (failed.length) {
+        setCatalogStatus(
+          `${failed.length} test exercise(s) were not found. Open the Console for details.`,
+          "error"
+        );
+      } else {
+        setCatalogStatus(
+          "All test exercises matched successfully. Open the Console to inspect the results.",
+          "success"
+        );
+      }
+    }
+
+    function clearGarminCatalog() {
+      localStorage.removeItem("garminExerciseCatalog");
+      appState.garminCatalog = null;
+      saveState();
+
+      document.getElementById("garminCatalogInput").value = "";
+
+      setCatalogStatus(
+        "Garmin catalog cleared.",
+        "success"
+      );
+    }
+
+    function parseFirstNumber(value, fallback = 1) {
+      const match = String(value ?? "")
+        .match(/\d+(?:\.\d+)?/);
+
+      return match ? Number(match[0]) : fallback;
+    }
+
+    function parseExerciseTarget(exercise) {
+      const text = String(exercise.reps || "");
+
+      const secondsMatch = text.match(
+        /(\d+)(?:\s*-\s*(\d+))?\s*seconds?/i
+      );
+
+      if (secondsMatch) {
+        return {
+          conditionTypeId: 2,
+          conditionTypeKey: "time",
+          value: Number(secondsMatch[1])
+        };
+      }
+
+      return {
+        conditionTypeId: 10,
+        conditionTypeKey: "reps",
+        value: parseFirstNumber(text, 10)
+      };
+    }
+
+    function createGarminStep({
+      stepId,
+      stepOrder,
+      stepTypeId,
+      stepTypeKey,
+      conditionTypeId,
+      conditionTypeKey,
+      conditionValue,
+      exerciseName,
+      category
+    }) {
+      const step = {
+        stepId,
+        stepOrder,
+        stepType: {
+          stepTypeId,
+          stepTypeKey,
+          displayOrder: stepTypeId
+        },
+        type: "ExecutableStepDTO",
+        endCondition: {
+          conditionTypeId,
+          conditionTypeKey,
+          displayOrder: conditionTypeId,
+          displayable: true
+        },
+        endConditionValue: conditionValue,
+        childStepId: 1,
+        targetType: {
+          workoutTargetTypeId: 1,
+          workoutTargetTypeKey: "no.target",
+          displayOrder: 1
+        }
+      };
+
+      if (exerciseName) {
+        step.exerciseName = exerciseName;
+        step.category = category;
+      }
+
+      return step;
+    }
+
+    function buildGarminPayload(session, workoutName) {
+      if (!session || !Array.isArray(session.exercises)) {
+        throw new Error("The selected workout has no exercises.");
+      }
+
+      let stepId = 1;
+      let stepOrder = 1;
+      const workoutSteps = [];
+
+      workoutSteps.push(
+        createGarminStep({
+          stepId: stepId++,
+          stepOrder: stepOrder++,
+          stepTypeId: 1,
+          stepTypeKey: "warmup",
+          conditionTypeId: 1,
+          conditionTypeKey: "lap.button",
+          conditionValue: 10,
+          exerciseName: "CARDIO",
+          category: "CARDIO"
+        })
+      );
+
+      for (const exercise of session.exercises) {
+        const mapped = resolveGarminExercise(exercise.name);
+        const target = parseExerciseTarget(exercise);
+
+        const repeatId = stepId++;
+        const exerciseId = stepId++;
+        const restId = stepId++;
+
+        const exerciseStep = createGarminStep({
+          stepId: exerciseId,
+          stepOrder: stepOrder + 1,
+          stepTypeId: 3,
+          stepTypeKey: "interval",
+          conditionTypeId: target.conditionTypeId,
+          conditionTypeKey: target.conditionTypeKey,
+          conditionValue: target.value,
+          exerciseName: mapped.exerciseName,
+          category: mapped.category
+        });
+
+        const restStep = createGarminStep({
+          stepId: restId,
+          stepOrder: stepOrder + 2,
+          stepTypeId: 5,
+          stepTypeKey: "rest",
+          conditionTypeId: 2,
+          conditionTypeKey: "time",
+          conditionValue: 60
+        });
+
+        workoutSteps.push({
+          stepId: repeatId,
+          stepOrder,
+          stepType: {
+            stepTypeId: 6,
+            stepTypeKey: "repeat",
+            displayOrder: 6
+          },
+          numberOfIterations: Math.max(
+            1,
+            parseFirstNumber(exercise.sets, 3)
+          ),
+          smartRepeat: false,
+          childStepId: 1,
+          workoutSteps: [
+            exerciseStep,
+            restStep
+          ],
+          endCondition: {
+            conditionTypeId: 7,
+            conditionTypeKey: "iterations",
+            displayOrder: 7,
+            displayable: false
+          },
+          type: "RepeatGroupDTO",
+          skipLastRestStep: false
+        });
+
+        stepOrder += 3;
+      }
+
+      return {
+        sportType: {
+          sportTypeId: 5,
+          sportTypeKey: "strength_training",
+          displayOrder: 5
+        },
+        subSportType: null,
+        workoutName,
+        estimatedDistanceUnit: {
+          unitKey: null
+        },
+        workoutSegments: [
+          {
+            segmentOrder: 1,
+            sportType: {
+              sportTypeId: 5,
+              sportTypeKey: "strength_training",
+              displayOrder: 5
+            },
+            workoutSteps
+          }
+        ],
+        estimatedDurationInSecs: session.exercises.length * 900,
+        estimatedDistanceInMeters: 0,
+        estimateType: null,
+        isWheelchair: false
+      };
+    }
+
+    function createGarminUploadScript(payload) {
+      return `(async () => {
+  "use strict";
+
+  const payload = ${JSON.stringify(payload, null, 2)};
+
+  function findCsrfToken() {
+    const selectors = [
+      'meta[name="csrf-token"]',
+      'meta[name="connect-csrf-token"]',
+      '[data-csrf-token]'
+    ];
+
+    for (const selector of selectors) {
+      const element = document.querySelector(selector);
+
+      if (!element) {
+        continue;
+      }
+
+      const value =
+        element.content ||
+        element.getAttribute("data-csrf-token");
+
+      if (value) {
+        return value;
+      }
+    }
+
+    const candidates = [
+      window.csrfToken,
+      window.connectCsrfToken,
+      window.__CSRF_TOKEN__,
+      window.__CONNECT_CSRF_TOKEN__
+    ];
+
+    for (const candidate of candidates) {
+      if (typeof candidate === "string" && candidate.trim()) {
+        return candidate.trim();
+      }
+    }
+
+    return "";
+  }
+
+  let csrfToken = findCsrfToken();
+
+  if (!csrfToken) {
+    csrfToken = prompt(
+      "Paste the current Connect-Csrf-Token from Garmin's successful workout request:"
+    );
+  }
+
+  if (!csrfToken) {
+    throw new Error("No Garmin CSRF token was provided.");
+  }
+
+  const response = await fetch(
+    "/gc-api/workout-service/workout",
+    {
+      method: "POST",
+      mode: "cors",
+      credentials: "include",
+      headers: {
+        "Accept": "*/*",
+        "Content-Type": "application/json",
+        "Connect-Csrf-Token": csrfToken.trim()
+      },
+      body: JSON.stringify(payload)
+    }
+  );
+
+  const responseText = await response.text();
+
+  if (!response.ok) {
+    console.error("Garmin rejected the workout.", {
+      status: response.status,
+      response: responseText
+    });
+
+    throw new Error(
+      "Garmin returned HTTP " + response.status
+    );
+  }
+
+  let result;
+
+  try {
+    result = JSON.parse(responseText);
+  } catch {
+    result = responseText;
+  }
+
+  console.log("Garmin workout created successfully.", result);
+  alert("Garmin workout created successfully.");
+  return result;
+})();`;
+    }
+
+    function openGarminModal(sessionKey, weekNum, sessionIdx, dayName) {
+      try {
+        const week = fullWorkoutPlan[`week${weekNum}`];
+        const session = week.workouts[sessionIdx];
+        const workoutName = `Week ${weekNum} - ${dayName}`;
+
+        const payload = buildGarminPayload(session, workoutName);
+        const script = createGarminUploadScript(payload);
+
+        document.getElementById("garminScriptOutput").value = script;
+        document.getElementById("garminModal").classList.add("active");
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    function copyGarminScript() {
+      const textarea = document.getElementById("garminScriptOutput");
+
+      navigator.clipboard.writeText(textarea.value)
+        .then(() => {
+          showCopySuccess();
+        })
+        .catch(() => {
+          textarea.select();
+          document.execCommand("copy");
+          showCopySuccess();
+        });
+    }
+
+    function showCopySuccess() {
+      const successMessage = document.getElementById("copySuccess");
+
+      successMessage.classList.add("show");
+
+      setTimeout(() => {
+        successMessage.classList.remove("show");
+      }, 3000);
+    }
+
+    function openGarminConnect() {
+      window.open(
+        "https://connect.garmin.com/modern/calendar",
+        "_blank",
+        "noopener,noreferrer"
+      );
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+
+      if (modal) {
+        modal.classList.remove("active");
+      }
+    }
+
+    function openLogModal(sessionKey, title) {
+      const modal = document.getElementById("logModal");
+
+      modal.classList.add("active");
+      document.getElementById("logForm").dataset.sessionKey = sessionKey;
+      document.getElementById("logModalHeader").textContent =
+        `Log Workout: ${title}`;
+    }
+
+    function toggleWeek(header) {
+      const content = header.nextElementSibling;
+      const toggle = header.querySelector(".week-toggle");
+
+      content.classList.toggle("active");
+      toggle.classList.toggle("active");
+    }
+
     function renderWeeks() {
       const container = document.getElementById("weeksContainer");
       container.innerHTML = "";
 
       Object.keys(fullWorkoutPlan).forEach(weekKey => {
-        const weekNum = parseInt(weekKey.replace("week", ""));
-        const week = fullWorkoutPlan[weekKey];
+        const weekNum = parseInt(
+          weekKey.replace("week", ""),
+          10
+        );
 
+        const week = fullWorkoutPlan[weekKey];
         const weekCard = document.createElement("div");
+
         weekCard.className = "week-card";
+
         weekCard.innerHTML = `
           <div class="week-header" onclick="toggleWeek(this)">
             <div>
-              <div class="week-title">Week ${weekNum}: ${week.focus}</div>
-              <div class="week-subtitle">${week.workouts.length} workouts • 3 sessions</div>
+              <div class="week-title">
+                Week ${weekNum}: ${week.focus}
+              </div>
+
+              <div class="week-subtitle">
+                ${week.workouts.length} workouts • 3 sessions
+              </div>
             </div>
+
             <div class="week-toggle">▼</div>
           </div>
+
           <div class="week-content" id="week${weekNum}">
             <div class="week-body">
-              ${week.workouts.map((session, i) => renderSession(session, weekNum, i, week)).join("")}
+              ${week.workouts
+                .map((session, index) =>
+                  renderSession(session, weekNum, index)
+                )
+                .join("")}
             </div>
           </div>
         `;
+
         container.appendChild(weekCard);
       });
     }
 
-    function renderSession(session, weekNum, sessionIdx, week) {
+    function renderSession(session, weekNum, sessionIdx) {
       const sessionKey = `w${weekNum}s${sessionIdx}`;
-      const isCompleted = appState.completedWorkouts[sessionKey];
-      const isSkipped = appState.skippedWorkouts[sessionKey];
+      const isCompleted =
+        appState.completedWorkouts[sessionKey];
+
+      const isSkipped =
+        appState.skippedWorkouts[sessionKey];
+
+      const statusHtml = isCompleted
+        ? '<div class="status-badge status-completed">✓ Done</div>'
+        : isSkipped
+          ? '<div class="status-badge status-skipped">⊘ Skipped</div>'
+          : '<div class="status-badge status-pending">○ Pending</div>';
+
+      const exerciseHtml = session.exercises
+        .map(exercise => `
+          <div class="exercise-item">
+            <div class="exercise-name">
+              ${escapeHtml(exercise.name)}
+            </div>
+
+            <div class="exercise-specs">
+              <div class="exercise-spec">
+                🎯 ${escapeHtml(exercise.sets)} sets
+              </div>
+
+              <div class="exercise-spec">
+                🔄 ${escapeHtml(exercise.reps)}
+              </div>
+            </div>
+
+            <div class="exercise-notes">
+              💡 ${escapeHtml(exercise.notes)}
+            </div>
+
+            <a
+              href="${videoSearches[exercise.searchKey] || "#"}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="video-link"
+            >
+              🎥 Search YouTube Tutorials
+            </a>
+          </div>
+        `)
+        .join("");
 
       return `
         <div class="workout-session">
           <div class="session-header">
             <div>
-              <div class="session-title">📅 ${session.day}</div>
-              <div class="session-date">${session.date}</div>
+              <div class="session-title">
+                📅 ${escapeHtml(session.day)}
+              </div>
+
+              <div class="session-date">
+                ${escapeHtml(session.date)}
+              </div>
             </div>
+
             <div class="session-status">
-              ${isCompleted ? '<div class="status-badge status-completed">✓ Done</div>' : ''}
-              ${isSkipped ? '<div class="status-badge status-skipped">⊘ Skipped</div>' : ''}
-              ${!isCompleted && !isSkipped ? '<div class="status-badge status-pending">○ Pending</div>' : ''}
+              ${statusHtml}
             </div>
           </div>
 
           <div class="section-box">
             <div class="section-title">🔥 Warm-up</div>
+
             <div class="section-content">
-              <div class="content-text">${session.warmup}</div>
+              <div class="content-text">
+                ${escapeHtml(session.warmup)}
+              </div>
             </div>
           </div>
 
           <div class="exercises-list">
-            <div style="font-weight: 600; color: var(--accent); margin-bottom: 0.5rem;">💪 Exercises</div>
-            ${session.exercises.map((ex, i) => `
-              <div class="exercise-item">
-                <div class="exercise-name">${ex.name}</div>
-                <div class="exercise-specs">
-                  <div class="exercise-spec">🎯 ${ex.sets} sets</div>
-                  <div class="exercise-spec">🔄 ${ex.reps} reps</div>
-                </div>
-                <div class="exercise-notes">💡 ${ex.notes}</div>
-                <a href="${videoSearches[ex.searchKey]}" target="_blank" class="video-link">🎥 Search YouTube Tutorials</a>
-              </div>
-            `).join("")}
+            <div style="font-weight: 600; color: var(--accent); margin-bottom: 0.5rem;">
+              💪 Exercises
+            </div>
+
+            ${exerciseHtml}
           </div>
 
           <div class="section-box">
             <div class="section-title">🏥 Recovery</div>
+
             <div class="section-content">
-              <div class="content-text">${session.recovery}</div>
+              <div class="content-text">
+                ${escapeHtml(session.recovery)}
+              </div>
             </div>
           </div>
 
           <div class="session-actions">
-            <button class="action-btn log-btn ${isCompleted ? 'completed' : ''}"
-              onclick="openLogModal('w${weekNum}s${sessionIdx}', '${session.day} - Week ${weekNum}')">
-              ${isCompleted ? '✓ Logged' : '📝 Log Workout'}
+            <button
+              class="action-btn log-btn ${isCompleted ? "completed" : ""}"
+              onclick="openLogModal(
+                '${sessionKey}',
+                '${escapeAttribute(session.day)} - Week ${weekNum}'
+              )"
+            >
+              ${isCompleted ? "✓ Logged" : "📝 Log Workout"}
             </button>
-            <button class="action-btn garmin-btn"
-              onclick="openGarminModal('w${weekNum}s${sessionIdx}', ${weekNum}, ${sessionIdx}, '${session.day}')">
+
+            <button
+              class="action-btn garmin-btn"
+              onclick="openGarminModal(
+                '${sessionKey}',
+                ${weekNum},
+                ${sessionIdx},
+                '${escapeAttribute(session.day)}'
+              )"
+            >
               📤 Send to Garmin
             </button>
-            <button class="action-btn skip-btn" onclick="skipWorkout('w${weekNum}s${sessionIdx}')">
+
+            <button
+              class="action-btn skip-btn"
+              onclick="skipWorkout('${sessionKey}')"
+            >
               ⊘ Skip
             </button>
           </div>
@@ -1098,238 +2271,279 @@
       `;
     }
 
-    function toggleWeek(header) {
-      const content = header.nextElementSibling;
-      const toggle = header.querySelector(".week-toggle");
-      content.classList.toggle("active");
-      toggle.classList.toggle("active");
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
-    // ===== WORKOUT LOGGING =====
-    function openLogModal(sessionKey, title) {
-      const modal = document.getElementById("logModal");
-      modal.classList.add("active");
-      document.getElementById("logForm").dataset.sessionKey = sessionKey;
-      document.querySelector(".modal-header").textContent = `Log Workout: ${title}`;
+    function escapeAttribute(value) {
+      return String(value ?? "")
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'");
     }
-
-    function closeModal(modalId) {
-      document.getElementById(modalId).classList.remove("active");
-    }
-
-    document.getElementById("logForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const sessionKey = this.dataset.sessionKey;
-      const difficulty = document.getElementById("difficultyInput").value;
-      const duration = document.getElementById("durationInput").value;
-      const notes = document.getElementById("notesInput").value;
-
-      appState.completedWorkouts[sessionKey] = true;
-      delete appState.skippedWorkouts[sessionKey];
-      appState.workoutLogs[sessionKey] = {
-        difficulty,
-        duration,
-        notes,
-        date: new Date().toISOString()
-      };
-
-      saveState();
-      renderWeeks();
-      updateStats();
-      closeModal("logModal");
-      this.reset();
-    });
 
     function skipWorkout(sessionKey) {
       appState.skippedWorkouts[sessionKey] = true;
       delete appState.completedWorkouts[sessionKey];
+
       saveState();
       renderWeeks();
       updateStats();
     }
 
-    // ===== GARMIN INTEGRATION =====
-    function openGarminModal(sessionKey, weekNum, sessionIdx, dayName) {
-      const week = fullWorkoutPlan[`week${weekNum}`];
-      const session = week.workouts[sessionIdx];
-
-      const script = generateGarminScript(session, dayName, weekNum);
-      document.getElementById("garminScriptOutput").value = script;
-      document.getElementById("garminModal").classList.add("active");
-    }
-
-    function generateGarminScript(session, dayName, weekNum) {
-      const exercises = session.exercises.map(ex => {
-        const repsMatch = ex.reps.match(/(\d+)/);
-        const reps = repsMatch ? parseInt(repsMatch[0]) : 10;
-        return {
-          name: ex.name,
-          sets: ex.sets,
-          reps: reps
-        };
-      });
-
-      const workoutName = `Week ${weekNum} - ${dayName}`;
-      const stepsJson = JSON.stringify(exercises, null, 2);
-
-      return `
-// Auto-generated Garmin workout script
-(async function() {
-  try {
-    console.log('Creating Garmin workout: "${workoutName}"...');
-
-    const workoutData = {
-      workoutName: "${workoutName}",
-      description: "Chest & Core - Strength Training",
-      workoutType: "STRENGTH_TRAINING",
-      estimatedDurationInSecs: ${session.exercises.length * 15 * 60},
-      workoutSteps: [
-        {
-          stepId: 1,
-          stepOrder: 1,
-          stepType: "WARMUP",
-          description: "Warm-up",
-          duration: 300,
-          durationType: "SECONDS"
-        },
-${exercises.map((ex, idx) => {
-  const stepOrder = idx + 2;
-  return `        {
-          stepId: ${stepOrder},
-          stepOrder: ${stepOrder},
-          stepType: "INTERVAL",
-          description: "${ex.name}",
-          reps: ${ex.reps},
-          repsExerciseTarget: {
-            displayOrder: 1,
-            exerciseMapId: ${1000 + idx}
-          }
-        }`;
-}).join(',\n')}
-      ]
-    };
-
-    const response = await fetch('/gc-api/workout-service/workout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(workoutData)
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      console.log('✓ Workout created successfully!');
-      console.log('ID:', result.id);
-      console.log('Visit: https://connect.garmin.com/modern/calendar');
-    } else {
-      console.error('✗ Failed to create workout:', response.status, response.statusText);
-    }
-  } catch (error) {
-    console.error('✗ Error:', error.message);
-  }
-})();
-`;
-    }
-
-    function copyGarminScript() {
-      const textarea = document.getElementById("garminScriptOutput");
-      textarea.select();
-      document.execCommand("copy");
-
-      const successMsg = document.getElementById("copySuccess");
-      successMsg.classList.add("show");
-      setTimeout(() => successMsg.classList.remove("show"), 3000);
-    }
-
-    function openGarminConnect() {
-      window.open("https://connect.garmin.com/modern/calendar", "_blank");
-    }
-
-    // ===== STATS & PROGRESS =====
     function updateStats() {
       const totalWorkouts = 36;
-      const completed = Object.keys(appState.completedWorkouts).length;
-      const percentage = Math.round((completed / totalWorkouts) * 100);
+      const completed = Object.keys(
+        appState.completedWorkouts
+      ).length;
 
-      document.getElementById("completedCount").textContent = `${completed}/${totalWorkouts}`;
-      document.getElementById("progressPct").textContent = `${percentage}%`;
-      document.getElementById("currentWeek").textContent = `Week ${appState.currentWeek}`;
+      const percentage = Math.round(
+        (completed / totalWorkouts) * 100
+      );
+
+      document.getElementById("completedCount").textContent =
+        `${completed}/${totalWorkouts}`;
+
+      document.getElementById("progressPct").textContent =
+        `${percentage}%`;
+
+      document.getElementById("currentWeek").textContent =
+        `Week ${appState.currentWeek}`;
     }
 
-    // ===== CLOUD SYNC & DATA EXPORT =====
-    function initializeCloudSync() {
-      setInterval(() => {
-        if (navigator.onLine) {
-          document.querySelector(".sync-indicator").classList.remove("offline");
-          document.getElementById("syncStatus").textContent = "✓ Synced";
-        } else {
-          document.querySelector(".sync-indicator").classList.add("offline");
-          document.getElementById("syncStatus").textContent = "⊘ Offline";
-        }
-      }, 2000);
+    function loadState() {
+      const saved = localStorage.getItem("fitnessAppState");
 
-      document.getElementById("lastSyncTime").textContent = appState.lastSync;
-      const storageUsage = (new Blob([JSON.stringify(appState)]).size / 1024).toFixed(2);
-      document.getElementById("storageUsage").textContent = `${storageUsage} KB`;
+      if (!saved) {
+        appState.garminCatalog = loadGarminCatalog();
+        return;
+      }
+
+      try {
+        appState = {
+          ...appState,
+          ...JSON.parse(saved)
+        };
+
+        appState.garminCatalog =
+          loadGarminCatalog() ||
+          appState.garminCatalog ||
+          null;
+      } catch {
+        appState.garminCatalog = loadGarminCatalog();
+      }
+    }
+
+    function saveState() {
+      appState.lastSync = new Date().toLocaleString();
+
+      localStorage.setItem(
+        "fitnessAppState",
+        JSON.stringify(appState)
+      );
+
+      localStorage.setItem(
+        "lastSync",
+        appState.lastSync
+      );
     }
 
     function exportData() {
-      const dataStr = JSON.stringify(appState, null, 2);
-      const blob = new Blob([dataStr], { type: "application/json" });
+      const data = {
+        ...appState,
+        garminCatalog: appState.garminCatalog
+          ? {
+              version: appState.garminCatalog.version,
+              importedAt: appState.garminCatalog.importedAt,
+              count: appState.garminCatalog.count,
+              exercises: appState.garminCatalog.exercises
+            }
+          : null
+      };
+
+      const dataString = JSON.stringify(data, null, 2);
+      const blob = new Blob([dataString], {
+        type: "application/json"
+      });
+
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "fitness-tracker-backup.json";
-      a.click();
+      const anchor = document.createElement("a");
+
+      anchor.href = url;
+      anchor.download = "fitness-tracker-backup.json";
+      anchor.click();
+
       URL.revokeObjectURL(url);
     }
 
-    // ===== EVENT LISTENERS =====
+    function initializeCloudSync() {
+      const updateConnection = () => {
+        const indicator = document.querySelector(".sync-indicator");
+        const syncStatus = document.getElementById("syncStatus");
+
+        if (navigator.onLine) {
+          indicator.classList.remove("offline");
+          syncStatus.textContent = "✓ Synced";
+        } else {
+          indicator.classList.add("offline");
+          syncStatus.textContent = "⊘ Offline";
+        }
+      };
+
+      updateConnection();
+
+      window.addEventListener("online", updateConnection);
+      window.addEventListener("offline", updateConnection);
+
+      document.getElementById("lastSyncTime").textContent =
+        appState.lastSync;
+
+      const storageUsage = (
+        new Blob([JSON.stringify(appState)]).size / 1024
+      ).toFixed(2);
+
+      document.getElementById("storageUsage").textContent =
+        `${storageUsage} KB`;
+    }
+
     function setupEventListeners() {
-      document.getElementById("settingsBtn").addEventListener("click", () => {
-        closeModal("logModal");
-        closeModal("garminModal");
-        document.getElementById("settingsModal").classList.add("active");
-      });
+      document.getElementById("settingsBtn")
+        .addEventListener("click", () => {
+          closeModal("logModal");
+          closeModal("garminModal");
 
-      document.getElementById("difficultyInput").addEventListener("input", (e) => {
-        document.getElementById("difficultyValue").textContent = e.target.value;
-      });
+          const catalog = appState.garminCatalog ||
+            loadGarminCatalog();
 
-      document.getElementById("importFile").addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        if (file) {
+          if (catalog) {
+            appState.garminCatalog = rebuildCatalogIndexes(catalog);
+
+            setCatalogStatus(
+              `Catalog loaded. ${catalog.count} exercises available.`,
+              "success"
+            );
+          }
+
+          document
+            .getElementById("settingsModal")
+            .classList.add("active");
+        });
+
+      document.getElementById("difficultyInput")
+        .addEventListener("input", event => {
+          document.getElementById("difficultyValue")
+            .textContent = event.target.value;
+        });
+
+      document.getElementById("importFile")
+        .addEventListener("change", event => {
+          const file = event.target.files[0];
+
+          if (!file) {
+            return;
+          }
+
           const reader = new FileReader();
-          reader.onload = (event) => {
+
+          reader.onload = event => {
             try {
-              const imported = JSON.parse(event.target.result);
-              appState = { ...appState, ...imported };
+              const imported = JSON.parse(
+                event.target.result
+              );
+
+              appState = {
+                ...appState,
+                ...imported
+              };
+
+              if (imported.garminCatalog) {
+                localStorage.setItem(
+                  "garminExerciseCatalog",
+                  JSON.stringify(imported.garminCatalog)
+                );
+              }
+
+              appState.garminCatalog =
+                loadGarminCatalog();
+
               saveState();
               renderWeeks();
               updateStats();
+              initializeCloudSync();
+
               alert("✓ Data imported successfully!");
             } catch (error) {
-              alert("✗ Error importing file: " + error.message);
+              alert(
+                "✗ Error importing file: " +
+                error.message
+              );
             }
           };
-          reader.readAsText(file);
-        }
-      });
 
-      document.addEventListener("click", (e) => {
-        const modals = document.querySelectorAll(".modal");
-        modals.forEach(modal => {
-          if (e.target === modal) {
-            modal.classList.remove("active");
-          }
+          reader.readAsText(file);
         });
+
+      document.getElementById("logForm")
+        .addEventListener("submit", event => {
+          event.preventDefault();
+
+          const form = event.currentTarget;
+          const sessionKey = form.dataset.sessionKey;
+
+          appState.completedWorkouts[sessionKey] = true;
+          delete appState.skippedWorkouts[sessionKey];
+
+          appState.workoutLogs[sessionKey] = {
+            difficulty:
+              document.getElementById("difficultyInput").value,
+            duration:
+              document.getElementById("durationInput").value,
+            notes:
+              document.getElementById("notesInput").value,
+            date: new Date().toISOString()
+          };
+
+          saveState();
+          renderWeeks();
+          updateStats();
+          closeModal("logModal");
+
+          form.reset();
+          document.getElementById("difficultyValue")
+            .textContent = "5";
+        });
+
+      document.addEventListener("click", event => {
+        document.querySelectorAll(".modal")
+          .forEach(modal => {
+            if (event.target === modal) {
+              modal.classList.remove("active");
+            }
+          });
       });
     }
 
-    // Start the app
-    init();
+    function initialize() {
+      loadState();
+      renderWeeks();
+      updateStats();
+      setupEventListeners();
+      initializeCloudSync();
+
+      const catalog = appState.garminCatalog ||
+        loadGarminCatalog();
+
+      if (catalog) {
+        appState.garminCatalog =
+          rebuildCatalogIndexes(catalog);
+      }
+    }
+
+    initialize();
   </script>
 </body>
 </html>
