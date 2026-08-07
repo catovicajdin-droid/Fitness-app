@@ -384,17 +384,28 @@
       border-top: 1px solid var(--border);
     }
 
-    .log-btn {
+    .action-btn {
       flex: 1;
       padding: 0.6rem;
-      background: rgba(63, 185, 80, 0.2);
-      color: var(--success);
-      border: 1px solid var(--success);
+      border: 1px solid var(--border);
       border-radius: 6px;
       cursor: pointer;
       font-weight: 600;
       font-size: 0.85rem;
       transition: all 0.2s;
+      background: var(--bg-darker);
+      color: var(--text-primary);
+    }
+
+    .action-btn:hover {
+      border-color: var(--primary);
+      background: rgba(0, 217, 255, 0.05);
+    }
+
+    .log-btn {
+      background: rgba(63, 185, 80, 0.2);
+      color: var(--success);
+      border: 1px solid var(--success);
     }
 
     .log-btn:hover {
@@ -407,20 +418,23 @@
     }
 
     .skip-btn {
-      flex: 1;
-      padding: 0.6rem;
       background: rgba(248, 81, 73, 0.2);
       color: var(--danger);
       border: 1px solid var(--danger);
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.85rem;
-      transition: all 0.2s;
     }
 
     .skip-btn:hover {
       background: rgba(248, 81, 73, 0.3);
+    }
+
+    .garmin-btn {
+      background: rgba(79, 196, 198, 0.2);
+      color: #4fc4c6;
+      border: 1px solid #4fc4c6;
+    }
+
+    .garmin-btn:hover {
+      background: rgba(79, 196, 198, 0.3);
     }
 
     .modal {
@@ -446,7 +460,7 @@
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 2rem;
-      max-width: 500px;
+      max-width: 600px;
       width: 100%;
       max-height: 85vh;
       overflow-y: auto;
@@ -504,6 +518,8 @@
     textarea {
       resize: vertical;
       min-height: 80px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 0.75rem;
     }
 
     .modal-actions {
@@ -523,6 +539,48 @@
 
     .close-modal:hover {
       background: #404854;
+    }
+
+    .copy-success {
+      display: none;
+      padding: 0.75rem;
+      background: rgba(63, 185, 80, 0.2);
+      border: 1px solid var(--success);
+      border-radius: 6px;
+      color: var(--success);
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .copy-success.show {
+      display: block;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .instructions-box {
+      background: rgba(0, 217, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    .instructions-box strong {
+      color: var(--text-primary);
     }
 
     .sync-status {
@@ -573,6 +631,10 @@
         max-width: 100%;
         padding: 1.5rem;
       }
+
+      .session-actions {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
@@ -588,8 +650,7 @@
           </div>
         </div>
         <div class="header-actions">
-          <button class="btn-secondary btn-small" id="garminBtn">⌚ Garmin</button>
-          <button class="btn-small" id="settingsBtn">⚙️ Settings</button>
+          <button class="btn-secondary btn-small" id="settingsBtn">⚙️ Settings</button>
         </div>
       </div>
       <div class="stat-bar">
@@ -615,12 +676,8 @@
 
   <div class="modal" id="logModal">
     <div class="modal-content">
-      <div class="modal-header">Log Workout</div>
+      <div class="modal-header">Log Workout Completed</div>
       <form id="logForm">
-        <div class="form-group">
-          <label class="form-label">How many reps did you complete?</label>
-          <input type="number" id="repsInput" placeholder="e.g., 10" required>
-        </div>
         <div class="form-group">
           <label class="form-label">Difficulty (1-10)</label>
           <input type="range" id="difficultyInput" min="1" max="10" value="5" style="cursor: pointer;">
@@ -635,7 +692,7 @@
           <textarea id="notesInput" placeholder="How did you feel? Any observations?"></textarea>
         </div>
         <div class="modal-actions">
-          <button type="submit">Save Workout</button>
+          <button type="submit">✓ Log It</button>
           <button type="button" class="close-modal" onclick="closeModal('logModal')">Cancel</button>
         </div>
       </form>
@@ -644,33 +701,28 @@
 
   <div class="modal" id="garminModal">
     <div class="modal-content">
-      <div class="modal-header">Garmin Integration</div>
-      <div style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.6;">
-        <div class="section-box">
-          <div class="section-title">How It Works</div>
-          <div class="section-content">
-            <div class="content-item">
-              <div class="content-label">Option 1: Manual Export (Recommended for Now)</div>
-              <div class="content-text">Click "Export Data" below to download your workouts as CSV. Then upload this file to Garmin Connect manually. Takes 30 seconds.</div>
-            </div>
-            <div class="content-item">
-              <div class="content-label">Option 2: Automatic Sync (Future)</div>
-              <div class="content-text">With a backend server, your app can automatically pull data from Garmin (heart rate, calories, activity duration) and sync it here. Requires: Garmin API approval + server setup.</div>
-            </div>
-            <div class="content-item">
-              <div class="content-label">Data Synced</div>
-              <div class="content-text">Reps, difficulty rating, duration, heart rate (when available), calories burned, workout date/time, notes.</div>
-            </div>
-            <div class="content-item">
-              <div class="content-label">MCP Integration Ready</div>
-              <div class="content-text">This app supports MCPClient connections for automated Garmin syncing when you set up an MCP-compatible backend.</div>
-            </div>
-          </div>
-        </div>
+      <div class="modal-header">📤 Send Workout to Garmin</div>
+
+      <div class="instructions-box">
+        <strong>How it works:</strong><br>
+        1. Copy the script below (one click)<br>
+        2. Open Garmin Connect in a new tab<br>
+        3. Press F12 → Console tab<br>
+        4. Paste the script and press Enter<br>
+        5. Workout template appears in your Garmin calendar
       </div>
+
+      <div class="copy-success" id="copySuccess">✓ Script copied to clipboard!</div>
+
+      <div class="form-group">
+        <label class="form-label">Garmin Upload Script</label>
+        <textarea id="garminScriptOutput" readonly style="max-height: 300px; font-size: 0.7rem;"></textarea>
+      </div>
+
       <div class="modal-actions">
-        <button onclick="exportToCSV()">📊 Export CSV</button>
-        <button type="button" class="close-modal" onclick="closeModal('garminModal')">Close</button>
+        <button type="button" onclick="copyGarminScript()">📋 Copy Script</button>
+        <button type="button" onclick="openGarminConnect()" class="btn-secondary">🌐 Open Garmin</button>
+        <button type="button" class="close-modal" onclick="closeModal('garminModal')">Done</button>
       </div>
     </div>
   </div>
@@ -973,7 +1025,7 @@
           </div>
           <div class="week-content" id="week${weekNum}">
             <div class="week-body">
-              ${week.workouts.map((session, i) => renderSession(session, weekNum, i)).join("")}
+              ${week.workouts.map((session, i) => renderSession(session, weekNum, i, week)).join("")}
             </div>
           </div>
         `;
@@ -981,7 +1033,7 @@
       });
     }
 
-    function renderSession(session, weekNum, sessionIdx) {
+    function renderSession(session, weekNum, sessionIdx, week) {
       const sessionKey = `w${weekNum}s${sessionIdx}`;
       const isCompleted = appState.completedWorkouts[sessionKey];
       const isSkipped = appState.skippedWorkouts[sessionKey];
@@ -1030,11 +1082,15 @@
           </div>
 
           <div class="session-actions">
-            <button class="log-btn ${isCompleted ? 'completed' : ''}"
+            <button class="action-btn log-btn ${isCompleted ? 'completed' : ''}"
               onclick="openLogModal('w${weekNum}s${sessionIdx}', '${session.day} - Week ${weekNum}')">
               ${isCompleted ? '✓ Logged' : '📝 Log Workout'}
             </button>
-            <button class="skip-btn" onclick="skipWorkout('w${weekNum}s${sessionIdx}')">
+            <button class="action-btn garmin-btn"
+              onclick="openGarminModal('w${weekNum}s${sessionIdx}', ${weekNum}, ${sessionIdx}, '${session.day}')">
+              📤 Send to Garmin
+            </button>
+            <button class="action-btn skip-btn" onclick="skipWorkout('w${weekNum}s${sessionIdx}')">
               ⊘ Skip
             </button>
           </div>
@@ -1064,7 +1120,6 @@
     document.getElementById("logForm").addEventListener("submit", function(e) {
       e.preventDefault();
       const sessionKey = this.dataset.sessionKey;
-      const reps = document.getElementById("repsInput").value;
       const difficulty = document.getElementById("difficultyInput").value;
       const duration = document.getElementById("durationInput").value;
       const notes = document.getElementById("notesInput").value;
@@ -1072,7 +1127,6 @@
       appState.completedWorkouts[sessionKey] = true;
       delete appState.skippedWorkouts[sessionKey];
       appState.workoutLogs[sessionKey] = {
-        reps,
         difficulty,
         duration,
         notes,
@@ -1092,6 +1146,105 @@
       saveState();
       renderWeeks();
       updateStats();
+    }
+
+    // ===== GARMIN INTEGRATION =====
+    function openGarminModal(sessionKey, weekNum, sessionIdx, dayName) {
+      const week = fullWorkoutPlan[`week${weekNum}`];
+      const session = week.workouts[sessionIdx];
+
+      const script = generateGarminScript(session, dayName, weekNum);
+      document.getElementById("garminScriptOutput").value = script;
+      document.getElementById("garminModal").classList.add("active");
+    }
+
+    function generateGarminScript(session, dayName, weekNum) {
+      const exercises = session.exercises.map(ex => {
+        const repsMatch = ex.reps.match(/(\d+)/);
+        const reps = repsMatch ? parseInt(repsMatch[0]) : 10;
+        return {
+          name: ex.name,
+          sets: ex.sets,
+          reps: reps
+        };
+      });
+
+      const workoutName = `Week ${weekNum} - ${dayName}`;
+      const stepsJson = JSON.stringify(exercises, null, 2);
+
+      return `
+// Auto-generated Garmin workout script
+(async function() {
+  try {
+    console.log('Creating Garmin workout: "${workoutName}"...');
+
+    const workoutData = {
+      workoutName: "${workoutName}",
+      description: "Chest & Core - Strength Training",
+      workoutType: "STRENGTH_TRAINING",
+      estimatedDurationInSecs: ${session.exercises.length * 15 * 60},
+      workoutSteps: [
+        {
+          stepId: 1,
+          stepOrder: 1,
+          stepType: "WARMUP",
+          description: "Warm-up",
+          duration: 300,
+          durationType: "SECONDS"
+        },
+${exercises.map((ex, idx) => {
+  const stepOrder = idx + 2;
+  return `        {
+          stepId: ${stepOrder},
+          stepOrder: ${stepOrder},
+          stepType: "INTERVAL",
+          description: "${ex.name}",
+          reps: ${ex.reps},
+          repsExerciseTarget: {
+            displayOrder: 1,
+            exerciseMapId: ${1000 + idx}
+          }
+        }`;
+}).join(',\n')}
+      ]
+    };
+
+    const response = await fetch('/gc-api/workout-service/workout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(workoutData)
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      console.log('✓ Workout created successfully!');
+      console.log('ID:', result.id);
+      console.log('Visit: https://connect.garmin.com/modern/calendar');
+    } else {
+      console.error('✗ Failed to create workout:', response.status, response.statusText);
+    }
+  } catch (error) {
+    console.error('✗ Error:', error.message);
+  }
+})();
+`;
+    }
+
+    function copyGarminScript() {
+      const textarea = document.getElementById("garminScriptOutput");
+      textarea.select();
+      document.execCommand("copy");
+
+      const successMsg = document.getElementById("copySuccess");
+      successMsg.classList.add("show");
+      setTimeout(() => successMsg.classList.remove("show"), 3000);
+    }
+
+    function openGarminConnect() {
+      window.open("https://connect.garmin.com/modern/calendar", "_blank");
     }
 
     // ===== STATS & PROGRESS =====
@@ -1133,32 +1286,12 @@
       URL.revokeObjectURL(url);
     }
 
-    function exportToCSV() {
-      let csv = "Date,Session,Reps,Difficulty,Duration (min),Notes\n";
-      Object.entries(appState.workoutLogs).forEach(([key, log]) => {
-        csv += `${log.date},${key},${log.reps},${log.difficulty},${log.duration},"${log.notes.replace(/"/g, '""')}"\n`;
-      });
-      const blob = new Blob([csv], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "fitness-data.csv";
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
     // ===== EVENT LISTENERS =====
     function setupEventListeners() {
       document.getElementById("settingsBtn").addEventListener("click", () => {
         closeModal("logModal");
         closeModal("garminModal");
         document.getElementById("settingsModal").classList.add("active");
-      });
-
-      document.getElementById("garminBtn").addEventListener("click", () => {
-        closeModal("logModal");
-        closeModal("settingsModal");
-        document.getElementById("garminModal").classList.add("active");
       });
 
       document.getElementById("difficultyInput").addEventListener("input", (e) => {
