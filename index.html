@@ -153,6 +153,11 @@
       background: var(--danger);
     }
 
+    .sync-indicator.syncing {
+      background: var(--warning);
+      animation: pulse 1s infinite;
+    }
+
     .stats {
       display: flex;
       flex-wrap: wrap;
@@ -305,9 +310,9 @@
     .badges {
       display: flex;
       flex-wrap: wrap;
-      justify-content: flex-end;
+      justify-content: flex-start;
       gap: 0.35rem;
-      margin-top: 0.2rem;
+      margin-top: 0.5rem;
     }
 
     .badge {
@@ -465,12 +470,6 @@
       margin-top: 0.65rem;
       color: var(--muted);
       font-size: 0.7rem;
-    }
-
-    .garmin-results-empty {
-      color: var(--muted);
-      font-size: 0.78rem;
-      line-height: 1.5;
     }
 
     .modal {
@@ -641,8 +640,51 @@
       color: var(--danger);
     }
 
+    .account-box {
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: rgba(0, 217, 255, 0.045);
+      padding: 0.8rem;
+    }
+
+    .account-email {
+      margin-bottom: 0.5rem;
+      color: var(--text);
+      font-size: 0.85rem;
+      word-break: break-word;
+    }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 1rem 0;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      content: "";
+    }
+
     code {
       color: var(--accent);
+    }
+
+    @keyframes pulse {
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.35;
+      }
     }
 
     @media (max-width: 760px) {
@@ -698,12 +740,20 @@
           <h1>💪 Fitness Tracker</h1>
 
           <div class="sync-status">
-            <span class="sync-indicator" id="syncIndicator"></span>
-            <span id="syncStatus">Local data ready</span>
+            <span class="sync-indicator offline" id="syncIndicator"></span>
+            <span id="syncStatus">Not signed in</span>
           </div>
         </div>
 
         <div class="header-actions">
+          <button
+            class="button-secondary button-small"
+            id="accountButton"
+            type="button"
+          >
+            🔐 Sign In
+          </button>
+
           <button
             class="button-garmin button-small"
             id="bulkGarminButton"
@@ -743,6 +793,120 @@
     <main>
       <div class="weeks" id="weeksContainer"></div>
     </main>
+  </div>
+
+  <div
+    class="modal"
+    id="authModal"
+    aria-hidden="true"
+  >
+    <div class="modal-content">
+      <h2 class="modal-title" id="authModalTitle">
+        🔐 Sign In
+      </h2>
+
+      <div class="instructions">
+        Sign in with the same Firebase account on your phone and desktop.
+        Your workout logs, Garmin imports, completion status, and settings will
+        then synchronize between both devices.
+      </div>
+
+      <div
+        class="account-box"
+        id="signedInAccountBox"
+        hidden
+      >
+        <div class="account-email" id="signedInEmail"></div>
+
+        <button
+          type="button"
+          class="button-danger button-small"
+          id="logoutButton"
+        >
+          Sign Out
+        </button>
+      </div>
+
+      <form id="authForm">
+        <div class="form-group">
+          <label
+            class="form-label"
+            for="authEmail"
+          >
+            Email
+          </label>
+
+          <input
+            id="authEmail"
+            type="email"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label
+            class="form-label"
+            for="authPassword"
+          >
+            Password
+          </label>
+
+          <input
+            id="authPassword"
+            type="password"
+            autocomplete="current-password"
+            minlength="6"
+            required
+          >
+        </div>
+
+        <div
+          class="notice"
+          id="authNotice"
+        ></div>
+
+        <div class="modal-actions">
+          <button
+            type="submit"
+            id="authSubmitButton"
+          >
+            Sign In
+          </button>
+
+          <button
+            type="button"
+            class="button-secondary"
+            id="registerButton"
+          >
+            Create Account
+          </button>
+        </div>
+      </form>
+
+      <div class="auth-divider">
+        Password help
+      </div>
+
+      <button
+        type="button"
+        class="button-secondary"
+        id="resetPasswordButton"
+        style="width: 100%;"
+      >
+        Send Password Reset Email
+      </button>
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="button-secondary"
+          data-close-modal="authModal"
+        >
+          Close
+        </button>
+      </div>
+    </div>
   </div>
 
   <div
@@ -1237,8 +1401,27 @@
     </div>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
   <script>
     "use strict";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyALly_TjGWXc4zyNjPDhMZ94OQvBkF1R-A",
+      authDomain: "fitness-tracker-3f364.firebaseapp.com",
+      databaseURL: "https://fitness-tracker-3f364-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "fitness-tracker-3f364",
+      storageBucket: "fitness-tracker-3f364.firebasestorage.app",
+      messagingSenderId: "784187184603",
+      appId: "1:784187184603:web:ee9fb9a4e07798b635c3fe"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    const firebaseAuth = firebase.auth();
+    const firebaseDatabase = firebase.database();
 
     const STORAGE_KEY = "fitnessTrackerState";
     const CATALOG_KEY = "fitnessTrackerGarminCatalog";
@@ -1270,6 +1453,11 @@
     };
 
     let pendingTcxResult = null;
+    let currentFirebaseUser = null;
+    let firebaseUserReference = null;
+    let firebaseValueListener = null;
+    let firebaseWriteInProgress = false;
+    let firebaseInitialLoadComplete = false;
 
     const garminAliases = {
       "push ups": "Push-up",
@@ -1534,10 +1722,10 @@
         const savedState = localStorage.getItem(STORAGE_KEY);
 
         if (savedState) {
-          appState = {
+          appState = normalizeState({
             ...appState,
             ...JSON.parse(savedState)
-          };
+          });
         }
 
         const savedCatalog = localStorage.getItem(CATALOG_KEY);
@@ -1550,33 +1738,257 @@
       }
     }
 
-    function saveState() {
+    function normalizeState(state) {
+      return {
+        completedWorkouts: state.completedWorkouts || {},
+        skippedWorkouts: state.skippedWorkouts || {},
+        workoutLogs: state.workoutLogs || {},
+        garminUploadedWorkouts: state.garminUploadedWorkouts || {},
+        lastSync: state.lastSync || null,
+        garminCatalog: state.garminCatalog || null
+      };
+    }
+
+    function getSyncableState() {
+      const state = normalizeState(appState);
+
+      return {
+        completedWorkouts: state.completedWorkouts,
+        skippedWorkouts: state.skippedWorkouts,
+        workoutLogs: state.workoutLogs,
+        garminUploadedWorkouts: state.garminUploadedWorkouts,
+        garminCatalog: state.garminCatalog,
+        lastSync: state.lastSync || null,
+        updatedAt: new Date().toISOString()
+      };
+    }
+
+    function saveState(options = {}) {
+      const shouldSync =
+        options.sync !== false &&
+        Boolean(currentFirebaseUser) &&
+        firebaseInitialLoadComplete &&
+        !options.fromFirebase;
+
+      appState = normalizeState(appState);
       appState.lastSync = new Date().toISOString();
 
       localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify(appState)
       );
+
+      if (appState.garminCatalog) {
+        localStorage.setItem(
+          CATALOG_KEY,
+          JSON.stringify(appState.garminCatalog)
+        );
+      }
+
+      if (shouldSync) {
+        syncStateToFirebase();
+      }
+    }
+
+    function mergeStates(localState, remoteState) {
+      const local = normalizeState(localState || {});
+      const remote = normalizeState(remoteState || {});
+
+      return {
+        completedWorkouts: {
+          ...local.completedWorkouts,
+          ...remote.completedWorkouts
+        },
+        skippedWorkouts: {
+          ...local.skippedWorkouts,
+          ...remote.skippedWorkouts
+        },
+        workoutLogs: {
+          ...local.workoutLogs,
+          ...remote.workoutLogs
+        },
+        garminUploadedWorkouts: {
+          ...local.garminUploadedWorkouts,
+          ...remote.garminUploadedWorkouts
+        },
+        garminCatalog: remote.garminCatalog || local.garminCatalog || null,
+        lastSync: remote.lastSync || local.lastSync || null
+      };
+    }
+
+    function statesAreEqual(first, second) {
+      return JSON.stringify(first) === JSON.stringify(second);
+    }
+
+    function syncStateToFirebase() {
+      if (!firebaseUserReference || !currentFirebaseUser) {
+        return Promise.resolve();
+      }
+
+      const syncableState = getSyncableState();
+
+      firebaseWriteInProgress = true;
+      updateSyncStatus("syncing", "Saving to Firebase...");
+
+      return firebaseUserReference
+        .set(syncableState)
+        .then(() => {
+          updateSyncStatus(
+            "online",
+            `Synced at ${new Date().toLocaleTimeString()}`
+          );
+        })
+        .catch(error => {
+          console.error("Firebase save failed.", error);
+          updateSyncStatus(
+            "error",
+            `Cloud save failed: ${error.message}`
+          );
+        })
+        .finally(() => {
+          firebaseWriteInProgress = false;
+        });
+    }
+
+    function startFirebaseSync(user) {
+      stopFirebaseSync();
+
+      currentFirebaseUser = user;
+      firebaseUserReference = firebaseDatabase.ref(
+        `users/${user.uid}`
+      );
+
+      updateSyncStatus(
+        "syncing",
+        "Loading your cloud data..."
+      );
+
+      firebaseValueListener = firebaseUserReference.on(
+        "value",
+        snapshot => {
+          const remoteState = snapshot.val();
+
+          if (!remoteState) {
+            firebaseInitialLoadComplete = true;
+            syncStateToFirebase();
+            updateSyncStatus(
+              "online",
+              "Cloud account connected"
+            );
+            return;
+          }
+
+          const localBeforeMerge = normalizeState(appState);
+          const mergedState = mergeStates(
+            localBeforeMerge,
+            remoteState
+          );
+
+          const remoteNormalized = normalizeState(remoteState);
+
+          if (!statesAreEqual(localBeforeMerge, mergedState)) {
+            appState = mergedState;
+            saveState({
+              sync: false,
+              fromFirebase: true
+            });
+
+            if (appState.garminCatalog) {
+              localStorage.setItem(
+                CATALOG_KEY,
+                JSON.stringify(appState.garminCatalog)
+              );
+            }
+
+            renderApp();
+          }
+
+          firebaseInitialLoadComplete = true;
+
+          const shouldUploadMergedLocalData =
+            Object.keys(localBeforeMerge.completedWorkouts).length >
+              Object.keys(remoteNormalized.completedWorkouts).length ||
+            Object.keys(localBeforeMerge.workoutLogs).length >
+              Object.keys(remoteNormalized.workoutLogs).length ||
+            Object.keys(localBeforeMerge.skippedWorkouts).length >
+              Object.keys(remoteNormalized.skippedWorkouts).length ||
+            Boolean(
+              localBeforeMerge.garminCatalog &&
+              !remoteNormalized.garminCatalog
+            );
+
+          if (shouldUploadMergedLocalData && !firebaseWriteInProgress) {
+            syncStateToFirebase();
+          } else {
+            updateSyncStatus(
+              "online",
+              `Synced at ${new Date().toLocaleTimeString()}`
+            );
+          }
+        },
+        error => {
+          console.error("Firebase listener failed.", error);
+
+          updateSyncStatus(
+            "error",
+            `Cloud sync failed: ${error.message}`
+          );
+        }
+      );
+    }
+
+    function stopFirebaseSync() {
+      if (
+        firebaseUserReference &&
+        firebaseValueListener
+      ) {
+        firebaseUserReference.off(
+          "value",
+          firebaseValueListener
+        );
+      }
+
+      currentFirebaseUser = null;
+      firebaseUserReference = null;
+      firebaseValueListener = null;
+      firebaseInitialLoadComplete = false;
+    }
+
+    function updateSyncStatus(type, message) {
+      const indicator = document.getElementById("syncIndicator");
+      const status = document.getElementById("syncStatus");
+
+      indicator.classList.remove("offline");
+      indicator.classList.remove("syncing");
+
+      if (type === "online") {
+        indicator.style.background = "var(--success)";
+      }
+
+      if (type === "syncing") {
+        indicator.classList.add("syncing");
+      }
+
+      if (type === "offline") {
+        indicator.classList.add("offline");
+      }
+
+      if (type === "error") {
+        indicator.classList.add("offline");
+      }
+
+      status.textContent = message;
     }
 
     function renderApp() {
       renderWeeks();
       updateStats();
-      updateSyncStatus();
-    }
 
-    function updateSyncStatus() {
-      const indicator = document.getElementById("syncIndicator");
-      const status = document.getElementById("syncStatus");
-
-      if (navigator.onLine) {
-        indicator.classList.remove("offline");
-        status.textContent = appState.lastSync
-          ? `Saved locally at ${new Date(appState.lastSync).toLocaleString()}`
-          : "Local data ready";
-      } else {
-        indicator.classList.add("offline");
-        status.textContent = "Offline. Changes are saved on this device.";
+      if (!currentFirebaseUser) {
+        updateSyncStatus(
+          navigator.onLine ? "offline" : "offline",
+          "Not signed in. Data is stored locally."
+        );
       }
     }
 
@@ -1966,60 +2378,42 @@
 
           <div class="garmin-results-grid">
             <div class="garmin-result-item">
-              <div class="garmin-result-label">
-                Activity
-              </div>
-
+              <div class="garmin-result-label">Activity</div>
               <div class="garmin-result-value">
                 ${escapeHtml(result.activityName || "Not available")}
               </div>
             </div>
 
             <div class="garmin-result-item">
-              <div class="garmin-result-label">
-                Duration
-              </div>
-
+              <div class="garmin-result-label">Duration</div>
               <div class="garmin-result-value">
                 ${escapeHtml(formatGarminDuration(result))}
               </div>
             </div>
 
             <div class="garmin-result-item">
-              <div class="garmin-result-label">
-                Calories
-              </div>
-
+              <div class="garmin-result-label">Calories</div>
               <div class="garmin-result-value">
                 ${escapeHtml(formatValue(result.calories, " kcal"))}
               </div>
             </div>
 
             <div class="garmin-result-item">
-              <div class="garmin-result-label">
-                Average HR
-              </div>
-
+              <div class="garmin-result-label">Average HR</div>
               <div class="garmin-result-value">
                 ${escapeHtml(formatValue(result.averageHeartRate, " bpm"))}
               </div>
             </div>
 
             <div class="garmin-result-item">
-              <div class="garmin-result-label">
-                Maximum HR
-              </div>
-
+              <div class="garmin-result-label">Maximum HR</div>
               <div class="garmin-result-value">
                 ${escapeHtml(formatValue(result.maximumHeartRate, " bpm"))}
               </div>
             </div>
 
             <div class="garmin-result-item">
-              <div class="garmin-result-label">
-                Distance
-              </div>
-
+              <div class="garmin-result-label">Distance</div>
               <div class="garmin-result-value">
                 ${
                   result.distanceMeters !== null &&
@@ -3110,10 +3504,10 @@
         const imported = JSON.parse(text);
         const importedState = imported.appState || imported;
 
-        appState = {
+        appState = normalizeState({
           ...appState,
           ...importedState
-        };
+        });
 
         if (appState.garminCatalog) {
           localStorage.setItem(
@@ -3131,7 +3525,245 @@
       });
     }
 
+    function getFriendlyFirebaseError(error) {
+      const code = error && error.code
+        ? error.code
+        : "";
+
+      const messages = {
+        "auth/invalid-email": "Enter a valid email address.",
+        "auth/user-not-found": "No account was found for this email.",
+        "auth/wrong-password": "The password is incorrect.",
+        "auth/invalid-credential": "The email or password is incorrect.",
+        "auth/email-already-in-use": "An account already exists for this email.",
+        "auth/weak-password": "The password must be at least 6 characters.",
+        "auth/too-many-requests": "Too many attempts. Try again later.",
+        "auth/network-request-failed": "Network error. Check your connection.",
+        "auth/operation-not-allowed": "Enable Email/Password authentication in Firebase Console."
+      };
+
+      return messages[code] || error.message || "Authentication failed.";
+    }
+
+    function showAuthModal() {
+      const user = currentFirebaseUser;
+
+      const accountBox = document.getElementById(
+        "signedInAccountBox"
+      );
+
+      const authForm = document.getElementById("authForm");
+      const authTitle = document.getElementById("authModalTitle");
+
+      if (user) {
+        accountBox.hidden = false;
+        document.getElementById("signedInEmail").textContent =
+          `Signed in as ${user.email}`;
+
+        authForm.hidden = true;
+        authTitle.textContent = "👤 Account";
+      } else {
+        accountBox.hidden = true;
+        authForm.hidden = false;
+        authTitle.textContent = "🔐 Sign In";
+      }
+
+      showNotice("authNotice", "", "");
+      openModal("authModal");
+    }
+
+    function signInUser(event) {
+      event.preventDefault();
+
+      const email = document.getElementById("authEmail").value.trim();
+      const password = document.getElementById("authPassword").value;
+
+      setAuthButtonState(true);
+      showNotice("authNotice", "Signing in...", "");
+
+      firebaseAuth
+        .signInWithEmailAndPassword(email, password)
+        .then(() => {
+          showNotice(
+            "authNotice",
+            "Signed in successfully.",
+            "success"
+          );
+
+          document.getElementById("authPassword").value = "";
+
+          setTimeout(() => {
+            closeModal("authModal");
+          }, 500);
+        })
+        .catch(error => {
+          showNotice(
+            "authNotice",
+            getFriendlyFirebaseError(error),
+            "error"
+          );
+        })
+        .finally(() => {
+          setAuthButtonState(false);
+        });
+    }
+
+    function registerUser() {
+      const email = document.getElementById("authEmail").value.trim();
+      const password = document.getElementById("authPassword").value;
+
+      if (!email || !password) {
+        showNotice(
+          "authNotice",
+          "Enter an email and password first.",
+          "error"
+        );
+        return;
+      }
+
+      setAuthButtonState(true);
+      showNotice("authNotice", "Creating account...", "");
+
+      firebaseAuth
+        .createUserWithEmailAndPassword(email, password)
+        .then(() => {
+          showNotice(
+            "authNotice",
+            "Account created successfully.",
+            "success"
+          );
+
+          document.getElementById("authPassword").value = "";
+
+          setTimeout(() => {
+            closeModal("authModal");
+          }, 500);
+        })
+        .catch(error => {
+          showNotice(
+            "authNotice",
+            getFriendlyFirebaseError(error),
+            "error"
+          );
+        })
+        .finally(() => {
+          setAuthButtonState(false);
+        });
+    }
+
+    function resetPassword() {
+      const email = document.getElementById("authEmail").value.trim();
+
+      if (!email) {
+        showNotice(
+          "authNotice",
+          "Enter your email address first.",
+          "error"
+        );
+        return;
+      }
+
+      setAuthButtonState(true);
+      showNotice("authNotice", "Sending reset email...", "");
+
+      firebaseAuth
+        .sendPasswordResetEmail(email)
+        .then(() => {
+          showNotice(
+            "authNotice",
+            "Password reset email sent.",
+            "success"
+          );
+        })
+        .catch(error => {
+          showNotice(
+            "authNotice",
+            getFriendlyFirebaseError(error),
+            "error"
+          );
+        })
+        .finally(() => {
+          setAuthButtonState(false);
+        });
+    }
+
+    function logoutUser() {
+      firebaseAuth
+        .signOut()
+        .then(() => {
+          closeModal("authModal");
+        })
+        .catch(error => {
+          showNotice(
+            "authNotice",
+            getFriendlyFirebaseError(error),
+            "error"
+          );
+        });
+    }
+
+    function setAuthButtonState(isBusy) {
+      const submitButton = document.getElementById(
+        "authSubmitButton"
+      );
+
+      const registerButton = document.getElementById(
+        "registerButton"
+      );
+
+      const resetButton = document.getElementById(
+        "resetPasswordButton"
+      );
+
+      submitButton.disabled = isBusy;
+      registerButton.disabled = isBusy;
+      resetButton.disabled = isBusy;
+    }
+
+    function updateAccountButton() {
+      const button = document.getElementById("accountButton");
+
+      if (currentFirebaseUser) {
+        button.textContent = "👤 Account";
+      } else {
+        button.textContent = "🔐 Sign In";
+      }
+    }
+
+    function setupAuthListener() {
+      firebaseAuth.onAuthStateChanged(user => {
+        if (user) {
+          currentFirebaseUser = user;
+          updateAccountButton();
+          startFirebaseSync(user);
+        } else {
+          stopFirebaseSync();
+          updateAccountButton();
+
+          updateSyncStatus(
+            "offline",
+            "Not signed in. Data is stored locally."
+          );
+        }
+      });
+    }
+
     function setupEventListeners() {
+      document.getElementById("accountButton")
+        .addEventListener("click", showAuthModal);
+
+      document.getElementById("authForm")
+        .addEventListener("submit", signInUser);
+
+      document.getElementById("registerButton")
+        .addEventListener("click", registerUser);
+
+      document.getElementById("resetPasswordButton")
+        .addEventListener("click", resetPassword);
+
+      document.getElementById("logoutButton")
+        .addEventListener("click", logoutUser);
+
       document.getElementById("logForm")
         .addEventListener("submit", saveWorkoutLog);
 
@@ -3287,12 +3919,31 @@
           });
         });
 
-      window.addEventListener("online", updateSyncStatus);
-      window.addEventListener("offline", updateSyncStatus);
+      window.addEventListener("online", () => {
+        if (currentFirebaseUser) {
+          updateSyncStatus(
+            "online",
+            "Online. Firebase synchronization active."
+          );
+        } else {
+          updateSyncStatus(
+            "offline",
+            "Not signed in. Data is stored locally."
+          );
+        }
+      });
+
+      window.addEventListener("offline", () => {
+        updateSyncStatus(
+          "offline",
+          "Offline. Local changes will remain on this device."
+        );
+      });
     }
 
     loadState();
     setupEventListeners();
+    setupAuthListener();
     renderApp();
   </script>
 </body>
