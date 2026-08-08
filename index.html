@@ -753,6 +753,29 @@
       font-weight: 700;
     }
 
+    .recommendation-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .recommendation-actions button {
+      flex: 1;
+      min-width: 150px;
+      padding: 0.55rem 0.7rem;
+      font-size: 0.74rem;
+    }
+
+    .recommendation-decision {
+      margin-top: 0.7rem;
+      border-top: 1px solid var(--border);
+      padding-top: 0.65rem;
+      color: var(--success);
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
     .exercise-analysis {
       display: flex;
       flex-direction: column;
@@ -1826,6 +1849,7 @@
       skippedWorkouts: {},
       workoutLogs: {},
       garminUploadedWorkouts: {},
+      recommendationDecisions: {},
       lastSync: null,
       garminCatalog: null
     };
@@ -2198,14 +2222,22 @@
       return {
         completedWorkouts:
           state.completedWorkouts || {},
+
         skippedWorkouts:
           state.skippedWorkouts || {},
+
         workoutLogs:
           state.workoutLogs || {},
+
         garminUploadedWorkouts:
           state.garminUploadedWorkouts || {},
+
+        recommendationDecisions:
+          state.recommendationDecisions || {},
+
         lastSync:
           state.lastSync || null,
+
         garminCatalog:
           state.garminCatalog || null
       };
@@ -2260,22 +2292,32 @@
           ...local.completedWorkouts,
           ...remote.completedWorkouts
         },
+
         skippedWorkouts: {
           ...local.skippedWorkouts,
           ...remote.skippedWorkouts
         },
+
         workoutLogs: {
           ...local.workoutLogs,
           ...remote.workoutLogs
         },
+
         garminUploadedWorkouts: {
           ...local.garminUploadedWorkouts,
           ...remote.garminUploadedWorkouts
         },
+
+        recommendationDecisions: {
+          ...local.recommendationDecisions,
+          ...remote.recommendationDecisions
+        },
+
         garminCatalog:
           remote.garminCatalog ||
           local.garminCatalog ||
           null,
+
         lastSync:
           remote.lastSync ||
           local.lastSync ||
@@ -4054,10 +4096,73 @@ function renderWeeklyAnalytics(
       title,
       text,
       meta,
-      className = ""
+      className = "",
+      recommendationKey = null,
+      workoutKey = null
     ) {
+      const decision =
+        recommendationKey &&
+        appState.recommendationDecisions
+          ? appState.recommendationDecisions[
+              recommendationKey
+            ]
+          : null;
+
+      const decisionMarkup =
+        decision
+          ? `
+              <div class="recommendation-decision">
+                ${
+                  decision.decision === "applied"
+                    ? "✓ Recommendation applied for review."
+                    : "✓ Current schedule kept."
+                }
+              </div>
+            `
+          : "";
+
+      const actionMarkup =
+        recommendationKey && !decision
+          ? `
+              <div class="recommendation-actions">
+                <button
+                  type="button"
+                  class="button-success"
+                  data-recommendation-action="apply"
+                  data-recommendation-key="${escapeHtml(
+                    recommendationKey
+                  )}"
+                  data-workout-key="${escapeHtml(
+                    workoutKey || ""
+                  )}"
+                >
+                  ✓ Apply Recommendation
+                </button>
+
+                <button
+                  type="button"
+                  class="button-secondary"
+                  data-recommendation-action="keep"
+                  data-recommendation-key="${escapeHtml(
+                    recommendationKey
+                  )}"
+                  data-workout-key="${escapeHtml(
+                    workoutKey || ""
+                  )}"
+                >
+                  Keep Current Schedule
+                </button>
+              </div>
+            `
+          : "";
+
       return `
-        <div class="recommendation-card ${className}">
+        <div
+          class="recommendation-card ${className}"
+          data-recommendation-card="${escapeHtml(
+            recommendationKey || ""
+          )}"
+        >
           <div class="recommendation-title">
             ${escapeHtml(title)}
           </div>
@@ -4075,11 +4180,73 @@ function renderWeeklyAnalytics(
               `
               : ""
           }
+
+          ${actionMarkup}
+          ${decisionMarkup}
         </div>
       `;
     }
+function saveRecommendationDecision(
+      recommendationKey,
+      decision,
+      workoutKey = null
+    ) {
+      if (!recommendationKey) {
+        return;
+      }
 
-    function renderRecommendations() {
+      appState.recommendationDecisions[
+        recommendationKey
+      ] = {
+        decision,
+        workoutKey,
+        decidedAt:
+          new Date().toISOString()
+      };
+
+      saveState();
+    }
+
+    function handleRecommendationDecision(
+      event
+    ) {
+      const button =
+        event.target.closest(
+          "[data-recommendation-action]"
+        );
+
+      if (!button) {
+        return;
+      }
+
+      const action =
+        button.dataset.recommendationAction;
+
+      const recommendationKey =
+        button.dataset.recommendationKey;
+
+      const workoutKey =
+        button.dataset.workoutKey || null;
+
+      if (
+        action !== "apply" &&
+        action !== "keep"
+      ) {
+        return;
+      }
+
+      saveRecommendationDecision(
+        recommendationKey,
+        action === "apply"
+          ? "applied"
+          : "kept",
+        workoutKey
+      );
+
+      renderRecommendations();
+    }
+    
+   function renderRecommendations() {
       const container =
         document.getElementById(
           "recommendationsContent"
@@ -4127,7 +4294,11 @@ function renderWeeklyAnalytics(
               ? `Your recent average difficulty is ${averageDifficulty.toFixed(1)}/10. Consider reducing the next workout by one set or using an easier exercise variation.`
               : "Your recent average difficulty is high. Consider reducing the next workout by one set or using easier exercise variations.",
             `Next planned workout: ${getNextWorkoutSummary(nextWorkout)}`,
-            "recommendation-recovery"
+            "recommendation-recovery",
+            "recovery",
+            nextWorkout
+              ? nextWorkout.sessionKey
+              : null
           )
         );
       } else if (
@@ -4142,7 +4313,11 @@ function renderWeeklyAnalytics(
               ? `Your recent average difficulty is ${averageDifficulty.toFixed(1)}/10. You may be ready to add two to three repetitions per set or increase one exercise by one set.`
               : "Your recent average difficulty is low. You may be ready for a small increase in repetitions or sets.",
             `Next planned workout: ${getNextWorkoutSummary(nextWorkout)}`,
-            ""
+            "",
+            "progression",
+            nextWorkout
+              ? nextWorkout.sessionKey
+              : null
           )
         );
       } else if (
@@ -4154,7 +4329,11 @@ function renderWeeklyAnalytics(
             "Keep the planned progression conservative",
             `Your latest workout was rated ${latestDifficulty}/10. Keep the current exercise variations and avoid increasing both sets and repetitions at the same time.`,
             "Change only one training variable when you progress.",
-            "recommendation-warning"
+            "recommendation-warning",
+            "conservative",
+            nextWorkout
+              ? nextWorkout.sessionKey
+              : null
           )
         );
       } else {
@@ -4164,7 +4343,12 @@ function renderWeeklyAnalytics(
             averageDifficulty !== null
               ? `Your recent average difficulty is ${averageDifficulty.toFixed(1)}/10, which supports continuing the planned progression.`
               : "There is not enough difficulty data for a precise adjustment, so keep the current progression.",
-            "Record difficulty after each completed workout for better recommendations."
+            "Record difficulty after each completed workout for better recommendations.",
+            "",
+            "continue",
+            nextWorkout
+              ? nextWorkout.sessionKey
+              : null
           )
         );
       }
@@ -4175,7 +4359,11 @@ function renderWeeklyAnalytics(
             "Add recovery or reduce weekly volume",
             `You skipped ${skippedCount} recent workouts. Consider adding an extra recovery day or temporarily reducing the number of sets.`,
             "Consistency should be restored before increasing intensity.",
-            "recommendation-recovery"
+            "recommendation-recovery",
+            "reduce-volume",
+            nextWorkout
+              ? nextWorkout.sessionKey
+              : null
           )
         );
       } else if (skippedCount === 1) {
@@ -4184,7 +4372,11 @@ function renderWeeklyAnalytics(
             "Monitor consistency",
             "One recent workout was skipped. Continue with the next planned session unless fatigue or pain is present.",
             "Do not compensate for a missed workout by doubling the next session.",
-            "recommendation-warning"
+            "recommendation-warning",
+            "consistency",
+            nextWorkout
+              ? nextWorkout.sessionKey
+              : null
           )
         );
       }
@@ -4198,7 +4390,12 @@ function renderWeeklyAnalytics(
           createRecommendation(
             "Consider slightly longer sessions",
             `Your recent average recorded duration is ${Math.round(averageDuration)} minutes. If the workouts feel manageable, add a short warm-up, one accessory set, or a controlled cooldown.`,
-            "Only increase duration if recovery remains good."
+            "Only increase duration if recovery remains good.",
+            "",
+            "duration",
+            nextWorkout
+              ? nextWorkout.sessionKey
+              : null
           )
         );
       }
@@ -4212,7 +4409,11 @@ function renderWeeklyAnalytics(
             "Prioritize recovery before progression",
             `Your recent average recorded heart rate is ${Math.round(averageHeartRate)} bpm. Keep the next progression conservative and allow adequate rest between sessions.`,
             "Heart rate is context, not a diagnosis.",
-            "recommendation-warning"
+            "recommendation-warning",
+            "heart-rate",
+            nextWorkout
+              ? nextWorkout.sessionKey
+              : null
           )
         );
       }
@@ -6044,6 +6245,14 @@ function renderWeeklyAnalytics(
     }
 
     function setupEventListeners() {
+      document
+        .getElementById(
+          "recommendationsContent"
+        )
+        .addEventListener(
+          "click",
+          handleRecommendationDecision
+        );
       document.getElementById(
         "analyticsButton"
       ).addEventListener(
