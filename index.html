@@ -1003,8 +1003,9 @@
 
       <div class="instructions">
         This dashboard summarizes your recorded workout results and provides
-        dynamic recommendations. Recommendations are shown for review only.
-        The schedule will not change automatically.
+        dynamic recommendations. Applying a recommendation creates a gradual
+        adjustment layer for future pending workouts. The original workout
+        plan remains unchanged and can be restored by clearing the progression.
       </div>
 
       <div class="analytics-grid">
@@ -1105,14 +1106,22 @@
 
         <div class="instructions">
           Recommendations are based on your completed workout difficulty,
-          skipped sessions, workout duration, and Garmin results. The app will
-          not change your schedule automatically.
+          skipped sessions, workout duration, and Garmin results. Applying a
+          recommendation adjusts future pending workout targets gradually.
+          Completed workouts and the original workout plan are not changed.
         </div>
 
         <div
           class="recommendations"
           id="recommendationsContent"
         ></div>
+        <button
+          type="button"
+          class="button-danger button-small"
+          id="clearProgressionButton"
+        >
+          Reset Active Progression
+        </button>
       </div>
 
       <div class="form-group">
@@ -1850,6 +1859,7 @@
       workoutLogs: {},
       garminUploadedWorkouts: {},
       recommendationDecisions: {},
+      progressionPlan: null,
       lastSync: null,
       garminCatalog: null
     };
@@ -1940,7 +1950,9 @@
       const plan = {};
 
       for (let week = 1; week <= 12; week += 1) {
-        const phase = Math.floor((week - 1) / 3);
+        const phase =
+          Math.floor((week - 1) / 3);
+
         const sets =
           week <= 2
             ? 3
@@ -1956,6 +1968,7 @@
 
         plan[`week${week}`] = {
           focus: focuses[week - 1],
+
           workouts: [
             createSession(
               "Monday",
@@ -1966,6 +1979,7 @@
               exercise,
               0
             ),
+
             createSession(
               "Wednesday",
               week,
@@ -1975,6 +1989,7 @@
               exercise,
               1
             ),
+
             createSession(
               "Friday",
               week,
@@ -1985,11 +2000,14 @@
               2
             )
           ],
+
           nutrition: {
             preworkout:
               "Banana with peanut butter or rice cakes with honey.",
+
             postworkout:
               "Protein plus carbohydrates within 30 minutes.",
+
             daily:
               "Aim for 1.4 to 1.8 grams of protein per kilogram of body weight."
           }
@@ -2020,11 +2038,13 @@
             notes:
               "Keep the body straight and use an incline if needed."
           },
+
           {
             ...exercise.crunch,
             notes:
               "Move slowly and avoid pulling on the neck."
           },
+
           difficultyPhase >= 2
             ? {
                 ...exercise.vups,
@@ -2044,11 +2064,13 @@
             notes:
               "Use a lower surface as strength improves."
           },
+
           {
             ...exercise.bicycle,
             notes:
               "Rotate through the torso without rushing."
           },
+
           difficultyPhase >= 2
             ? {
                 ...exercise.mountainclimbers,
@@ -2068,11 +2090,13 @@
             notes:
               "Use full range of motion where possible."
           },
+
           {
             ...exercise.reversecrunch,
             notes:
               "Lift the hips using the abdominal muscles."
           },
+
           difficultyPhase >= 2
             ? {
                 ...exercise.plank,
@@ -2091,21 +2115,26 @@
         day,
         week,
         warmup: getWarmup(week),
-        exercises: exercises.map(item => ({
-          ...item,
-          sets,
-          reps:
-            item.searchKey === "plank" ||
-            item.searchKey === "hollow"
-              ? `${15 + week} to ${25 + week} seconds`
-              : `${minimum} to ${maximum}`
-        })),
+
+        exercises:
+          exercises.map(item => ({
+            ...item,
+            sets,
+
+            reps:
+              item.searchKey === "plank" ||
+              item.searchKey === "hollow"
+                ? `${15 + week} to ${25 + week} seconds`
+                : `${minimum} to ${maximum}`
+          })),
+
         recovery: getRecovery(week)
       };
     }
 
     function getWarmup(week) {
-      const phase = Math.floor((week - 1) / 3);
+      const phase =
+        Math.floor((week - 1) / 3);
 
       const warmups = [
         "5 minutes of light cardio, arm circles, bodyweight squats, and gentle torso rotations.",
@@ -2118,7 +2147,8 @@
     }
 
     function getRecovery(week) {
-      const phase = Math.floor((week - 1) / 3);
+      const phase =
+        Math.floor((week - 1) / 3);
 
       const recoveries = [
         "Stretch the chest, hamstrings, hip flexors, and lower back. Hydrate and eat protein with carbohydrates.",
@@ -2130,7 +2160,10 @@
       return recoveries[phase] || recoveries[0];
     }
 
-    function getSessionKey(weekNumber, sessionIndex) {
+    function getSessionKey(
+      weekNumber,
+      sessionIndex
+    ) {
       return `w${weekNumber}s${sessionIndex}`;
     }
 
@@ -2153,15 +2186,20 @@
             entries.push({
               weekNumber: week,
               sessionIndex,
-              sessionKey: getSessionKey(
-                week,
-                sessionIndex
-              ),
+
+              sessionKey:
+                getSessionKey(
+                  week,
+                  sessionIndex
+                ),
+
               session,
-              name: getCanonicalWorkoutName(
-                week,
-                session
-              )
+
+              name:
+                getCanonicalWorkoutName(
+                  week,
+                  session
+                )
             });
           }
         );
@@ -2189,22 +2227,28 @@
         .replace(/'/g, "&#039;");
     }
 
-    const workoutPlan = createWorkoutPlan();
+    const workoutPlan =
+      createWorkoutPlan();
 
     function loadState() {
       try {
         const savedState =
-          localStorage.getItem(STORAGE_KEY);
+          localStorage.getItem(
+            STORAGE_KEY
+          );
 
         if (savedState) {
-          appState = normalizeState({
-            ...appState,
-            ...JSON.parse(savedState)
-          });
+          appState =
+            normalizeState({
+              ...appState,
+              ...JSON.parse(savedState)
+            });
         }
 
         const savedCatalog =
-          localStorage.getItem(CATALOG_KEY);
+          localStorage.getItem(
+            CATALOG_KEY
+          );
 
         if (savedCatalog) {
           appState.garminCatalog =
@@ -2235,6 +2279,9 @@
         recommendationDecisions:
           state.recommendationDecisions || {},
 
+        progressionPlan:
+          state.progressionPlan || null,
+
         lastSync:
           state.lastSync || null,
 
@@ -2246,13 +2293,17 @@
     function getSyncableState() {
       return {
         ...normalizeState(appState),
-        updatedAt: new Date().toISOString()
+        updatedAt:
+          new Date().toISOString()
       };
     }
 
     function saveState(options = {}) {
-      appState = normalizeState(appState);
-      appState.lastSync = new Date().toISOString();
+      appState =
+        normalizeState(appState);
+
+      appState.lastSync =
+        new Date().toISOString();
 
       localStorage.setItem(
         STORAGE_KEY,
@@ -2262,7 +2313,9 @@
       if (appState.garminCatalog) {
         localStorage.setItem(
           CATALOG_KEY,
-          JSON.stringify(appState.garminCatalog)
+          JSON.stringify(
+            appState.garminCatalog
+          )
         );
       }
 
@@ -2313,10 +2366,21 @@
           ...remote.recommendationDecisions
         },
 
+        progressionPlan:
+          Object.prototype.hasOwnProperty.call(
+            remoteState,
+            "progressionPlan"
+          )
+            ? remote.progressionPlan
+            : local.progressionPlan,
+
         garminCatalog:
-          remote.garminCatalog ||
-          local.garminCatalog ||
-          null,
+          Object.prototype.hasOwnProperty.call(
+            remoteState,
+            "garminCatalog"
+          )
+            ? remote.garminCatalog
+            : local.garminCatalog,
 
         lastSync:
           remote.lastSync ||
@@ -2333,7 +2397,8 @@
         return Promise.resolve();
       }
 
-      firebaseWriteInProgress = true;
+      firebaseWriteInProgress =
+        true;
 
       updateSyncStatus(
         "syncing",
@@ -2360,14 +2425,16 @@
           );
         })
         .finally(() => {
-          firebaseWriteInProgress = false;
+          firebaseWriteInProgress =
+            false;
         });
     }
 
     function startFirebaseSync(user) {
       stopFirebaseSync();
 
-      currentFirebaseUser = user;
+      currentFirebaseUser =
+        user;
 
       firebaseUserReference =
         firebaseDatabase.ref(
@@ -2387,7 +2454,9 @@
               snapshot.val();
 
             if (!remoteState) {
-              firebaseInitialLoadComplete = true;
+              firebaseInitialLoadComplete =
+                true;
+
               syncStateToFirebase();
               return;
             }
@@ -2402,10 +2471,15 @@
               );
 
             if (
-              JSON.stringify(localBeforeMerge) !==
-              JSON.stringify(mergedState)
+              JSON.stringify(
+                localBeforeMerge
+              ) !==
+              JSON.stringify(
+                mergedState
+              )
             ) {
-              appState = mergedState;
+              appState =
+                mergedState;
 
               saveState({
                 sync: false,
@@ -2415,15 +2489,19 @@
               renderApp();
             }
 
-            firebaseInitialLoadComplete = true;
+            firebaseInitialLoadComplete =
+              true;
 
-            if (!firebaseWriteInProgress) {
+            if (
+              !firebaseWriteInProgress
+            ) {
               updateSyncStatus(
                 "online",
                 `Synced at ${new Date().toLocaleTimeString()}`
               );
             }
           },
+
           error => {
             console.error(
               "Firebase listener failed.",
@@ -2449,10 +2527,17 @@
         );
       }
 
-      currentFirebaseUser = null;
-      firebaseUserReference = null;
-      firebaseValueListener = null;
-      firebaseInitialLoadComplete = false;
+      currentFirebaseUser =
+        null;
+
+      firebaseUserReference =
+        null;
+
+      firebaseValueListener =
+        null;
+
+      firebaseInitialLoadComplete =
+        false;
     }
 
     function updateSyncStatus(
@@ -2476,14 +2561,19 @@
         type === "offline" ||
         type === "error"
       ) {
-        indicator.classList.add("offline");
+        indicator.classList.add(
+          "offline"
+        );
       }
 
       if (type === "syncing") {
-        indicator.classList.add("syncing");
+        indicator.classList.add(
+          "syncing"
+        );
       }
 
-      status.textContent = message;
+      status.textContent =
+        message;
     }
 
     function renderApp() {
@@ -2499,73 +2589,85 @@
     }
 
     function updateStats() {
-  const total =
-    getAllWorkoutEntries().length;
+      const total =
+        getAllWorkoutEntries().length;
 
-  const completedLogs =
-    getCompletedWorkoutLogs();
+      const completedLogs =
+        getCompletedWorkoutLogs();
 
-  const completed =
-    completedLogs.length;
+      const completed =
+        completedLogs.length;
 
-  const difficulties =
-    completedLogs
-      .map(({ log }) =>
-        getValidWorkoutDifficulty(log)
-      )
-      .filter(value => value !== null);
+      const difficulties =
+        completedLogs
+          .map(({ log }) =>
+            getValidWorkoutDifficulty(log)
+          )
+          .filter(
+            value => value !== null
+          );
 
-  const imported =
-    completedLogs.filter(
-      ({ log }) =>
-        log &&
-        log.garmin &&
-        log.garmin.imported
-    ).length;
+      const imported =
+        completedLogs.filter(
+          ({ log }) =>
+            log &&
+            log.garmin &&
+            log.garmin.imported
+        ).length;
 
-  const averageDifficulty =
-    getAverage(difficulties);
+      const averageDifficulty =
+        getAverage(difficulties);
 
-  document.getElementById(
-    "completedCount"
-  ).textContent =
-    `${completed}/${total}`;
+      document.getElementById(
+        "completedCount"
+      ).textContent =
+        `${completed}/${total}`;
 
-  document.getElementById(
-    "progressPercent"
-  ).textContent =
-    `${total
-      ? Math.round(
-          (completed / total) * 100
-        )
-      : 0}%`;
+      document.getElementById(
+        "progressPercent"
+      ).textContent =
+        `${total
+          ? Math.round(
+              (completed / total) * 100
+            )
+          : 0}%`;
 
-  document.getElementById(
-    "averageDifficulty"
-  ).textContent =
-    averageDifficulty === null
-      ? "Not recorded"
-      : `${averageDifficulty.toFixed(1)}/10`;
+      document.getElementById(
+        "averageDifficulty"
+      ).textContent =
+        averageDifficulty === null
+          ? "Not recorded"
+          : `${averageDifficulty.toFixed(1)}/10`;
 
-  document.getElementById(
-    "garminImportCount"
-  ).textContent =
-    String(imported);
-}
+      document.getElementById(
+        "garminImportCount"
+      ).textContent =
+        String(imported);
+    }
+
     function renderWeeks() {
       const container =
         document.getElementById(
           "weeksContainer"
         );
 
-      container.innerHTML = "";
+      container.innerHTML =
+        "";
 
-      for (let week = 1; week <= 12; week += 1) {
+      for (
+        let week = 1;
+        week <= 12;
+        week += 1
+      ) {
         const weekData =
-          workoutPlan[`week${week}`];
+          workoutPlan[
+            `week${week}`
+          ];
 
         const card =
-          document.createElement("section");
+          document.createElement(
+            "section"
+          );
 
         card.className =
           "week-card";
@@ -2581,7 +2683,9 @@
             <div>
               <div class="week-title">
                 Week ${week}:
-                ${escapeHtml(weekData.focus)}
+                ${escapeHtml(
+                  weekData.focus
+                )}
               </div>
 
               <div class="week-subtitle">
@@ -2604,7 +2708,10 @@
           >
             ${weekData.workouts
               .map(
-                (session, sessionIndex) =>
+                (
+                  session,
+                  sessionIndex
+                ) =>
                   renderWorkout(
                     session,
                     week,
@@ -2615,7 +2722,9 @@
           </div>
         `;
 
-        container.appendChild(card);
+        container.appendChild(
+          card
+        );
       }
 
       container
@@ -2628,7 +2737,8 @@
             () => {
               toggleWeek(
                 Number(
-                  header.dataset.weekHeader
+                  header.dataset
+                    .weekHeader
                 )
               );
             }
@@ -2645,7 +2755,8 @@
 
                 toggleWeek(
                   Number(
-                    header.dataset.weekHeader
+                    header.dataset
+                      .weekHeader
                   )
                 );
               }
@@ -2662,7 +2773,8 @@
             "click",
             () => {
               toggleWorkout(
-                toggle.dataset.workoutToggle
+                toggle.dataset
+                  .workoutToggle
               );
             }
           );
@@ -2677,7 +2789,8 @@
                 event.preventDefault();
 
                 toggleWorkout(
-                  toggle.dataset.workoutToggle
+                  toggle.dataset
+                    .workoutToggle
                 );
               }
             }
@@ -2685,13 +2798,428 @@
         });
 
       container
-        .querySelectorAll("[data-action]")
+        .querySelectorAll(
+          "[data-action]"
+        )
         .forEach(button => {
           button.addEventListener(
             "click",
             handleWorkoutAction
           );
         });
+    }
+
+    function getWorkoutEntryBySessionKey(
+      sessionKey
+    ) {
+      return (
+        getAllWorkoutEntries().find(
+          entry =>
+            entry.sessionKey ===
+            sessionKey
+        ) || null
+      );
+    }
+
+    function getWorkoutEntryIndex(
+      sessionKey
+    ) {
+      return getAllWorkoutEntries()
+        .findIndex(
+          entry =>
+            entry.sessionKey ===
+            sessionKey
+        );
+    }
+
+    function getNextPendingWorkoutIndex() {
+      return getAllWorkoutEntries()
+        .findIndex(
+          entry =>
+            !appState
+              .completedWorkouts[
+                entry.sessionKey
+              ] &&
+            !appState
+              .skippedWorkouts[
+                entry.sessionKey
+              ]
+        );
+    }
+
+    function createProgressionPlan(
+      mode,
+      recommendationKey,
+      workoutKey
+    ) {
+      const anchorKey =
+        workoutKey ||
+        getNextPendingWorkout()?.sessionKey ||
+        null;
+
+      const anchorIndex =
+        anchorKey
+          ? getWorkoutEntryIndex(
+              anchorKey
+            )
+          : -1;
+
+      if (anchorIndex < 0) {
+        return null;
+      }
+
+      return {
+        active: true,
+        mode,
+        recommendationKey,
+        anchorKey,
+        anchorIndex,
+        createdAt:
+          new Date().toISOString()
+      };
+    }
+
+    function getProgressionPosition(
+      sessionKey
+    ) {
+      const plan =
+        appState.progressionPlan;
+
+      if (
+        !plan ||
+        !plan.active ||
+        !plan.anchorKey
+      ) {
+        return -1;
+      }
+
+      const entries =
+        getAllWorkoutEntries();
+
+      const anchorIndex =
+        entries.findIndex(
+          entry =>
+            entry.sessionKey ===
+            plan.anchorKey
+        );
+
+      const targetIndex =
+        entries.findIndex(
+          entry =>
+            entry.sessionKey ===
+            sessionKey
+        );
+
+      if (
+        anchorIndex < 0 ||
+        targetIndex < anchorIndex
+      ) {
+        return -1;
+      }
+
+      return entries
+        .slice(
+          anchorIndex,
+          targetIndex + 1
+        )
+        .filter(entry =>
+          !appState.skippedWorkouts[
+            entry.sessionKey
+          ]
+        )
+        .findIndex(
+          entry =>
+            entry.sessionKey ===
+            sessionKey
+        );
+    }
+    function parseRepRange(value) {
+      const text =
+        String(value || "");
+
+      const match =
+        text.match(
+          /^\s*(\d+)\s*(?:to|-)\s*(\d+)\s*(.*)$/i
+        );
+
+      if (!match) {
+        return null;
+      }
+
+      return {
+        minimum: Number(match[1]),
+        maximum: Number(match[2]),
+        suffix: match[3] || ""
+      };
+    }
+
+    function adjustRepText(
+      reps,
+      adjustment
+    ) {
+      const parsed =
+        parseRepRange(reps);
+
+      if (!parsed) {
+        return reps;
+      }
+
+      const minimum =
+        Math.max(
+          1,
+          parsed.minimum + adjustment
+        );
+
+      const maximum =
+        Math.max(
+          minimum,
+          parsed.maximum + adjustment
+        );
+
+      return `${minimum} to ${maximum}${parsed.suffix}`;
+    }
+
+    function getProgressionAdjustment(
+      sessionKey
+    ) {
+      const plan =
+        appState.progressionPlan;
+
+      const position =
+        getProgressionPosition(
+          sessionKey
+        );
+
+      if (
+        !plan ||
+        !plan.active ||
+        position < 0 ||
+        appState.completedWorkouts[
+          sessionKey
+        ] ||
+        appState.skippedWorkouts[
+          sessionKey
+        ]
+      ) {
+        return {
+          reps: 0,
+          sets: 0,
+          position: -1,
+          mode: "normal"
+        };
+      }
+
+      if (plan.mode === "increase") {
+        return {
+          reps: Math.min(
+            3,
+            1 +
+              Math.floor(
+                position / 2
+              )
+          ),
+
+          sets: Math.min(
+            1,
+            Math.floor(
+              position / 6
+            )
+          ),
+
+          position,
+          mode: "increase"
+        };
+      }
+
+      if (plan.mode === "decrease") {
+        return {
+          reps:
+            position < 3
+              ? -1
+              : 0,
+
+          sets:
+            position < 3
+              ? -1
+              : 0,
+
+          position,
+          mode: "decrease"
+        };
+      }
+
+      if (
+        plan.mode === "conservative"
+      ) {
+        return {
+          reps:
+            position < 2
+              ? 0
+              : Math.min(
+                  1,
+                  Math.floor(
+                    position / 4
+                  )
+                ),
+
+          sets: 0,
+          position,
+          mode: "conservative"
+        };
+      }
+
+      return {
+        reps: 0,
+        sets: 0,
+        position,
+        mode: "normal"
+      };
+    }
+
+    function getAdjustedExercise(
+      exercise,
+      sessionKey
+    ) {
+      const adjustment =
+        getProgressionAdjustment(
+          sessionKey
+        );
+
+      if (
+        adjustment.position < 0 ||
+        (
+          adjustment.reps === 0 &&
+          adjustment.sets === 0
+        )
+      ) {
+        return {
+          ...exercise
+        };
+      }
+
+      const adjustedSets =
+        Math.max(
+          1,
+          Number(exercise.sets) +
+            adjustment.sets
+        );
+
+      return {
+        ...exercise,
+        sets: adjustedSets,
+        reps: adjustRepText(
+          exercise.reps,
+          adjustment.reps
+        )
+      };
+    }
+
+    function renderProgressionNotice(
+      sessionKey
+    ) {
+      const adjustment =
+        getProgressionAdjustment(
+          sessionKey
+        );
+
+     if (
+        adjustment.position < 0 ||
+        adjustment.mode === "normal"
+      ) {
+        return "";
+      }
+
+      const positionText =
+        adjustment.position === 0
+          ? "first remaining workout"
+          : `progression step ${adjustment.position + 1}`;
+
+      let message =
+`Progression strategy active for this ${positionText}.`;
+      if (
+        adjustment.mode === "increase"
+      ) {
+        message +=
+          " Repetitions increase gradually, followed by a possible set increase.";
+      }
+
+      if (
+        adjustment.mode === "decrease"
+      ) {
+        message +=
+          " Temporary recovery adjustments are active before normal progression resumes.";
+      }
+
+      if (
+        adjustment.mode === "conservative"
+      ) {
+        message +=
+          " Progression is being held conservative while you build tolerance.";
+      }
+
+      return `
+        <div class="instructions">
+          ${escapeHtml(message)}
+        </div>
+      `;
+    }
+
+    function getRecommendationMode(
+      recommendationKey
+    ) {
+      if (
+        recommendationKey ===
+        "progression"
+      ) {
+        return "increase";
+      }
+
+      if (
+        recommendationKey ===
+          "recovery" ||
+        recommendationKey ===
+          "reduce-volume"
+      ) {
+        return "decrease";
+      }
+
+      if (
+        recommendationKey ===
+        "conservative"
+      ) {
+        return "conservative";
+      }
+
+      return "maintain";
+    }
+
+    function applyProgressionRecommendation(
+      recommendationKey,
+      workoutKey
+    ) {
+      const mode =
+        getRecommendationMode(
+          recommendationKey
+        );
+
+      if (mode === "maintain") {
+        appState.progressionPlan =
+          null;
+
+        return;
+      }
+
+      appState.progressionPlan =
+        createProgressionPlan(
+          mode,
+          recommendationKey,
+          workoutKey
+        );
+    }
+
+    function clearProgressionRecommendation() {
+      appState.progressionPlan =
+        null;
     }
 
     function renderWorkout(
@@ -2737,15 +3265,22 @@
           session
         );
 
-      const statusBadge = complete
-        ? '<span class="badge badge-complete">Complete</span>'
-        : skipped
-          ? '<span class="badge badge-skipped">Skipped</span>'
-          : '<span class="badge badge-pending">Pending</span>';
+      const statusBadge =
+        complete
+          ? '<span class="badge badge-complete">Complete</span>'
+          : skipped
+            ? '<span class="badge badge-skipped">Skipped</span>'
+            : '<span class="badge badge-pending">Pending</span>';
 
-      const garminBadge = imported
-        ? '<span class="badge badge-garmin">Garmin Imported</span>'
-        : "";
+      const garminBadge =
+        imported
+          ? '<span class="badge badge-garmin">Garmin Imported</span>'
+          : "";
+
+      const progressionNotice =
+        renderProgressionNotice(
+          sessionKey
+        );
 
       return `
         <article class="workout">
@@ -2758,12 +3293,16 @@
           >
             <div class="workout-header">
               <div class="workout-title">
-                ${escapeHtml(workoutName)}
+                ${escapeHtml(
+                  workoutName
+                )}
               </div>
 
               <div class="workout-subtitle">
                 Canonical Garmin name:
-                ${escapeHtml(workoutName)}
+                ${escapeHtml(
+                  workoutName
+                )}
               </div>
 
               <div class="badges">
@@ -2784,13 +3323,17 @@
             class="workout-content"
             id="workoutContent${sessionKey}"
           >
+            ${progressionNotice}
+
             <div class="section">
               <div class="section-title">
                 🔥 Warm-up
               </div>
 
               <div class="section-text">
-                ${escapeHtml(session.warmup)}
+                ${escapeHtml(
+                  session.warmup
+                )}
               </div>
             </div>
 
@@ -2800,12 +3343,18 @@
               </div>
 
               ${session.exercises
-                .map(
-                  exercise => `
+                .map(exercise => {
+                  const adjustedExercise =
+                    getAdjustedExercise(
+                      exercise,
+                      sessionKey
+                    );
+
+                  return `
                     <div class="exercise">
                       <div class="exercise-name">
                         ${escapeHtml(
-                          exercise.name
+                          adjustedExercise.name
                         )}
                       </div>
 
@@ -2813,21 +3362,21 @@
                         <span>
                           Sets:
                           ${escapeHtml(
-                            exercise.sets
+                            adjustedExercise.sets
                           )}
                         </span>
 
                         <span>
                           Target:
                           ${escapeHtml(
-                            exercise.reps
+                            adjustedExercise.reps
                           )}
                         </span>
                       </div>
 
                       <div class="exercise-note">
                         ${escapeHtml(
-                          exercise.notes
+                          adjustedExercise.notes
                         )}
                       </div>
 
@@ -2835,7 +3384,8 @@
                         class="video-link"
                         href="${
                           videoSearches[
-                            exercise.searchKey
+                            adjustedExercise
+                              .searchKey
                           ] || "#"
                         }"
                         target="_blank"
@@ -2844,8 +3394,8 @@
                         🎥 Search Tutorial
                       </a>
                     </div>
-                  `
-                )
+                  `;
+                })
                 .join("")}
             </div>
 
@@ -2855,11 +3405,15 @@
               </div>
 
               <div class="section-text">
-                ${escapeHtml(session.recovery)}
+                ${escapeHtml(
+                  session.recovery
+                )}
               </div>
             </div>
 
-            ${renderGarminResultsCard(sessionKey)}
+            ${renderGarminResultsCard(
+              sessionKey
+            )}
 
             <div class="workout-actions">
               <button
@@ -2909,7 +3463,6 @@
         </article>
       `;
     }
-
     function toggleWeek(weekNumber) {
       const content =
         document.getElementById(
@@ -4186,26 +4739,6 @@ function renderWeeklyAnalytics(
         </div>
       `;
     }
-function saveRecommendationDecision(
-      recommendationKey,
-      decision,
-      workoutKey = null
-    ) {
-      if (!recommendationKey) {
-        return;
-      }
-
-      appState.recommendationDecisions[
-        recommendationKey
-      ] = {
-        decision,
-        workoutKey,
-        decidedAt:
-          new Date().toISOString()
-      };
-
-      saveState();
-    }
 
     function handleRecommendationDecision(
       event
@@ -4235,17 +4768,41 @@ function saveRecommendationDecision(
         return;
       }
 
-      saveRecommendationDecision(
-        recommendationKey,
-        action === "apply"
-          ? "applied"
-          : "kept",
-        workoutKey
-      );
+      if (action === "apply") {
+        applyProgressionRecommendation(
+          recommendationKey,
+          workoutKey
+        );
+      } else {
+        clearProgressionRecommendation();
+      }
 
+      appState.recommendationDecisions[
+        recommendationKey
+      ] = {
+        decision:
+          action === "apply"
+            ? "applied"
+            : "kept",
+
+        workoutKey,
+
+        mode:
+          action === "apply"
+            ? getRecommendationMode(
+                recommendationKey
+              )
+            : "maintain",
+
+        decidedAt:
+          new Date().toISOString()
+      };
+
+      saveState();
+
+      renderApp();
       renderRecommendations();
     }
-    
    function renderRecommendations() {
       const container =
         document.getElementById(
@@ -4310,7 +4867,7 @@ function saveRecommendationDecision(
           createRecommendation(
             "Consider a controlled progression",
             nextWorkout
-              ? `Your recent average difficulty is ${averageDifficulty.toFixed(1)}/10. You may be ready to add two to three repetitions per set or increase one exercise by one set.`
+              ? `Your recent average difficulty is ${averageDifficulty.toFixed(1)}/10. You may be ready for a gradual increase beginning with one additional repetition per set. Further increases will occur only after additional progression steps.`
               : "Your recent average difficulty is low. You may be ready for a small increase in repetitions or sets.",
             `Next planned workout: ${getNextWorkoutSummary(nextWorkout)}`,
             "",
@@ -4723,8 +5280,24 @@ function saveRecommendationDecision(
           `week${weekNumber}`
         ];
 
+      if (
+        !week ||
+        !week.workouts ||
+        !week.workouts[sessionIndex]
+      ) {
+        throw new Error(
+          "The selected workout could not be found."
+        );
+      }
+
       const session =
         week.workouts[sessionIndex];
+
+      const sessionKey =
+        getSessionKey(
+          weekNumber,
+          sessionIndex
+        );
 
       const workoutName =
         getCanonicalWorkoutName(
@@ -4732,12 +5305,21 @@ function saveRecommendationDecision(
           session
         );
 
+      const adjustedExercises =
+        session.exercises.map(
+          exercise =>
+            getAdjustedExercise(
+              exercise,
+              sessionKey
+            )
+        );
+
       let stepId = 1;
       let stepOrder = 1;
 
       const workoutSteps = [];
 
-      session.exercises.forEach(
+      adjustedExercises.forEach(
         exercise => {
           const mapped =
             resolveGarminExercise(
@@ -4866,12 +5448,11 @@ function saveRecommendationDecision(
           }
         ],
         estimatedDurationInSecs:
-          session.exercises.length * 900,
+          adjustedExercises.length * 900,
         estimatedDistanceInMeters: 0,
         isWheelchair: false
       };
     }
-
     function createGarminScript(
       payloads,
       delay = 2000
@@ -6253,6 +6834,23 @@ function saveRecommendationDecision(
           "click",
           handleRecommendationDecision
         );
+
+      document.getElementById(
+        "clearProgressionButton"
+      ).addEventListener(
+        "click",
+        () => {
+          clearProgressionRecommendation();
+
+          appState.recommendationDecisions =
+            {};
+
+          saveState();
+          renderApp();
+          renderRecommendations();
+        }
+      );
+
       document.getElementById(
         "analyticsButton"
       ).addEventListener(
