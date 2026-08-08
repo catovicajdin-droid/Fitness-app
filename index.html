@@ -702,6 +702,57 @@
       font-size: 0.65rem;
     }
 
+    .recommendations {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      margin-top: 1rem;
+    }
+
+    .recommendation-card {
+      border: 1px solid var(--primary);
+      border-radius: 7px;
+      background: rgba(0, 217, 255, 0.06);
+      padding: 0.85rem;
+    }
+
+    .recommendation-card.recommendation-warning {
+      border-color: var(--warning);
+      background: rgba(210, 153, 34, 0.08);
+    }
+
+    .recommendation-card.recommendation-recovery {
+      border-color: var(--danger);
+      background: rgba(248, 81, 73, 0.08);
+    }
+
+    .recommendation-title {
+      margin-bottom: 0.35rem;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .recommendation-warning .recommendation-title {
+      color: var(--warning);
+    }
+
+    .recommendation-recovery .recommendation-title {
+      color: var(--danger);
+    }
+
+    .recommendation-text {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+
+    .recommendation-meta {
+      margin-top: 0.5rem;
+      color: var(--accent);
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
     .exercise-analysis {
       display: flex;
       flex-direction: column;
@@ -928,8 +979,9 @@
       </h2>
 
       <div class="instructions">
-        This dashboard summarizes your recorded workout results. It does not
-        change the schedule or generate recommendations yet.
+        This dashboard summarizes your recorded workout results and provides
+        dynamic recommendations. Recommendations are shown for review only.
+        The schedule will not change automatically.
       </div>
 
       <div class="analytics-grid">
@@ -1018,32 +1070,49 @@
         <select id="analyticsWeekSelect"></select>
       </div>
 
-      <div
+<div
         class="weekly-analytics"
         id="weeklyAnalytics"
       ></div>
 
       <div class="form-group">
-  <label class="form-label">
-    Exercise performance
-  </label>
+        <label class="form-label">
+          Dynamic workout recommendations
+        </label>
 
-  <div class="instructions">
-    Difficulty is recorded for the completed workout session, not for
-    individual exercises. The workout session difficulty is shown for every
-    exercise included in that completed workout. Garmin TCX files provide
-    workout results such as duration, calories, and heart rate, but do not
-    provide a separate difficulty score for each exercise. If no difficulty
-    was recorded for the workout session, the result remains
-    <strong>Not recorded</strong>.
-  </div>
+        <div class="instructions">
+          Recommendations are based on your completed workout difficulty,
+          skipped sessions, workout duration, and Garmin results. The app will
+          not change your schedule automatically.
+        </div>
 
-  <div
-    class="exercise-analysis"
-    id="exerciseAnalytics"
-  ></div>
-</div>
+        <div
+          class="recommendations"
+          id="recommendationsContent"
+        ></div>
+      </div>
 
+      <div class="form-group">
+        <label class="form-label">
+          Exercise performance
+        </label>
+
+        <div class="instructions">
+          Difficulty is recorded for the completed workout session, not for
+          individual exercises. The workout session difficulty is shown for
+          every exercise included in that completed workout. Garmin TCX files
+          provide workout results such as duration, calories, and heart rate,
+          but do not provide a separate difficulty score for each exercise. If
+          no difficulty was recorded for the workout session, the result
+          remains <strong>Not recorded</strong>.
+        </div>
+
+        <div
+          class="exercise-analysis"
+          id="exerciseAnalytics"
+        ></div>
+      </div>
+      
       <div class="modal-actions">
         <button
           class="button-secondary"
@@ -3809,6 +3878,358 @@ function renderWeeklyAnalytics(
     })
     .join("");
 }
+    function getCompletedWorkoutEntries() {
+      return getAllWorkoutEntries()
+        .filter(entry =>
+          Boolean(
+            appState.completedWorkouts[
+              entry.sessionKey
+            ]
+          )
+        )
+        .map(entry => ({
+          ...entry,
+          log:
+            appState.workoutLogs[
+              entry.sessionKey
+            ] || null
+        }));
+    }
+
+    function getPendingWorkoutEntries() {
+      return getAllWorkoutEntries()
+        .filter(entry =>
+          !appState.completedWorkouts[
+            entry.sessionKey
+          ] &&
+          !appState.skippedWorkouts[
+            entry.sessionKey
+          ]
+        );
+    }
+
+    function getRecentCompletedEntries(limit = 5) {
+      return getCompletedWorkoutEntries()
+        .sort((first, second) => {
+          const firstDate =
+            new Date(
+              first.log?.loggedAt || 0
+            ).getTime();
+
+          const secondDate =
+            new Date(
+              second.log?.loggedAt || 0
+            ).getTime();
+
+          return secondDate - firstDate;
+        })
+        .slice(0, limit);
+    }
+
+    function getRecentDifficultyValues(limit = 5) {
+      return getRecentCompletedEntries(limit)
+        .map(entry =>
+          getValidWorkoutDifficulty(
+            entry.log
+          )
+        )
+        .filter(value => value !== null);
+    }
+
+    function getRecentSkippedCount(limit = 5) {
+      return getAllWorkoutEntries()
+        .filter(entry =>
+          Boolean(
+            appState.skippedWorkouts[
+              entry.sessionKey
+            ]
+          )
+        )
+        .sort((first, second) => {
+          const firstKey =
+            first.sessionKey;
+
+          const secondKey =
+            second.sessionKey;
+
+          return secondKey.localeCompare(
+            firstKey,
+            undefined,
+            {
+              numeric: true
+            }
+          );
+        })
+        .slice(0, limit)
+        .length;
+    }
+
+    function getNextPendingWorkout() {
+      return getPendingWorkoutEntries()[0] || null;
+    }
+
+    function getNextWorkoutSummary(entry) {
+      if (!entry) {
+        return "No pending workouts remain in the current plan.";
+      }
+
+      return `${entry.name} with ${entry.session.exercises.length} exercises`;
+    }
+
+    function getRecommendationData() {
+      const recentEntries =
+        getRecentCompletedEntries(5);
+
+      const recentDifficulties =
+        getRecentDifficultyValues(5);
+
+      const averageDifficulty =
+        getAverage(recentDifficulties);
+
+      const latestDifficulty =
+        recentDifficulties.length
+          ? recentDifficulties[0]
+          : null;
+
+      const skippedCount =
+        getRecentSkippedCount(5);
+
+      const recentDurations =
+        recentEntries
+          .map(entry => {
+            const garminDuration =
+              getGarminDurationMinutes(
+                entry.log
+              );
+
+            if (garminDuration > 0) {
+              return garminDuration;
+            }
+
+            const manualDuration =
+              Number(entry.log?.duration);
+
+            return Number.isFinite(
+              manualDuration
+            ) && manualDuration > 0
+              ? manualDuration
+              : null;
+          })
+          .filter(value => value !== null);
+
+      const averageDuration =
+        getAverage(recentDurations);
+
+      const recentHeartRates =
+        recentEntries
+          .map(entry =>
+            Number(
+              entry.log?.garmin?.averageHeartRate
+            )
+          )
+          .filter(value =>
+            Number.isFinite(value) &&
+            value > 0
+          );
+
+      const averageHeartRate =
+        getAverage(recentHeartRates);
+
+      const nextWorkout =
+        getNextPendingWorkout();
+
+      return {
+        recentEntries,
+        recentDifficulties,
+        averageDifficulty,
+        latestDifficulty,
+        skippedCount,
+        averageDuration,
+        averageHeartRate,
+        nextWorkout
+      };
+    }
+
+    function createRecommendation(
+      title,
+      text,
+      meta,
+      className = ""
+    ) {
+      return `
+        <div class="recommendation-card ${className}">
+          <div class="recommendation-title">
+            ${escapeHtml(title)}
+          </div>
+
+          <div class="recommendation-text">
+            ${escapeHtml(text)}
+          </div>
+
+          ${
+            meta
+              ? `
+                <div class="recommendation-meta">
+                  ${escapeHtml(meta)}
+                </div>
+              `
+              : ""
+          }
+        </div>
+      `;
+    }
+
+    function renderRecommendations() {
+      const container =
+        document.getElementById(
+          "recommendationsContent"
+        );
+
+      if (!container) {
+        return;
+      }
+
+      const data =
+        getRecommendationData();
+
+      const {
+        recentEntries,
+        recentDifficulties,
+        averageDifficulty,
+        latestDifficulty,
+        skippedCount,
+        averageDuration,
+        averageHeartRate,
+        nextWorkout
+      } = data;
+
+      if (!recentEntries.length) {
+        container.innerHTML =
+          createRecommendation(
+            "Complete your first workout",
+            "After you record a completed workout, the app will analyze your difficulty, duration, Garmin data, and consistency.",
+            "No recommendation can be generated yet."
+          );
+
+        return;
+      }
+
+      const recommendations = [];
+
+      if (
+        averageDifficulty !== null &&
+        averageDifficulty >= 8
+      ) {
+        recommendations.push(
+          createRecommendation(
+            "Reduce the next workout intensity",
+            nextWorkout
+              ? `Your recent average difficulty is ${averageDifficulty.toFixed(1)}/10. Consider reducing the next workout by one set or using an easier exercise variation.`
+              : "Your recent average difficulty is high. Consider reducing the next workout by one set or using easier exercise variations.",
+            `Next planned workout: ${getNextWorkoutSummary(nextWorkout)}`,
+            "recommendation-recovery"
+          )
+        );
+      } else if (
+        recentDifficulties.length >= 2 &&
+        averageDifficulty !== null &&
+        averageDifficulty <= 3
+      ) {
+        recommendations.push(
+          createRecommendation(
+            "Consider a controlled progression",
+            nextWorkout
+              ? `Your recent average difficulty is ${averageDifficulty.toFixed(1)}/10. You may be ready to add two to three repetitions per set or increase one exercise by one set.`
+              : "Your recent average difficulty is low. You may be ready for a small increase in repetitions or sets.",
+            `Next planned workout: ${getNextWorkoutSummary(nextWorkout)}`,
+            ""
+          )
+        );
+      } else if (
+        latestDifficulty !== null &&
+        latestDifficulty >= 7
+      ) {
+        recommendations.push(
+          createRecommendation(
+            "Keep the planned progression conservative",
+            `Your latest workout was rated ${latestDifficulty}/10. Keep the current exercise variations and avoid increasing both sets and repetitions at the same time.`,
+            "Change only one training variable when you progress.",
+            "recommendation-warning"
+          )
+        );
+      } else {
+        recommendations.push(
+          createRecommendation(
+            "Continue with the current progression",
+            averageDifficulty !== null
+              ? `Your recent average difficulty is ${averageDifficulty.toFixed(1)}/10, which supports continuing the planned progression.`
+              : "There is not enough difficulty data for a precise adjustment, so keep the current progression.",
+            "Record difficulty after each completed workout for better recommendations."
+          )
+        );
+      }
+
+      if (skippedCount >= 2) {
+        recommendations.push(
+          createRecommendation(
+            "Add recovery or reduce weekly volume",
+            `You skipped ${skippedCount} recent workouts. Consider adding an extra recovery day or temporarily reducing the number of sets.`,
+            "Consistency should be restored before increasing intensity.",
+            "recommendation-recovery"
+          )
+        );
+      } else if (skippedCount === 1) {
+        recommendations.push(
+          createRecommendation(
+            "Monitor consistency",
+            "One recent workout was skipped. Continue with the next planned session unless fatigue or pain is present.",
+            "Do not compensate for a missed workout by doubling the next session.",
+            "recommendation-warning"
+          )
+        );
+      }
+
+      if (
+        averageDuration !== null &&
+        averageDuration < 20 &&
+        recentEntries.length >= 2
+      ) {
+        recommendations.push(
+          createRecommendation(
+            "Consider slightly longer sessions",
+            `Your recent average recorded duration is ${Math.round(averageDuration)} minutes. If the workouts feel manageable, add a short warm-up, one accessory set, or a controlled cooldown.`,
+            "Only increase duration if recovery remains good."
+          )
+        );
+      }
+
+      if (
+        averageHeartRate !== null &&
+        averageHeartRate >= 165
+      ) {
+        recommendations.push(
+          createRecommendation(
+            "Prioritize recovery before progression",
+            `Your recent average recorded heart rate is ${Math.round(averageHeartRate)} bpm. Keep the next progression conservative and allow adequate rest between sessions.`,
+            "Heart rate is context, not a diagnosis.",
+            "recommendation-warning"
+          )
+        );
+      }
+
+      if (!nextWorkout) {
+        recommendations.push(
+          createRecommendation(
+            "The current plan is complete",
+            "All scheduled workouts are either completed or skipped. Review your analytics before starting another training block.",
+            "No future workout is available for automatic recommendation."
+          )
+        );
+      }
+
+      container.innerHTML =
+        recommendations.join("");
+    }
     function renderAnalytics() {
       const analytics =
         getOverallAnalytics();
@@ -3879,6 +4300,7 @@ function renderWeeklyAnalytics(
       }
 
       renderWeeklyAnalytics(1);
+      renderRecommendations();
       renderExerciseAnalytics();
     }
 
