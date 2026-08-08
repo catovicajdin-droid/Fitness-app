@@ -110,7 +110,11 @@
       top: 0;
       z-index: 10;
       border-bottom: 1px solid var(--border);
-      background: linear-gradient(135deg, var(--surface) 0%, var(--surface-light) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--surface) 0%,
+        var(--surface-light) 100%
+      );
       padding: 1.25rem;
     }
 
@@ -198,7 +202,11 @@
       overflow: hidden;
       border: 1px solid var(--border);
       border-radius: 10px;
-      background: linear-gradient(135deg, var(--surface-light), var(--surface));
+      background: linear-gradient(
+        135deg,
+        var(--surface-light),
+        var(--surface)
+      );
     }
 
     .week-header {
@@ -488,7 +496,7 @@
     }
 
     .modal-content {
-      width: min(720px, 100%);
+      width: min(780px, 100%);
       max-height: 92vh;
       overflow-y: auto;
       border: 1px solid var(--border);
@@ -502,13 +510,6 @@
       color: var(--primary);
       font-size: 1.15rem;
       font-weight: 700;
-    }
-
-    .modal-text {
-      margin-bottom: 1rem;
-      color: var(--muted);
-      font-size: 0.83rem;
-      line-height: 1.6;
     }
 
     .instructions {
@@ -599,9 +600,9 @@
       color: var(--danger);
     }
 
-    .garmin-summary {
+    .summary-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 0.65rem;
       margin: 1rem 0;
     }
@@ -622,22 +623,109 @@
       margin-top: 0.2rem;
       color: var(--text);
       font-weight: 700;
+      word-break: break-word;
     }
 
-    .catalog-status,
-    .bulk-status {
-      min-height: 1.2rem;
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .analytics-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface-light);
+      padding: 0.9rem;
+    }
+
+    .analytics-number {
+      margin-top: 0.35rem;
+      color: var(--primary);
+      font-size: 1.35rem;
+      font-weight: 800;
+    }
+
+    .analytics-bar {
+      width: 100%;
+      height: 8px;
+      overflow: hidden;
+      margin-top: 0.55rem;
+      border-radius: 5px;
+      background: var(--border);
+    }
+
+    .analytics-bar-fill {
+      width: 0;
+      height: 100%;
+      border-radius: 5px;
+      background: var(--success);
+      transition: width 0.3s ease;
+    }
+
+    .weekly-analytics {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      margin-top: 1rem;
+    }
+
+    .weekly-analytics-row {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--background);
+      padding: 0.8rem;
+    }
+
+    .weekly-analytics-title {
+      margin-bottom: 0.45rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .weekly-analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+
+    .weekly-value {
+      color: var(--text);
+      font-size: 0.76rem;
+      line-height: 1.45;
+    }
+
+    .weekly-label {
+      display: block;
       color: var(--muted);
-      font-size: 0.78rem;
-      white-space: pre-wrap;
+      font-size: 0.65rem;
     }
 
-    .status-success {
-      color: var(--success);
+    .exercise-analysis {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      margin-top: 1rem;
     }
 
-    .status-error {
-      color: var(--danger);
+    .exercise-analysis-row {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--background);
+      padding: 0.7rem;
+    }
+
+    .exercise-analysis-name {
+      margin-bottom: 0.25rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .exercise-analysis-text {
+      color: var(--muted);
+      font-size: 0.76rem;
+      line-height: 1.5;
     }
 
     .account-box {
@@ -672,6 +760,22 @@
       content: "";
     }
 
+    .catalog-status,
+    .bulk-status {
+      min-height: 1.2rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+      white-space: pre-wrap;
+    }
+
+    .status-success {
+      color: var(--success);
+    }
+
+    .status-error {
+      color: var(--danger);
+    }
+
     code {
       color: var(--accent);
     }
@@ -699,6 +803,18 @@
       .workout-actions {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
+
+      .analytics-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .weekly-analytics-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
     @media (max-width: 600px) {
@@ -713,20 +829,13 @@
         padding: 0.85rem;
       }
 
-      .garmin-summary {
+      .analytics-grid,
+      .summary-grid {
         grid-template-columns: 1fr;
       }
 
-      .workout-header-toggle {
-        gap: 0.5rem;
-      }
-
-      .workout-header {
-        min-width: 0;
-      }
-
-      .badges {
-        justify-content: flex-start;
+      .weekly-analytics-grid {
+        grid-template-columns: 1fr 1fr;
       }
     }
   </style>
@@ -746,6 +855,14 @@
         </div>
 
         <div class="header-actions">
+          <button
+            class="button-success button-small"
+            id="analyticsButton"
+            type="button"
+          >
+            📊 Analytics
+          </button>
+
           <button
             class="button-secondary button-small"
             id="accountButton"
@@ -784,6 +901,11 @@
         </div>
 
         <div class="stat">
+          <span class="stat-label">Average Difficulty</span>
+          <span class="stat-value" id="averageDifficulty">0/10</span>
+        </div>
+
+        <div class="stat">
           <span class="stat-label">Garmin Results</span>
           <span class="stat-value" id="garminImportCount">0</span>
         </div>
@@ -797,18 +919,150 @@
 
   <div
     class="modal"
+    id="analyticsModal"
+    aria-hidden="true"
+  >
+    <div class="modal-content">
+      <h2 class="modal-title">
+        📊 Analytics Dashboard
+      </h2>
+
+      <div class="instructions">
+        This dashboard summarizes your recorded workout results. It does not
+        change the schedule or generate recommendations yet.
+      </div>
+
+      <div class="analytics-grid">
+        <div class="analytics-card">
+          <div class="stat-label">Overall Completion</div>
+
+          <div
+            class="analytics-number"
+            id="analyticsCompletion"
+          >
+            0%
+          </div>
+
+          <div class="analytics-bar">
+            <div
+              class="analytics-bar-fill"
+              id="analyticsCompletionBar"
+            ></div>
+          </div>
+        </div>
+
+        <div class="analytics-card">
+          <div class="stat-label">Average Difficulty</div>
+
+          <div
+            class="analytics-number"
+            id="analyticsDifficulty"
+          >
+            Not available
+          </div>
+        </div>
+
+        <div class="analytics-card">
+          <div class="stat-label">Total Duration</div>
+
+          <div
+            class="analytics-number"
+            id="analyticsDuration"
+          >
+            0 min
+          </div>
+        </div>
+
+        <div class="analytics-card">
+          <div class="stat-label">Garmin Calories</div>
+
+          <div
+            class="analytics-number"
+            id="analyticsCalories"
+          >
+            0 kcal
+          </div>
+        </div>
+
+        <div class="analytics-card">
+          <div class="stat-label">Average Heart Rate</div>
+
+          <div
+            class="analytics-number"
+            id="analyticsHeartRate"
+          >
+            Not available
+          </div>
+        </div>
+
+        <div class="analytics-card">
+          <div class="stat-label">Skipped Workouts</div>
+
+          <div
+            class="analytics-number"
+            id="analyticsSkipped"
+          >
+            0
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label
+          class="form-label"
+          for="analyticsWeekSelect"
+        >
+          View detailed week
+        </label>
+
+        <select id="analyticsWeekSelect"></select>
+      </div>
+
+      <div
+        class="weekly-analytics"
+        id="weeklyAnalytics"
+      ></div>
+
+      <div class="form-group">
+        <label class="form-label">
+          Exercise performance
+        </label>
+
+        <div
+          class="exercise-analysis"
+          id="exerciseAnalytics"
+        ></div>
+      </div>
+
+      <div class="modal-actions">
+        <button
+          class="button-secondary"
+          data-close-modal="analyticsModal"
+          type="button"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="modal"
     id="authModal"
     aria-hidden="true"
   >
     <div class="modal-content">
-      <h2 class="modal-title" id="authModalTitle">
+      <h2
+        class="modal-title"
+        id="authModalTitle"
+      >
         🔐 Sign In
       </h2>
 
       <div class="instructions">
         Sign in with the same Firebase account on your phone and desktop.
-        Your workout logs, Garmin imports, completion status, and settings will
-        then synchronize between both devices.
+        Workout logs, Garmin imports, completion status, and settings will
+        synchronize between both devices.
       </div>
 
       <div
@@ -816,7 +1070,10 @@
         id="signedInAccountBox"
         hidden
       >
-        <div class="account-email" id="signedInEmail"></div>
+        <div
+          class="account-email"
+          id="signedInEmail"
+        ></div>
 
         <button
           type="button"
@@ -915,7 +1172,10 @@
     aria-hidden="true"
   >
     <div class="modal-content">
-      <h2 class="modal-title" id="logModalTitle">
+      <h2
+        class="modal-title"
+        id="logModalTitle"
+      >
         Log Workout
       </h2>
 
@@ -942,7 +1202,8 @@
             class="form-label"
             for="difficultyInput"
           >
-            Difficulty: <span id="difficultyValue">5</span>/10
+            Difficulty:
+            <span id="difficultyValue">5</span>/10
           </label>
 
           <input
@@ -1022,10 +1283,13 @@
 
       <div class="instructions">
         <strong>Workout:</strong>
-        <span id="tcxWorkoutName">Not selected</span><br><br>
+        <span id="tcxWorkoutName">Not selected</span>
+        <br><br>
 
-        <strong>Step 1:</strong>
-        Open the Garmin activities page.<br>
+        Export the completed activity from Garmin Connect as a TCX file,
+        then select the downloaded file below.
+
+        <br>
 
         <button
           class="button-garmin button-small"
@@ -1034,17 +1298,7 @@
           style="margin-top: 0.6rem;"
         >
           🌐 Open Garmin Activities
-        </button><br><br>
-
-        <strong>Step 2:</strong>
-        Open the completed activity in Garmin Connect.<br><br>
-
-        <strong>Step 3:</strong>
-        Open the activity menu and select
-        <strong>Export to TCX</strong>.<br><br>
-
-        <strong>Step 4:</strong>
-        Return here and choose the downloaded TCX file.
+        </button>
       </div>
 
       <div
@@ -1080,37 +1334,67 @@
 
       <div
         id="tcxSummary"
-        class="garmin-summary"
+        class="summary-grid"
         hidden
       >
         <div class="summary-item">
           <div class="summary-label">Activity</div>
-          <div class="summary-value" id="tcxActivityName">Not available</div>
+          <div
+            class="summary-value"
+            id="tcxActivityName"
+          >
+            Not available
+          </div>
         </div>
 
         <div class="summary-item">
           <div class="summary-label">Start time</div>
-          <div class="summary-value" id="tcxStartTime">Not available</div>
+          <div
+            class="summary-value"
+            id="tcxStartTime"
+          >
+            Not available
+          </div>
         </div>
 
         <div class="summary-item">
           <div class="summary-label">Duration</div>
-          <div class="summary-value" id="tcxDuration">Not available</div>
+          <div
+            class="summary-value"
+            id="tcxDuration"
+          >
+            Not available
+          </div>
         </div>
 
         <div class="summary-item">
           <div class="summary-label">Calories</div>
-          <div class="summary-value" id="tcxCalories">Not available</div>
+          <div
+            class="summary-value"
+            id="tcxCalories"
+          >
+            Not available
+          </div>
         </div>
 
         <div class="summary-item">
           <div class="summary-label">Average HR</div>
-          <div class="summary-value" id="tcxAverageHeartRate">Not available</div>
+          <div
+            class="summary-value"
+            id="tcxAverageHeartRate"
+          >
+            Not available
+          </div>
         </div>
 
         <div class="summary-item">
           <div class="summary-label">Maximum HR</div>
-          <div class="summary-value" id="tcxMaximumHeartRate">Not available</div>
+          <div
+            class="summary-value"
+            id="tcxMaximumHeartRate"
+          >
+            Not available
+          </div>
         </div>
       </div>
 
@@ -1145,8 +1429,8 @@
       </h2>
 
       <div class="instructions">
-        This creates a Garmin workout using the canonical name shown below.
-        The same name is used by individual uploads, bulk uploads, and TCX matching.
+        Open Garmin Connect Workouts, press F12, open the Console, and paste
+        the generated script.
       </div>
 
       <div class="form-group">
@@ -1206,9 +1490,8 @@
       </h2>
 
       <div class="instructions">
-        Every workout uses the same canonical naming function as individual uploads.
-        Example:
-        <code>Week 1 - Monday</code>
+        Import the Garmin exercise catalog first. Select one or more weeks,
+        generate the script, then paste it into Garmin Connect.
       </div>
 
       <div class="form-group">
@@ -1261,14 +1544,17 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">
+        <label
+          class="form-label"
+          for="bulkScriptOutput"
+        >
           Bulk script
         </label>
 
         <textarea
           id="bulkScriptOutput"
           readonly
-          placeholder="Generate the bulk script after selecting one or more weeks."
+          placeholder="Generate the script after selecting one or more weeks."
         ></textarea>
       </div>
 
@@ -1322,7 +1608,10 @@
       </h2>
 
       <div class="form-group">
-        <label class="form-label">
+        <label
+          class="form-label"
+          for="garminCatalogInput"
+        >
           Garmin exercise catalog
         </label>
 
@@ -1425,23 +1714,33 @@
 
     const STORAGE_KEY = "fitnessTrackerState";
     const CATALOG_KEY = "fitnessTrackerGarminCatalog";
-    const GARMIN_WORKOUTS_URL = "https://connect.garmin.com/modern/workouts";
-    const GARMIN_ACTIVITIES_URL = "https://connect.garmin.com/app/activities";
+    const GARMIN_WORKOUTS_URL =
+      "https://connect.garmin.com/modern/workouts";
+    const GARMIN_ACTIVITIES_URL =
+      "https://connect.garmin.com/app/activities";
 
     const videoSearches = {
-      pushup: "https://www.youtube.com/results?search_query=push+up+proper+form",
-      inclinepushup: "https://www.youtube.com/results?search_query=incline+push+up+proper+form",
-      crunch: "https://www.youtube.com/results?search_query=crunch+proper+form",
-      bicycle: "https://www.youtube.com/results?search_query=bicycle+crunch+proper+form",
-      plank: "https://www.youtube.com/results?search_query=plank+proper+form",
-      deadbug: "https://www.youtube.com/results?search_query=dead+bug+exercise+proper+form",
-      reversecrunch: "https://www.youtube.com/results?search_query=reverse+crunch+proper+form",
-      mountainclimbers: "https://www.youtube.com/results?search_query=mountain+climbers+proper+form",
-      vups: "https://www.youtube.com/results?search_query=v+ups+proper+form",
-      hollow: "https://www.youtube.com/results?search_query=hollow+body+hold+proper+form"
+      pushup:
+        "https://www.youtube.com/results?search_query=push+up+proper+form",
+      inclinepushup:
+        "https://www.youtube.com/results?search_query=incline+push+up+proper+form",
+      crunch:
+        "https://www.youtube.com/results?search_query=crunch+proper+form",
+      bicycle:
+        "https://www.youtube.com/results?search_query=bicycle+crunch+proper+form",
+      plank:
+        "https://www.youtube.com/results?search_query=plank+proper+form",
+      deadbug:
+        "https://www.youtube.com/results?search_query=dead+bug+exercise+proper+form",
+      reversecrunch:
+        "https://www.youtube.com/results?search_query=reverse+crunch+proper+form",
+      mountainclimbers:
+        "https://www.youtube.com/results?search_query=mountain+climbers+proper+form",
+      vups:
+        "https://www.youtube.com/results?search_query=v+ups+proper+form",
+      hollow:
+        "https://www.youtube.com/results?search_query=hollow+body+hold+proper+form"
     };
-
-    const workoutPlan = createWorkoutPlan();
 
     let appState = {
       completedWorkouts: {},
@@ -1461,12 +1760,12 @@
 
     const garminAliases = {
       "push ups": "Push-up",
-      "pushups": "Push-up",
+      pushups: "Push-up",
       "push up": "Push-up",
       "standard push ups": "Push-up",
       "incline push ups": "Incline Push-up",
       "incline push ups hands elevated": "Incline Push-up",
-      "crunches": "Crunch",
+      crunches: "Crunch",
       "plank hold": "Plank",
       "dead bug": "Dead Bug",
       "bicycle crunches": "Bicycle Crunch",
@@ -1477,8 +1776,6 @@
     };
 
     function createWorkoutPlan() {
-      const plan = {};
-
       const exercise = {
         pushup: {
           name: "Push-ups",
@@ -1537,23 +1834,61 @@
         "Final Testing"
       ];
 
-      for (let week = 1; week <= 12; week++) {
+      const plan = {};
+
+      for (let week = 1; week <= 12; week += 1) {
         const phase = Math.floor((week - 1) / 3);
-        const sets = week <= 2 ? 3 : Math.min(5, 3 + Math.floor((week - 1) / 4));
-        const repMinimum = week <= 2 ? 8 + week : 8 + phase * 2;
-        const repMaximum = repMinimum + 4;
+        const sets =
+          week <= 2
+            ? 3
+            : Math.min(
+                5,
+                3 + Math.floor((week - 1) / 4)
+              );
+
+        const repMinimum =
+          week <= 2
+            ? 8 + week
+            : 8 + phase * 2;
 
         plan[`week${week}`] = {
           focus: focuses[week - 1],
           workouts: [
-            createSession("Monday", week, sets, repMinimum, repMaximum, exercise, 0),
-            createSession("Wednesday", week, sets, repMinimum + 2, repMaximum + 2, exercise, 1),
-            createSession("Friday", week, sets, repMinimum, repMaximum, exercise, 2)
+            createSession(
+              "Monday",
+              week,
+              sets,
+              repMinimum,
+              repMinimum + 4,
+              exercise,
+              0
+            ),
+            createSession(
+              "Wednesday",
+              week,
+              sets,
+              repMinimum + 2,
+              repMinimum + 6,
+              exercise,
+              1
+            ),
+            createSession(
+              "Friday",
+              week,
+              sets,
+              repMinimum,
+              repMinimum + 4,
+              exercise,
+              2
+            )
           ],
           nutrition: {
-            preworkout: "Banana with peanut butter or rice cakes with honey.",
-            postworkout: "Protein plus carbohydrates within 30 minutes.",
-            daily: "Aim for 1.4 to 1.8 grams of protein per kilogram of body weight."
+            preworkout:
+              "Banana with peanut butter or rice cakes with honey.",
+            postworkout:
+              "Protein plus carbohydrates within 30 minutes.",
+            daily:
+              "Aim for 1.4 to 1.8 grams of protein per kilogram of body weight."
           }
         };
       }
@@ -1561,8 +1896,17 @@
       return plan;
     }
 
-    function createSession(day, week, sets, minimum, maximum, exercise, sessionType) {
-      const difficulty = Math.floor((week - 1) / 3);
+    function createSession(
+      day,
+      week,
+      sets,
+      minimum,
+      maximum,
+      exercise,
+      sessionType
+    ) {
+      const difficultyPhase =
+        Math.floor((week - 1) / 3);
 
       let exercises;
 
@@ -1570,60 +1914,72 @@
         exercises = [
           {
             ...exercise.pushup,
-            notes: "Keep the body straight and use an incline if needed."
+            notes:
+              "Keep the body straight and use an incline if needed."
           },
           {
             ...exercise.crunch,
-            notes: "Move slowly and avoid pulling on the neck."
+            notes:
+              "Move slowly and avoid pulling on the neck."
           },
-          difficulty >= 2
+          difficultyPhase >= 2
             ? {
                 ...exercise.vups,
-                notes: "Use a controlled movement and modify if necessary."
+                notes:
+                  "Use a controlled movement and modify if necessary."
               }
             : {
                 ...exercise.plank,
-                notes: "Brace the core and keep breathing."
+                notes:
+                  "Brace the core and keep breathing."
               }
         ];
       } else if (sessionType === 1) {
         exercises = [
           {
             ...exercise.inclinepushup,
-            notes: "Use a lower surface as strength improves."
+            notes:
+              "Use a lower surface as strength improves."
           },
           {
             ...exercise.bicycle,
-            notes: "Rotate through the torso without rushing."
+            notes:
+              "Rotate through the torso without rushing."
           },
-          difficulty >= 2
+          difficultyPhase >= 2
             ? {
                 ...exercise.mountainclimbers,
-                notes: "Keep the hips controlled and the core tight."
+                notes:
+                  "Keep the hips controlled and the core tight."
               }
             : {
                 ...exercise.deadbug,
-                notes: "Move slowly while keeping the lower back stable."
+                notes:
+                  "Move slowly while keeping the lower back stable."
               }
         ];
       } else {
         exercises = [
           {
             ...exercise.pushup,
-            notes: "Use full range of motion where possible."
+            notes:
+              "Use full range of motion where possible."
           },
           {
             ...exercise.reversecrunch,
-            notes: "Lift the hips using the abdominal muscles."
+            notes:
+              "Lift the hips using the abdominal muscles."
           },
-          difficulty >= 2
+          difficultyPhase >= 2
             ? {
                 ...exercise.plank,
-                notes: "Add time gradually without losing body position."
+                notes:
+                  "Add time gradually without losing body position."
               }
             : {
                 ...exercise.hollow,
-                notes: "Keep the lower back connected to the floor."
+                notes:
+                  "Keep the lower back connected to the floor."
               }
         ];
       }
@@ -1635,10 +1991,11 @@
         exercises: exercises.map(item => ({
           ...item,
           sets,
-          reps: item.searchKey === "plank" ||
+          reps:
+            item.searchKey === "plank" ||
             item.searchKey === "hollow"
-            ? `${15 + week} to ${25 + week} seconds`
-            : `${minimum} to ${maximum}`
+              ? `${15 + week} to ${25 + week} seconds`
+              : `${minimum} to ${maximum}`
         })),
         recovery: getRecovery(week)
       };
@@ -1674,25 +2031,37 @@
       return `w${weekNumber}s${sessionIndex}`;
     }
 
-    function getCanonicalWorkoutName(weekNumber, session) {
+    function getCanonicalWorkoutName(
+      weekNumber,
+      session
+    ) {
       return `Week ${Number(weekNumber)} - ${session.day}`;
     }
 
     function getAllWorkoutEntries() {
       const entries = [];
 
-      for (let week = 1; week <= 12; week++) {
-        const currentWeek = workoutPlan[`week${week}`];
+      for (let week = 1; week <= 12; week += 1) {
+        const currentWeek =
+          workoutPlan[`week${week}`];
 
-        currentWeek.workouts.forEach((session, sessionIndex) => {
-          entries.push({
-            weekNumber: week,
-            sessionIndex,
-            sessionKey: getSessionKey(week, sessionIndex),
-            session,
-            name: getCanonicalWorkoutName(week, session)
-          });
-        });
+        currentWeek.workouts.forEach(
+          (session, sessionIndex) => {
+            entries.push({
+              weekNumber: week,
+              sessionIndex,
+              sessionKey: getSessionKey(
+                week,
+                sessionIndex
+              ),
+              session,
+              name: getCanonicalWorkoutName(
+                week,
+                session
+              )
+            });
+          }
+        );
       }
 
       return entries;
@@ -1717,9 +2086,12 @@
         .replace(/'/g, "&#039;");
     }
 
+    const workoutPlan = createWorkoutPlan();
+
     function loadState() {
       try {
-        const savedState = localStorage.getItem(STORAGE_KEY);
+        const savedState =
+          localStorage.getItem(STORAGE_KEY);
 
         if (savedState) {
           appState = normalizeState({
@@ -1728,48 +2100,46 @@
           });
         }
 
-        const savedCatalog = localStorage.getItem(CATALOG_KEY);
+        const savedCatalog =
+          localStorage.getItem(CATALOG_KEY);
 
         if (savedCatalog) {
-          appState.garminCatalog = JSON.parse(savedCatalog);
+          appState.garminCatalog =
+            JSON.parse(savedCatalog);
         }
       } catch (error) {
-        console.error("Could not load saved state.", error);
+        console.error(
+          "Could not load saved state.",
+          error
+        );
       }
     }
 
     function normalizeState(state) {
       return {
-        completedWorkouts: state.completedWorkouts || {},
-        skippedWorkouts: state.skippedWorkouts || {},
-        workoutLogs: state.workoutLogs || {},
-        garminUploadedWorkouts: state.garminUploadedWorkouts || {},
-        lastSync: state.lastSync || null,
-        garminCatalog: state.garminCatalog || null
+        completedWorkouts:
+          state.completedWorkouts || {},
+        skippedWorkouts:
+          state.skippedWorkouts || {},
+        workoutLogs:
+          state.workoutLogs || {},
+        garminUploadedWorkouts:
+          state.garminUploadedWorkouts || {},
+        lastSync:
+          state.lastSync || null,
+        garminCatalog:
+          state.garminCatalog || null
       };
     }
 
     function getSyncableState() {
-      const state = normalizeState(appState);
-
       return {
-        completedWorkouts: state.completedWorkouts,
-        skippedWorkouts: state.skippedWorkouts,
-        workoutLogs: state.workoutLogs,
-        garminUploadedWorkouts: state.garminUploadedWorkouts,
-        garminCatalog: state.garminCatalog,
-        lastSync: state.lastSync || null,
+        ...normalizeState(appState),
         updatedAt: new Date().toISOString()
       };
     }
 
     function saveState(options = {}) {
-      const shouldSync =
-        options.sync !== false &&
-        Boolean(currentFirebaseUser) &&
-        firebaseInitialLoadComplete &&
-        !options.fromFirebase;
-
       appState = normalizeState(appState);
       appState.lastSync = new Date().toISOString();
 
@@ -1785,16 +2155,28 @@
         );
       }
 
+      const shouldSync =
+        options.sync !== false &&
+        Boolean(currentFirebaseUser) &&
+        firebaseInitialLoadComplete &&
+        !options.fromFirebase;
+
       if (shouldSync) {
         syncStateToFirebase();
       }
     }
 
-    function mergeStates(localState, remoteState) {
-      const local = normalizeState(localState || {});
-      const remote = normalizeState(remoteState || {});
+    function mergeStates(
+      localState,
+      remoteState
+    ) {
+      const local =
+        normalizeState(localState);
 
-      return {
+      const remote =
+        normalizeState(remoteState);
+
+      return normalizeState({
         completedWorkouts: {
           ...local.completedWorkouts,
           ...remote.completedWorkouts
@@ -1811,27 +2193,34 @@
           ...local.garminUploadedWorkouts,
           ...remote.garminUploadedWorkouts
         },
-        garminCatalog: remote.garminCatalog || local.garminCatalog || null,
-        lastSync: remote.lastSync || local.lastSync || null
-      };
-    }
-
-    function statesAreEqual(first, second) {
-      return JSON.stringify(first) === JSON.stringify(second);
+        garminCatalog:
+          remote.garminCatalog ||
+          local.garminCatalog ||
+          null,
+        lastSync:
+          remote.lastSync ||
+          local.lastSync ||
+          null
+      });
     }
 
     function syncStateToFirebase() {
-      if (!firebaseUserReference || !currentFirebaseUser) {
+      if (
+        !firebaseUserReference ||
+        !currentFirebaseUser
+      ) {
         return Promise.resolve();
       }
 
-      const syncableState = getSyncableState();
-
       firebaseWriteInProgress = true;
-      updateSyncStatus("syncing", "Saving to Firebase...");
+
+      updateSyncStatus(
+        "syncing",
+        "Saving to Firebase..."
+      );
 
       return firebaseUserReference
-        .set(syncableState)
+        .set(getSyncableState())
         .then(() => {
           updateSyncStatus(
             "online",
@@ -1839,7 +2228,11 @@
           );
         })
         .catch(error => {
-          console.error("Firebase save failed.", error);
+          console.error(
+            "Firebase save failed.",
+            error
+          );
+
           updateSyncStatus(
             "error",
             `Cloud save failed: ${error.message}`
@@ -1854,87 +2247,74 @@
       stopFirebaseSync();
 
       currentFirebaseUser = user;
-      firebaseUserReference = firebaseDatabase.ref(
-        `users/${user.uid}`
-      );
+
+      firebaseUserReference =
+        firebaseDatabase.ref(
+          `users/${user.uid}`
+        );
 
       updateSyncStatus(
         "syncing",
         "Loading your cloud data..."
       );
 
-      firebaseValueListener = firebaseUserReference.on(
-        "value",
-        snapshot => {
-          const remoteState = snapshot.val();
+      firebaseValueListener =
+        firebaseUserReference.on(
+          "value",
+          snapshot => {
+            const remoteState =
+              snapshot.val();
 
-          if (!remoteState) {
-            firebaseInitialLoadComplete = true;
-            syncStateToFirebase();
-            updateSyncStatus(
-              "online",
-              "Cloud account connected"
-            );
-            return;
-          }
-
-          const localBeforeMerge = normalizeState(appState);
-          const mergedState = mergeStates(
-            localBeforeMerge,
-            remoteState
-          );
-
-          const remoteNormalized = normalizeState(remoteState);
-
-          if (!statesAreEqual(localBeforeMerge, mergedState)) {
-            appState = mergedState;
-            saveState({
-              sync: false,
-              fromFirebase: true
-            });
-
-            if (appState.garminCatalog) {
-              localStorage.setItem(
-                CATALOG_KEY,
-                JSON.stringify(appState.garminCatalog)
-              );
+            if (!remoteState) {
+              firebaseInitialLoadComplete = true;
+              syncStateToFirebase();
+              return;
             }
 
-            renderApp();
-          }
+            const localBeforeMerge =
+              normalizeState(appState);
 
-          firebaseInitialLoadComplete = true;
+            const mergedState =
+              mergeStates(
+                localBeforeMerge,
+                remoteState
+              );
 
-          const shouldUploadMergedLocalData =
-            Object.keys(localBeforeMerge.completedWorkouts).length >
-              Object.keys(remoteNormalized.completedWorkouts).length ||
-            Object.keys(localBeforeMerge.workoutLogs).length >
-              Object.keys(remoteNormalized.workoutLogs).length ||
-            Object.keys(localBeforeMerge.skippedWorkouts).length >
-              Object.keys(remoteNormalized.skippedWorkouts).length ||
-            Boolean(
-              localBeforeMerge.garminCatalog &&
-              !remoteNormalized.garminCatalog
+            if (
+              JSON.stringify(localBeforeMerge) !==
+              JSON.stringify(mergedState)
+            ) {
+              appState = mergedState;
+
+              saveState({
+                sync: false,
+                fromFirebase: true
+              });
+
+              renderApp();
+            }
+
+            firebaseInitialLoadComplete = true;
+
+            if (!firebaseWriteInProgress) {
+              updateSyncStatus(
+                "online",
+                `Synced at ${new Date().toLocaleTimeString()}`
+              );
+            }
+          },
+          error => {
+            console.error(
+              "Firebase listener failed.",
+              error
             );
 
-          if (shouldUploadMergedLocalData && !firebaseWriteInProgress) {
-            syncStateToFirebase();
-          } else {
             updateSyncStatus(
-              "online",
-              `Synced at ${new Date().toLocaleTimeString()}`
+              "error",
+              `Cloud sync failed: ${error.message}`
             );
           }
-        },
-        error => {
-          console.error("Firebase listener failed.", error);
-
-          updateSyncStatus(
-            "error",
-            `Cloud sync failed: ${error.message}`
-          );
-        }
-      );
+        );
     }
 
     function stopFirebaseSync() {
@@ -1954,27 +2334,32 @@
       firebaseInitialLoadComplete = false;
     }
 
-    function updateSyncStatus(type, message) {
-      const indicator = document.getElementById("syncIndicator");
-      const status = document.getElementById("syncStatus");
+    function updateSyncStatus(
+      type,
+      message
+    ) {
+      const indicator =
+        document.getElementById(
+          "syncIndicator"
+        );
 
-      indicator.classList.remove("offline");
-      indicator.classList.remove("syncing");
+      const status =
+        document.getElementById(
+          "syncStatus"
+        );
 
-      if (type === "online") {
-        indicator.style.background = "var(--success)";
+      indicator.className =
+        "sync-indicator";
+
+      if (
+        type === "offline" ||
+        type === "error"
+      ) {
+        indicator.classList.add("offline");
       }
 
       if (type === "syncing") {
         indicator.classList.add("syncing");
-      }
-
-      if (type === "offline") {
-        indicator.classList.add("offline");
-      }
-
-      if (type === "error") {
-        indicator.classList.add("offline");
       }
 
       status.textContent = message;
@@ -1986,38 +2371,96 @@
 
       if (!currentFirebaseUser) {
         updateSyncStatus(
-          navigator.onLine ? "offline" : "offline",
+          "offline",
           "Not signed in. Data is stored locally."
         );
       }
     }
 
     function updateStats() {
-      const total = getAllWorkoutEntries().length;
-      const completed = Object.keys(appState.completedWorkouts).length;
-      const imported = Object.values(appState.workoutLogs)
-        .filter(log => log && log.garmin && log.garmin.imported)
-        .length;
+      const total =
+        getAllWorkoutEntries().length;
 
-      document.getElementById("completedCount").textContent =
+      const completed =
+        Object.keys(
+          appState.completedWorkouts
+        ).length;
+
+      const logs =
+        Object.values(
+          appState.workoutLogs
+        );
+
+      const difficulties =
+        logs
+          .map(log =>
+            Number(log.difficulty)
+          )
+          .filter(
+            value =>
+              Number.isFinite(value) &&
+              value > 0
+          );
+
+      const imported =
+        logs.filter(
+          log =>
+            log &&
+            log.garmin &&
+            log.garmin.imported
+        ).length;
+
+      const averageDifficulty =
+        difficulties.length
+          ? difficulties.reduce(
+              (sum, value) =>
+                sum + value,
+              0
+            ) / difficulties.length
+          : null;
+
+      document.getElementById(
+        "completedCount"
+      ).textContent =
         `${completed}/${total}`;
 
-      document.getElementById("progressPercent").textContent =
-        `${Math.round((completed / total) * 100)}%`;
+      document.getElementById(
+        "progressPercent"
+      ).textContent =
+        `${Math.round(
+          (completed / total) * 100
+        )}%`;
 
-      document.getElementById("garminImportCount").textContent =
+      document.getElementById(
+        "averageDifficulty"
+      ).textContent =
+        averageDifficulty === null
+          ? "0/10"
+          : `${averageDifficulty.toFixed(1)}/10`;
+
+      document.getElementById(
+        "garminImportCount"
+      ).textContent =
         String(imported);
     }
 
     function renderWeeks() {
-      const container = document.getElementById("weeksContainer");
+      const container =
+        document.getElementById(
+          "weeksContainer"
+        );
+
       container.innerHTML = "";
 
-      for (let week = 1; week <= 12; week++) {
-        const weekData = workoutPlan[`week${week}`];
-        const card = document.createElement("section");
+      for (let week = 1; week <= 12; week += 1) {
+        const weekData =
+          workoutPlan[`week${week}`];
 
-        card.className = "week-card";
+        const card =
+          document.createElement("section");
+
+        card.className =
+          "week-card";
 
         card.innerHTML = `
           <div
@@ -2029,11 +2472,13 @@
           >
             <div>
               <div class="week-title">
-                Week ${week}: ${escapeHtml(weekData.focus)}
+                Week ${week}:
+                ${escapeHtml(weekData.focus)}
               </div>
 
               <div class="week-subtitle">
-                ${weekData.workouts.length} structured sessions
+                ${weekData.workouts.length}
+                structured sessions
               </div>
             </div>
 
@@ -2050,8 +2495,13 @@
             id="weekContent${week}"
           >
             ${weekData.workouts
-              .map((session, sessionIndex) =>
-                renderWorkout(session, week, sessionIndex)
+              .map(
+                (session, sessionIndex) =>
+                  renderWorkout(
+                    session,
+                    week,
+                    sessionIndex
+                  )
               )
               .join("")}
           </div>
@@ -2060,57 +2510,124 @@
         container.appendChild(card);
       }
 
-      container.querySelectorAll("[data-week-header]")
+      container
+        .querySelectorAll(
+          "[data-week-header]"
+        )
         .forEach(header => {
-          header.addEventListener("click", () => {
-            toggleWeek(Number(header.dataset.weekHeader));
-          });
-
-          header.addEventListener("keydown", event => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              toggleWeek(Number(header.dataset.weekHeader));
+          header.addEventListener(
+            "click",
+            () => {
+              toggleWeek(
+                Number(
+                  header.dataset.weekHeader
+                )
+              );
             }
-          });
+          );
+
+          header.addEventListener(
+            "keydown",
+            event => {
+              if (
+                event.key === "Enter" ||
+                event.key === " "
+              ) {
+                event.preventDefault();
+
+                toggleWeek(
+                  Number(
+                    header.dataset.weekHeader
+                  )
+                );
+              }
+            }
+          );
         });
 
-      container.querySelectorAll("[data-workout-toggle]")
+      container
+        .querySelectorAll(
+          "[data-workout-toggle]"
+        )
         .forEach(toggle => {
-          const sessionKey = toggle.dataset.workoutToggle;
-
-          toggle.addEventListener("click", () => {
-            toggleWorkout(sessionKey);
-          });
-
-          toggle.addEventListener("keydown", event => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              toggleWorkout(sessionKey);
+          toggle.addEventListener(
+            "click",
+            () => {
+              toggleWorkout(
+                toggle.dataset.workoutToggle
+              );
             }
-          });
+          );
+
+          toggle.addEventListener(
+            "keydown",
+            event => {
+              if (
+                event.key === "Enter" ||
+                event.key === " "
+              ) {
+                event.preventDefault();
+
+                toggleWorkout(
+                  toggle.dataset.workoutToggle
+                );
+              }
+            }
+          );
         });
 
-      container.querySelectorAll("[data-action]")
+      container
+        .querySelectorAll("[data-action]")
         .forEach(button => {
-          button.addEventListener("click", handleWorkoutAction);
+          button.addEventListener(
+            "click",
+            handleWorkoutAction
+          );
         });
     }
 
-    function renderWorkout(session, weekNumber, sessionIndex) {
-      const sessionKey = getSessionKey(weekNumber, sessionIndex);
-      const log = appState.workoutLogs[sessionKey];
-      const complete = Boolean(appState.completedWorkouts[sessionKey]);
-      const skipped = Boolean(appState.skippedWorkouts[sessionKey]);
-      const imported = Boolean(
-        log &&
-        log.garmin &&
-        log.garmin.imported
-      );
+    function renderWorkout(
+      session,
+      weekNumber,
+      sessionIndex
+    ) {
+      const sessionKey =
+        getSessionKey(
+          weekNumber,
+          sessionIndex
+        );
 
-      const workoutName = getCanonicalWorkoutName(
-        weekNumber,
-        session
-      );
+      const log =
+        appState.workoutLogs[
+          sessionKey
+        ];
+
+      const complete =
+        Boolean(
+          appState.completedWorkouts[
+            sessionKey
+          ]
+        );
+
+      const skipped =
+        Boolean(
+          appState.skippedWorkouts[
+            sessionKey
+          ]
+        );
+
+      const imported =
+        Boolean(
+          log &&
+          log.garmin &&
+          log.garmin.imported
+        );
+
+      const workoutName =
+        getCanonicalWorkoutName(
+          weekNumber,
+          session
+        );
 
       const statusBadge = complete
         ? '<span class="badge badge-complete">Complete</span>'
@@ -2160,7 +2677,9 @@
             id="workoutContent${sessionKey}"
           >
             <div class="section">
-              <div class="section-title">🔥 Warm-up</div>
+              <div class="section-title">
+                🔥 Warm-up
+              </div>
 
               <div class="section-text">
                 ${escapeHtml(session.warmup)}
@@ -2168,42 +2687,64 @@
             </div>
 
             <div class="exercises">
-              <div class="section-title">💪 Exercises</div>
+              <div class="section-title">
+                💪 Exercises
+              </div>
 
-              ${session.exercises.map(exercise => `
-                <div class="exercise">
-                  <div class="exercise-name">
-                    ${escapeHtml(exercise.name)}
-                  </div>
+              ${session.exercises
+                .map(
+                  exercise => `
+                    <div class="exercise">
+                      <div class="exercise-name">
+                        ${escapeHtml(
+                          exercise.name
+                        )}
+                      </div>
 
-                  <div class="exercise-specs">
-                    <span>
-                      Sets: ${escapeHtml(exercise.sets)}
-                    </span>
+                      <div class="exercise-specs">
+                        <span>
+                          Sets:
+                          ${escapeHtml(
+                            exercise.sets
+                          )}
+                        </span>
 
-                    <span>
-                      Target: ${escapeHtml(exercise.reps)}
-                    </span>
-                  </div>
+                        <span>
+                          Target:
+                          ${escapeHtml(
+                            exercise.reps
+                          )}
+                        </span>
+                      </div>
 
-                  <div class="exercise-note">
-                    ${escapeHtml(exercise.notes)}
-                  </div>
+                      <div class="exercise-note">
+                        ${escapeHtml(
+                          exercise.notes
+                        )}
+                      </div>
 
-                  <a
-                    class="video-link"
-                    href="${videoSearches[exercise.searchKey] || "#"}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    🎥 Search Tutorial
-                  </a>
-                </div>
-              `).join("")}
+                      <a
+                        class="video-link"
+                        href="${
+                          videoSearches[
+                            exercise.searchKey
+                          ] || "#"
+                        }"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        🎥 Search Tutorial
+                      </a>
+                    </div>
+                  `
+                )
+                .join("")}
             </div>
 
             <div class="section">
-              <div class="section-title">🏥 Recovery</div>
+              <div class="section-title">
+                🏥 Recovery
+              </div>
 
               <div class="section-text">
                 ${escapeHtml(session.recovery)}
@@ -2217,9 +2758,15 @@
                 type="button"
                 data-action="log"
                 data-session-key="${sessionKey}"
-                data-workout-name="${escapeHtml(workoutName)}"
+                data-workout-name="${escapeHtml(
+                  workoutName
+                )}"
               >
-                ${complete ? "✓ Edit Log" : "📝 Log"}
+                ${
+                  complete
+                    ? "✓ Edit Log"
+                    : "📝 Log"
+                }
               </button>
 
               <button
@@ -2256,47 +2803,85 @@
     }
 
     function toggleWeek(weekNumber) {
-      const content = document.getElementById(`weekContent${weekNumber}`);
-      const arrow = document.getElementById(`weekArrow${weekNumber}`);
-      const header = document.querySelector(
-        `[data-week-header="${weekNumber}"]`
+      const content =
+        document.getElementById(
+          `weekContent${weekNumber}`
+        );
+
+      const arrow =
+        document.getElementById(
+          `weekArrow${weekNumber}`
+        );
+
+      const header =
+        document.querySelector(
+          `[data-week-header="${weekNumber}"]`
+        );
+
+      const isOpen =
+        content.classList.toggle(
+          "open"
+        );
+
+      arrow.classList.toggle(
+        "open",
+        isOpen
       );
 
-      const isOpen = content.classList.toggle("open");
-
-      arrow.classList.toggle("open", isOpen);
-
       if (header) {
-        header.setAttribute("aria-expanded", String(isOpen));
+        header.setAttribute(
+          "aria-expanded",
+          String(isOpen)
+        );
       }
     }
 
     function toggleWorkout(sessionKey) {
-      const content = document.getElementById(
-        `workoutContent${sessionKey}`
-      );
+      const content =
+        document.getElementById(
+          `workoutContent${sessionKey}`
+        );
 
-      const icon = document.getElementById(
-        `workoutToggleIcon${sessionKey}`
-      );
+      const icon =
+        document.getElementById(
+          `workoutToggleIcon${sessionKey}`
+        );
 
-      const toggle = document.querySelector(
-        `[data-workout-toggle="${sessionKey}"]`
-      );
+      const toggle =
+        document.querySelector(
+          `[data-workout-toggle="${sessionKey}"]`
+        );
 
-      if (!content || !icon || !toggle) {
+      if (
+        !content ||
+        !icon ||
+        !toggle
+      ) {
         return;
       }
 
-      const isOpen = content.classList.toggle("open");
+      const isOpen =
+        content.classList.toggle(
+          "open"
+        );
 
-      icon.classList.toggle("open", isOpen);
-      toggle.setAttribute("aria-expanded", String(isOpen));
+      icon.classList.toggle(
+        "open",
+        isOpen
+      );
+
+      toggle.setAttribute(
+        "aria-expanded",
+        String(isOpen)
+      );
     }
 
     function handleWorkoutAction(event) {
-      const button = event.currentTarget;
-      const action = button.dataset.action;
+      const button =
+        event.currentTarget;
+
+      const action =
+        button.dataset.action;
 
       if (action === "log") {
         openLogModal(
@@ -2306,39 +2891,77 @@
       }
 
       if (action === "import-tcx") {
-        openTcxModal(button.dataset.sessionKey);
+        openTcxModal(
+          button.dataset.sessionKey
+        );
       }
 
       if (action === "send-garmin") {
         openGarminUploadModal(
-          Number(button.dataset.week),
-          Number(button.dataset.sessionIndex)
+          Number(
+            button.dataset.week
+          ),
+          Number(
+            button.dataset.sessionIndex
+          )
         );
       }
 
       if (action === "skip") {
-        skipWorkout(button.dataset.sessionKey);
+        skipWorkout(
+          button.dataset.sessionKey
+        );
       }
     }
 
+    function skipWorkout(sessionKey) {
+      appState.skippedWorkouts[
+        sessionKey
+      ] = true;
+
+      delete appState.completedWorkouts[
+        sessionKey
+      ];
+
+      saveState();
+      renderApp();
+    }
+
     function openModal(id) {
-      const modal = document.getElementById(id);
+      const modal =
+        document.getElementById(id);
 
       modal.classList.add("open");
-      modal.setAttribute("aria-hidden", "false");
+      modal.setAttribute(
+        "aria-hidden",
+        "false"
+      );
     }
 
     function closeModal(id) {
-      const modal = document.getElementById(id);
+      const modal =
+        document.getElementById(id);
 
       modal.classList.remove("open");
-      modal.setAttribute("aria-hidden", "true");
+      modal.setAttribute(
+        "aria-hidden",
+        "true"
+      );
     }
 
-    function getGarminResultsForSession(sessionKey) {
-      const log = appState.workoutLogs[sessionKey];
+    function getGarminResultsForSession(
+      sessionKey
+    ) {
+      const log =
+        appState.workoutLogs[
+          sessionKey
+        ];
 
-      if (!log || !log.garmin || !log.garmin.imported) {
+      if (
+        !log ||
+        !log.garmin ||
+        !log.garmin.imported
+      ) {
         return null;
       }
 
@@ -2347,15 +2970,21 @@
 
     function formatGarminDuration(result) {
       if (
-        result.durationSeconds !== null &&
-        result.durationSeconds !== undefined
+        result.durationSeconds !==
+          null &&
+        result.durationSeconds !==
+          undefined
       ) {
-        return formatDuration(result.durationSeconds);
+        return formatDuration(
+          result.durationSeconds
+        );
       }
 
       if (
-        result.durationMinutes !== null &&
-        result.durationMinutes !== undefined
+        result.durationMinutes !==
+          null &&
+        result.durationMinutes !==
+          undefined
       ) {
         return `${result.durationMinutes} min`;
       }
@@ -2363,8 +2992,13 @@
       return "Not available";
     }
 
-    function renderGarminResultsCard(sessionKey) {
-      const result = getGarminResultsForSession(sessionKey);
+    function renderGarminResultsCard(
+      sessionKey
+    ) {
+      const result =
+        getGarminResultsForSession(
+          sessionKey
+        );
 
       if (!result) {
         return "";
@@ -2378,47 +3012,91 @@
 
           <div class="garmin-results-grid">
             <div class="garmin-result-item">
-              <div class="garmin-result-label">Activity</div>
+              <div class="garmin-result-label">
+                Activity
+              </div>
+
               <div class="garmin-result-value">
-                ${escapeHtml(result.activityName || "Not available")}
+                ${escapeHtml(
+                  result.activityName ||
+                    "Not available"
+                )}
               </div>
             </div>
 
             <div class="garmin-result-item">
-              <div class="garmin-result-label">Duration</div>
+              <div class="garmin-result-label">
+                Duration
+              </div>
+
               <div class="garmin-result-value">
-                ${escapeHtml(formatGarminDuration(result))}
+                ${escapeHtml(
+                  formatGarminDuration(
+                    result
+                  )
+                )}
               </div>
             </div>
 
             <div class="garmin-result-item">
-              <div class="garmin-result-label">Calories</div>
+              <div class="garmin-result-label">
+                Calories
+              </div>
+
               <div class="garmin-result-value">
-                ${escapeHtml(formatValue(result.calories, " kcal"))}
+                ${escapeHtml(
+                  formatValue(
+                    result.calories,
+                    " kcal"
+                  )
+                )}
               </div>
             </div>
 
             <div class="garmin-result-item">
-              <div class="garmin-result-label">Average HR</div>
+              <div class="garmin-result-label">
+                Average HR
+              </div>
+
               <div class="garmin-result-value">
-                ${escapeHtml(formatValue(result.averageHeartRate, " bpm"))}
+                ${escapeHtml(
+                  formatValue(
+                    result.averageHeartRate,
+                    " bpm"
+                  )
+                )}
               </div>
             </div>
 
             <div class="garmin-result-item">
-              <div class="garmin-result-label">Maximum HR</div>
+              <div class="garmin-result-label">
+                Maximum HR
+              </div>
+
               <div class="garmin-result-value">
-                ${escapeHtml(formatValue(result.maximumHeartRate, " bpm"))}
+                ${escapeHtml(
+                  formatValue(
+                    result.maximumHeartRate,
+                    " bpm"
+                  )
+                )}
               </div>
             </div>
 
             <div class="garmin-result-item">
-              <div class="garmin-result-label">Distance</div>
+              <div class="garmin-result-label">
+                Distance
+              </div>
+
               <div class="garmin-result-value">
                 ${
-                  result.distanceMeters !== null &&
-                  result.distanceMeters !== undefined
-                    ? `${Math.round(result.distanceMeters)} m`
+                  result.distanceMeters !==
+                    null &&
+                  result.distanceMeters !==
+                    undefined
+                    ? `${Math.round(
+                        result.distanceMeters
+                      )} m`
                     : "Not available"
                 }
               </div>
@@ -2427,63 +3105,81 @@
 
           <div class="garmin-import-date">
             Imported:
-            ${escapeHtml(formatDateTime(result.importedAt))}
+            ${escapeHtml(
+              formatDateTime(
+                result.importedAt
+              )
+            )}
           </div>
         </div>
       `;
     }
 
-    function renderGarminResultsPreview(sessionKey) {
-      const result = getGarminResultsForSession(sessionKey);
+    function openLogModal(
+      sessionKey,
+      workoutName
+    ) {
+      const log =
+        appState.workoutLogs[
+          sessionKey
+        ] || {};
 
-      if (!result) {
-        return `
-          <div class="garmin-results-empty">
-            No Garmin results imported yet.
-          </div>
-        `;
-      }
+      const garminResults =
+        getGarminResultsForSession(
+          sessionKey
+        );
 
-      return renderGarminResultsCard(sessionKey);
-    }
+      document.getElementById(
+        "logSessionKey"
+      ).value = sessionKey;
 
-    function openLogModal(sessionKey, workoutName) {
-      const log = appState.workoutLogs[sessionKey] || {};
-      const garminResults = getGarminResultsForSession(sessionKey);
-
-      document.getElementById("logSessionKey").value =
-        sessionKey;
-
-      document.getElementById("logModalTitle").textContent =
+      document.getElementById(
+        "logModalTitle"
+      ).textContent =
         `Log Workout: ${workoutName}`;
 
-      document.getElementById("difficultyInput").value =
+      document.getElementById(
+        "difficultyInput"
+      ).value =
         log.difficulty || 5;
 
-      document.getElementById("difficultyValue").textContent =
+      document.getElementById(
+        "difficultyValue"
+      ).textContent =
         log.difficulty || 5;
 
-      document.getElementById("durationInput").value =
+      document.getElementById(
+        "durationInput"
+      ).value =
         log.duration || "";
 
-      document.getElementById("notesInput").value =
+      document.getElementById(
+        "notesInput"
+      ).value =
         log.notes || "";
 
-      document.getElementById("logImportGarminButton")
-        .dataset.sessionKey = sessionKey;
+      document.getElementById(
+        "logImportGarminButton"
+      ).dataset.sessionKey =
+        sessionKey;
 
-      const resultsContainer = document.getElementById(
-        "logGarminResults"
-      );
+      const resultsContainer =
+        document.getElementById(
+          "logGarminResults"
+        );
 
-      const resultsContent = document.getElementById(
-        "logGarminResultsContent"
-      );
+      const resultsContent =
+        document.getElementById(
+          "logGarminResultsContent"
+        );
 
       if (garminResults) {
         resultsContainer.hidden = false;
+
         resultsContent.innerHTML =
-          renderGarminResultsPreview(sessionKey);
+          renderGarminResultsCard(
+            sessionKey
+          );
       } else {
         resultsContainer.hidden = true;
         resultsContent.innerHTML = "";
@@ -2495,408 +3191,638 @@
     function saveWorkoutLog(event) {
       event.preventDefault();
 
-      const sessionKey = document.getElementById("logSessionKey").value;
+      const sessionKey =
+        document.getElementById(
+          "logSessionKey"
+        ).value;
 
-      appState.workoutLogs[sessionKey] = {
-        ...(appState.workoutLogs[sessionKey] || {}),
-        difficulty: Number(document.getElementById("difficultyInput").value),
-        duration: document.getElementById("durationInput").value
-          ? Number(document.getElementById("durationInput").value)
-          : null,
-        notes: document.getElementById("notesInput").value,
-        loggedAt: new Date().toISOString()
+      appState.workoutLogs[
+        sessionKey
+      ] = {
+        ...(
+          appState.workoutLogs[
+            sessionKey
+          ] || {}
+        ),
+        difficulty: Number(
+          document.getElementById(
+            "difficultyInput"
+          ).value
+        ),
+        duration:
+          document.getElementById(
+            "durationInput"
+          ).value
+            ? Number(
+                document.getElementById(
+                  "durationInput"
+                ).value
+              )
+            : null,
+        notes:
+          document.getElementById(
+            "notesInput"
+          ).value,
+        loggedAt:
+          new Date().toISOString()
       };
 
-      appState.completedWorkouts[sessionKey] = true;
-      delete appState.skippedWorkouts[sessionKey];
+      appState.completedWorkouts[
+        sessionKey
+      ] = true;
+
+      delete appState.skippedWorkouts[
+        sessionKey
+      ];
 
       saveState();
       renderApp();
       closeModal("logModal");
     }
 
-    function skipWorkout(sessionKey) {
-      appState.skippedWorkouts[sessionKey] = true;
-      delete appState.completedWorkouts[sessionKey];
-
-      saveState();
-      renderApp();
-    }
-
-    function openTcxModal(sessionKey) {
-      const entry = getAllWorkoutEntries()
-        .find(item => item.sessionKey === sessionKey);
-
-      if (!entry) {
-        return;
+    function getGarminDurationMinutes(log) {
+      if (!log || !log.garmin) {
+        return 0;
       }
 
-      pendingTcxResult = null;
+      if (
+        Number.isFinite(
+          Number(
+            log.garmin.durationMinutes
+          )
+        )
+      ) {
+        return Number(
+          log.garmin.durationMinutes
+        );
+      }
 
-      populateTcxTargetSelect(sessionKey);
+      if (
+        Number.isFinite(
+          Number(
+            log.garmin.durationSeconds
+          )
+        )
+      ) {
+        return (
+          Number(
+            log.garmin.durationSeconds
+          ) / 60
+        );
+      }
 
-      document.getElementById("tcxWorkoutName").textContent =
-        entry.name;
-
-      document.getElementById("tcxFileInput").value = "";
-      document.getElementById("tcxSummary").hidden = true;
-      document.getElementById("applyTcxButton").disabled = true;
-
-      showNotice("tcxNotice", "", "");
-
-      openModal("tcxModal");
+      return 0;
     }
 
-    function populateTcxTargetSelect(selectedSessionKey) {
-      const select = document.getElementById("tcxTargetSelect");
-      select.innerHTML = "";
+    function getOverallAnalytics() {
+      const entries =
+        getAllWorkoutEntries();
+
+      const logs =
+        Object.values(
+          appState.workoutLogs || {}
+        );
+
+      const completed =
+        Object.keys(
+          appState.completedWorkouts || {}
+        ).length;
+
+      const skipped =
+        Object.keys(
+          appState.skippedWorkouts || {}
+        ).length;
+
+      const difficulties =
+        logs
+          .map(log =>
+            Number(log.difficulty)
+          )
+          .filter(
+            value =>
+              Number.isFinite(value) &&
+              value > 0
+          );
+
+      const manualDurations =
+        logs
+          .map(log =>
+            Number(log.duration)
+          )
+          .filter(
+            value =>
+              Number.isFinite(value) &&
+              value > 0
+          );
+
+      const garminDurations =
+        logs
+          .map(log =>
+            getGarminDurationMinutes(log)
+          )
+          .filter(value => value > 0);
+
+      const calories =
+        logs
+          .map(log =>
+            Number(
+              log.garmin?.calories
+            ) || 0
+          )
+          .filter(value => value > 0);
+
+      const heartRates =
+        logs
+          .map(log =>
+            Number(
+              log.garmin?.averageHeartRate
+            ) || 0
+          )
+          .filter(value => value > 0);
+
+      const totalDuration =
+        manualDurations.reduce(
+          (sum, value) =>
+            sum + value,
+          0
+        ) +
+        garminDurations.reduce(
+          (sum, value) =>
+            sum + value,
+          0
+        );
+
+      return {
+        total: entries.length,
+        completed,
+        skipped,
+        pending:
+          entries.length -
+          completed -
+          skipped,
+        completionPercent: entries.length
+          ? Math.round(
+              (completed /
+                entries.length) *
+                100
+            )
+          : 0,
+        averageDifficulty:
+          difficulties.length
+            ? difficulties.reduce(
+                (sum, value) =>
+                  sum + value,
+                0
+              ) / difficulties.length
+            : null,
+        totalDuration,
+        calories: calories.reduce(
+          (sum, value) =>
+            sum + value,
+          0
+        ),
+        averageHeartRate:
+          heartRates.length
+            ? heartRates.reduce(
+                (sum, value) =>
+                  sum + value,
+                0
+              ) / heartRates.length
+            : null
+      };
+    }
+
+    function getWeekAnalytics(
+      weekNumber
+    ) {
+      const entries =
+        getAllWorkoutEntries().filter(
+          entry =>
+            entry.weekNumber ===
+            Number(weekNumber)
+        );
+
+      const completedEntries =
+        entries.filter(entry =>
+          Boolean(
+            appState.completedWorkouts[
+              entry.sessionKey
+            ]
+          )
+        );
+
+      const skippedEntries =
+        entries.filter(entry =>
+          Boolean(
+            appState.skippedWorkouts[
+              entry.sessionKey
+            ]
+          )
+        );
+
+      const logs =
+        completedEntries
+          .map(
+            entry =>
+              appState.workoutLogs[
+                entry.sessionKey
+              ]
+          )
+          .filter(Boolean);
+
+      const difficulties =
+        logs
+          .map(log =>
+            Number(log.difficulty)
+          )
+          .filter(
+            value =>
+              Number.isFinite(value) &&
+              value > 0
+          );
+
+      const durations =
+        logs
+          .map(log => {
+            const manual =
+              Number(log.duration) || 0;
+
+            const garmin =
+              getGarminDurationMinutes(
+                log
+              );
+
+            return garmin > 0
+              ? garmin
+              : manual;
+          })
+          .filter(value => value > 0);
+
+      const calories =
+        logs
+          .map(log =>
+            Number(
+              log.garmin?.calories
+            ) || 0
+          )
+          .filter(value => value > 0);
+
+      const heartRates =
+        logs
+          .map(log =>
+            Number(
+              log.garmin?.averageHeartRate
+            ) || 0
+          )
+          .filter(value => value > 0);
+
+      return {
+        weekNumber: Number(weekNumber),
+        total: entries.length,
+        completed: completedEntries.length,
+        skipped: skippedEntries.length,
+        pending:
+          entries.length -
+          completedEntries.length -
+          skippedEntries.length,
+        completionPercent: entries.length
+          ? Math.round(
+              (completedEntries.length /
+                entries.length) *
+                100
+            )
+          : 0,
+        averageDifficulty:
+          difficulties.length
+            ? difficulties.reduce(
+                (sum, value) =>
+                  sum + value,
+                0
+              ) / difficulties.length
+            : null,
+        averageDuration:
+          durations.length
+            ? durations.reduce(
+                (sum, value) =>
+                  sum + value,
+                0
+              ) / durations.length
+            : null,
+        calories: calories.reduce(
+          (sum, value) =>
+            sum + value,
+          0
+        ),
+        averageHeartRate:
+          heartRates.length
+            ? heartRates.reduce(
+                (sum, value) =>
+                  sum + value,
+                0
+              ) / heartRates.length
+            : null
+      };
+    }
+
+    function renderWeeklyAnalytics(
+      weekNumber
+    ) {
+      const container =
+        document.getElementById(
+          "weeklyAnalytics"
+        );
+
+      const week =
+        getWeekAnalytics(weekNumber);
+
+      const difficulty =
+        week.averageDifficulty === null
+          ? "Not available"
+          : `${week.averageDifficulty.toFixed(1)}/10`;
+
+      const duration =
+        week.averageDuration === null
+          ? "Not available"
+          : `${Math.round(
+              week.averageDuration
+            )} min`;
+
+      const heartRate =
+        week.averageHeartRate === null
+          ? "Not available"
+          : `${Math.round(
+              week.averageHeartRate
+            )} bpm`;
+
+      const calories =
+        week.calories > 0
+          ? `${Math.round(
+              week.calories
+            )} kcal`
+          : "Not available";
+
+      container.innerHTML = `
+        <div class="weekly-analytics-row">
+          <div class="weekly-analytics-title">
+            Week ${week.weekNumber}
+          </div>
+
+          <div class="weekly-analytics-grid">
+            <div class="weekly-value">
+              <span class="weekly-label">
+                Completion
+              </span>
+              ${week.completed}/${week.total}
+              (${week.completionPercent}%)
+            </div>
+
+            <div class="weekly-value">
+              <span class="weekly-label">
+                Difficulty
+              </span>
+              ${difficulty}
+            </div>
+
+            <div class="weekly-value">
+              <span class="weekly-label">
+                Avg Duration
+              </span>
+              ${duration}
+            </div>
+
+            <div class="weekly-value">
+              <span class="weekly-label">
+                Skipped
+              </span>
+              ${week.skipped}
+            </div>
+
+            <div class="weekly-value">
+              <span class="weekly-label">
+                Calories
+              </span>
+              ${calories}
+            </div>
+
+            <div class="weekly-value">
+              <span class="weekly-label">
+                Average HR
+              </span>
+              ${heartRate}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function getExerciseAnalytics() {
+      const result = {};
 
       getAllWorkoutEntries().forEach(entry => {
-        const option = document.createElement("option");
+        const completed =
+          Boolean(
+            appState.completedWorkouts[
+              entry.sessionKey
+            ]
+          );
 
-        option.value = entry.sessionKey;
-        option.textContent = entry.name;
-        option.selected = entry.sessionKey === selectedSessionKey;
-
-        select.appendChild(option);
-      });
-    }
-
-    function openTcxForCurrentLog() {
-      const sessionKey = document.getElementById("logSessionKey").value;
-
-      closeModal("logModal");
-      openTcxModal(sessionKey);
-    }
-
-    function openGarminActivities() {
-      window.open(
-        GARMIN_ACTIVITIES_URL,
-        "_blank",
-        "noopener,noreferrer"
-      );
-    }
-
-    function parseTcxFile(file) {
-      return file.text().then(text => {
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(text, "application/xml");
-        const parserError = xml.querySelector("parsererror");
-
-        if (parserError) {
-          throw new Error("The selected file is not valid TCX XML.");
+        if (!completed) {
+          return;
         }
 
-        const activities = [
-          ...xml.getElementsByTagNameNS("*", "Activity")
-        ];
+        const log =
+          appState.workoutLogs[
+            entry.sessionKey
+          ];
 
-        if (!activities.length) {
-          throw new Error("No activity was found in the TCX file.");
-        }
+        entry.session.exercises.forEach(
+          exercise => {
+            if (!result[exercise.name]) {
+              result[exercise.name] = {
+                completedSessions: 0,
+                totalSets: 0,
+                difficulties: []
+              };
+            }
 
-        const activity = activities[0];
-        const idNode = activity.getElementsByTagNameNS("*", "Id")[0];
-        const activityNameNode = activity.getElementsByTagNameNS("*", "Name")[0];
+            result[exercise.name]
+              .completedSessions += 1;
 
-        const laps = [
-          ...activity.getElementsByTagNameNS("*", "Lap")
-        ];
+            result[exercise.name].totalSets +=
+              Number(exercise.sets) || 0;
 
-        let totalDurationSeconds = 0;
-        let totalCalories = 0;
-        let hasCalories = false;
+            const difficulty =
+              Number(log?.difficulty);
 
-        const heartRates = [];
-        const trackpointTimes = [];
-        const distances = [];
-
-        laps.forEach(lap => {
-          const durationNode =
-            lap.getElementsByTagNameNS("*", "TotalTimeSeconds")[0];
-
-          const caloriesNode =
-            lap.getElementsByTagNameNS("*", "Calories")[0];
-
-          if (durationNode) {
-            totalDurationSeconds += parseNumber(durationNode.textContent);
-          }
-
-          if (caloriesNode) {
-            totalCalories += parseNumber(caloriesNode.textContent);
-            hasCalories = true;
-          }
-        });
-
-        const trackpoints = [
-          ...activity.getElementsByTagNameNS("*", "Trackpoint")
-        ];
-
-        trackpoints.forEach(trackpoint => {
-          const timeNode =
-            trackpoint.getElementsByTagNameNS("*", "Time")[0];
-
-          const heartRateNode =
-            trackpoint.getElementsByTagNameNS("*", "HeartRateBpm")[0];
-
-          const heartRateValueNode =
-            heartRateNode &&
-            heartRateNode.getElementsByTagNameNS("*", "Value")[0];
-
-          const distanceNode =
-            trackpoint.getElementsByTagNameNS("*", "DistanceMeters")[0];
-
-          if (timeNode && timeNode.textContent) {
-            trackpointTimes.push(new Date(timeNode.textContent));
-          }
-
-          if (heartRateValueNode) {
-            const value = parseNumber(heartRateValueNode.textContent);
-
-            if (value > 0) {
-              heartRates.push(value);
+            if (
+              Number.isFinite(difficulty) &&
+              difficulty > 0
+            ) {
+              result[exercise.name]
+                .difficulties
+                .push(difficulty);
             }
           }
-
-          if (distanceNode) {
-            distances.push(parseNumber(distanceNode.textContent));
-          }
-        });
-
-        if (!totalDurationSeconds && trackpointTimes.length >= 2) {
-          const first = trackpointTimes[0].getTime();
-          const last = trackpointTimes[trackpointTimes.length - 1].getTime();
-
-          totalDurationSeconds = Math.max(
-            0,
-            Math.round((last - first) / 1000)
-          );
-        }
-
-        const startTime =
-          idNode && idNode.textContent
-            ? new Date(idNode.textContent).toISOString()
-            : trackpointTimes[0]
-              ? trackpointTimes[0].toISOString()
-              : null;
-
-        const activityName =
-          activityNameNode && activityNameNode.textContent
-            ? activityNameNode.textContent.trim()
-            : activity.getAttribute("Sport") || "Garmin Activity";
-
-        const averageHeartRate = heartRates.length
-          ? Math.round(
-              heartRates.reduce((sum, value) => sum + value, 0) /
-              heartRates.length
-            )
-          : null;
-
-        const maximumHeartRate = heartRates.length
-          ? Math.max(...heartRates)
-          : null;
-
-        const distanceMeters = distances.length
-          ? Math.max(...distances)
-          : null;
-
-        return {
-          imported: true,
-          fileType: "tcx",
-          fileName: file.name,
-          fileSize: file.size,
-          activityName,
-          startTime,
-          durationSeconds: totalDurationSeconds || null,
-          durationMinutes: totalDurationSeconds
-            ? Number((totalDurationSeconds / 60).toFixed(2))
-            : null,
-          calories: hasCalories
-            ? Math.round(totalCalories)
-            : null,
-          averageHeartRate,
-          maximumHeartRate,
-          distanceMeters,
-          heartRateSamples: heartRates,
-          importedAt: new Date().toISOString(),
-          fingerprint: createTcxFingerprint({
-            file,
-            activityName,
-            startTime,
-            durationSeconds: totalDurationSeconds,
-            calories: hasCalories ? Math.round(totalCalories) : null
-          })
-        };
+        );
       });
+
+      return result;
     }
 
-    function parseNumber(value) {
-      const number = Number.parseFloat(value);
-
-      return Number.isFinite(number) ? number : 0;
-    }
-
-    function createTcxFingerprint(data) {
-      return [
-        data.file.name,
-        data.file.size,
-        data.activityName,
-        data.startTime || "",
-        data.durationSeconds || "",
-        data.calories || ""
-      ].join("|");
-    }
-
-    function formatDuration(seconds) {
-      if (!seconds && seconds !== 0) {
-        return "Not available";
-      }
-
-      const total = Math.round(seconds);
-      const hours = Math.floor(total / 3600);
-      const minutes = Math.floor((total % 3600) / 60);
-      const remainingSeconds = total % 60;
-
-      if (hours > 0) {
-        return [
-          String(hours).padStart(2, "0"),
-          String(minutes).padStart(2, "0"),
-          String(remainingSeconds).padStart(2, "0")
-        ].join(":");
-      }
-
-      return [
-        String(minutes).padStart(2, "0"),
-        String(remainingSeconds).padStart(2, "0")
-      ].join(":");
-    }
-
-    function formatValue(value, suffix = "") {
-      return value === null ||
-        value === undefined ||
-        value === ""
-        ? "Not available"
-        : `${value}${suffix}`;
-    }
-
-    function formatDateTime(value) {
-      if (!value) {
-        return "Not available";
-      }
-
-      const date = new Date(value);
-
-      if (Number.isNaN(date.getTime())) {
-        return "Not available";
-      }
-
-      return date.toLocaleString();
-    }
-
-    function showNotice(id, message, type) {
-      const notice = document.getElementById(id);
-
-      notice.textContent = message;
-      notice.className = "notice";
-
-      if (message) {
-        notice.classList.add("show");
-
-        if (type === "success") {
-          notice.classList.add("notice-success");
-        }
-
-        if (type === "error") {
-          notice.classList.add("notice-error");
-        }
-      }
-    }
-
-    function displayTcxResult(result) {
-      pendingTcxResult = result;
-
-      document.getElementById("tcxSummary").hidden = false;
-      document.getElementById("applyTcxButton").disabled = false;
-
-      document.getElementById("tcxActivityName").textContent =
-        result.activityName;
-
-      document.getElementById("tcxStartTime").textContent =
-        formatDateTime(result.startTime);
-
-      document.getElementById("tcxDuration").textContent =
-        formatDuration(result.durationSeconds);
-
-      document.getElementById("tcxCalories").textContent =
-        formatValue(result.calories, " kcal");
-
-      document.getElementById("tcxAverageHeartRate").textContent =
-        formatValue(result.averageHeartRate, " bpm");
-
-      document.getElementById("tcxMaximumHeartRate").textContent =
-        formatValue(result.maximumHeartRate, " bpm");
-
-      const duplicate = Object.values(appState.workoutLogs)
-        .some(log =>
-          log &&
-          log.garmin &&
-          log.garmin.imported &&
-          log.garmin.fingerprint === result.fingerprint
+    function renderExerciseAnalytics() {
+      const container =
+        document.getElementById(
+          "exerciseAnalytics"
         );
 
-      if (duplicate) {
-        showNotice(
-          "tcxNotice",
-          "This Garmin activity appears to have already been imported.",
-          "error"
-        );
-      } else {
-        showNotice(
-          "tcxNotice",
-          "TCX results loaded. Review the target workout, then apply the results.",
-          "success"
-        );
-      }
-    }
+      const data =
+        getExerciseAnalytics();
 
-    function applyTcxResult() {
-      if (!pendingTcxResult) {
+      const rows =
+        Object.entries(data);
+
+      if (!rows.length) {
+        container.innerHTML = `
+          <div class="instructions">
+            No completed workouts have been logged yet.
+          </div>
+        `;
+
         return;
       }
 
-      const targetSessionKey =
-        document.getElementById("tcxTargetSelect").value;
+      container.innerHTML = rows
+        .map(([name, values]) => {
+          const averageDifficulty =
+            values.difficulties.length
+              ? values.difficulties.reduce(
+                  (sum, value) =>
+                    sum + value,
+                  0
+                ) /
+                values.difficulties.length
+              : null;
 
-      const existingLog =
-        appState.workoutLogs[targetSessionKey] || {};
+          return `
+            <div class="exercise-analysis-row">
+              <div class="exercise-analysis-name">
+                ${escapeHtml(name)}
+              </div>
 
-      appState.workoutLogs[targetSessionKey] = {
-        ...existingLog,
-        garmin: pendingTcxResult,
-        importedDurationMinutes: pendingTcxResult.durationMinutes,
-        importedCalories: pendingTcxResult.calories,
-        importedAverageHeartRate: pendingTcxResult.averageHeartRate,
-        importedMaximumHeartRate: pendingTcxResult.maximumHeartRate
-      };
+              <div class="exercise-analysis-text">
+                Completed sessions:
+                ${values.completedSessions}
+                <br>
 
-      appState.completedWorkouts[targetSessionKey] = true;
-      delete appState.skippedWorkouts[targetSessionKey];
+                Planned sets across completed
+                sessions:
+                ${values.totalSets}
+                <br>
 
-      saveState();
-      renderApp();
-      closeModal("tcxModal");
+                Average session difficulty:
+                ${
+                  averageDifficulty === null
+                    ? "Not recorded"
+                    : `${averageDifficulty.toFixed(1)}/10`
+                }
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
 
-      pendingTcxResult = null;
+    function renderAnalytics() {
+      const analytics =
+        getOverallAnalytics();
+
+      document.getElementById(
+        "analyticsCompletion"
+      ).textContent =
+        `${analytics.completionPercent}%`;
+
+      document.getElementById(
+        "analyticsCompletionBar"
+      ).style.width =
+        `${analytics.completionPercent}%`;
+
+      document.getElementById(
+        "analyticsDifficulty"
+      ).textContent =
+        analytics.averageDifficulty ===
+        null
+          ? "Not available"
+          : `${analytics.averageDifficulty.toFixed(1)}/10`;
+
+      document.getElementById(
+        "analyticsDuration"
+      ).textContent =
+        `${Math.round(
+          analytics.totalDuration
+        )} min`;
+
+      document.getElementById(
+        "analyticsCalories"
+      ).textContent =
+        `${Math.round(
+          analytics.calories
+        )} kcal`;
+
+      document.getElementById(
+        "analyticsHeartRate"
+      ).textContent =
+        analytics.averageHeartRate ===
+        null
+          ? "Not available"
+          : `${Math.round(
+              analytics.averageHeartRate
+            )} bpm`;
+
+      document.getElementById(
+        "analyticsSkipped"
+      ).textContent =
+        String(analytics.skipped);
+
+      const select =
+        document.getElementById(
+          "analyticsWeekSelect"
+        );
+
+      select.innerHTML = "";
+
+      for (let week = 1; week <= 12; week += 1) {
+        const option =
+          document.createElement("option");
+
+        option.value = String(week);
+        option.textContent =
+          `Week ${week} details`;
+
+        select.appendChild(option);
+      }
+
+      renderWeeklyAnalytics(1);
+      renderExerciseAnalytics();
     }
 
     function getCatalogIndexes(catalog) {
       const byName = {};
       const byKey = {};
 
-      (catalog.exercises || []).forEach(exercise => {
-        byName[normalizeText(exercise.displayName)] = exercise;
-        byKey[normalizeText(exercise.exerciseName)] = exercise;
-      });
+      (catalog.exercises || [])
+        .forEach(exercise => {
+          byName[
+            normalizeText(
+              exercise.displayName
+            )
+          ] = exercise;
+
+          byKey[
+            normalizeText(
+              exercise.exerciseName
+            )
+          ] = exercise;
+        });
 
       return {
         ...catalog,
@@ -2906,83 +3832,95 @@
     }
 
     function parseGarminCatalog(text) {
-      const lines = String(text || "")
-        .split(/\r?\n/)
-        .map(line => line.trim())
-        .filter(Boolean);
+      const lines =
+        String(text || "")
+          .split(/\r?\n/)
+          .map(line => line.trim())
+          .filter(Boolean);
 
       const exercises = [];
-      const categoryKeys = [];
+      const categories = [];
 
       lines.forEach(line => {
-        const separator = line.indexOf("=");
+        const separator =
+          line.indexOf("=");
 
         if (separator < 1) {
           return;
         }
 
-        const key = line.slice(0, separator).trim();
-        const value = line.slice(separator + 1).trim();
+        const key =
+          line.slice(0, separator).trim();
 
-        if (key.startsWith("category_type_")) {
-          categoryKeys.push(key.slice("category_type_".length));
+        const value =
+          line.slice(separator + 1).trim();
+
+        if (
+          key.startsWith(
+            "category_type_"
+          )
+        ) {
+          categories.push(
+            key.slice(
+              "category_type_".length
+            )
+          );
         }
 
-        if (key.startsWith("exercise_type_")) {
+        if (
+          key.startsWith(
+            "exercise_type_"
+          )
+        ) {
           exercises.push({
-            exerciseName: key.slice("exercise_type_".length),
+            exerciseName:
+              key.slice(
+                "exercise_type_".length
+              ),
             displayName: value,
             category: null
           });
         }
       });
 
-      const sortedCategories = categoryKeys
-        .sort((a, b) => b.length - a.length);
+      const sortedCategories =
+        categories.sort(
+          (first, second) =>
+            second.length - first.length
+        );
 
       exercises.forEach(exercise => {
-        const relatedLine = lines.find(line => {
-          const separator = line.indexOf("=");
-
-          if (separator < 1) {
-            return false;
-          }
-
-          const key = line.slice(0, separator).trim();
-
-          return sortedCategories.some(category =>
-            key === `${category}_${exercise.exerciseName}`
+        const matchingCategory =
+          sortedCategories.find(
+            category =>
+              lines.some(line =>
+                line.startsWith(
+                  `${category}_${exercise.exerciseName}=`
+                )
+              )
           );
-        });
 
-        if (relatedLine) {
-          for (const category of sortedCategories) {
-            const prefix = `${category}_`;
-
-            if (relatedLine.startsWith(prefix)) {
-              exercise.category = category;
-              break;
-            }
-          }
-        }
-
-        if (!exercise.category) {
-          exercise.category = "STRENGTH";
-        }
+        exercise.category =
+          matchingCategory ||
+          "STRENGTH";
       });
 
       return {
         version: 1,
-        importedAt: new Date().toISOString(),
+        importedAt:
+          new Date().toISOString(),
         count: exercises.length,
         exercises
       };
     }
 
     function resolveGarminExercise(name) {
-      const catalog = appState.garminCatalog
-        ? getCatalogIndexes(appState.garminCatalog)
-        : null;
+      const catalog =
+        appState.garminCatalog
+          ? getCatalogIndexes(
+              appState.garminCatalog
+            )
+          : null;
 
       if (!catalog) {
         throw new Error(
@@ -2990,26 +3928,53 @@
         );
       }
 
-      const normalizedName = normalizeText(name);
-      const alias = garminAliases[normalizedName] || name;
-      const normalizedAlias = normalizeText(alias);
+      const normalizedName =
+        normalizeText(name);
+
+      const alias =
+        garminAliases[
+          normalizedName
+        ] || name;
+
+      const normalizedAlias =
+        normalizeText(alias);
 
       const direct =
-        catalog.byName[normalizedName] ||
-        catalog.byName[normalizedAlias] ||
-        catalog.byKey[normalizedName] ||
-        catalog.byKey[normalizedAlias];
+        catalog.byName[
+          normalizedName
+        ] ||
+        catalog.byName[
+          normalizedAlias
+        ] ||
+        catalog.byKey[
+          normalizedName
+        ] ||
+        catalog.byKey[
+          normalizedAlias
+        ];
 
       if (direct) {
         return direct;
       }
 
-      const partial = catalog.exercises.find(exercise => {
-        const catalogName = normalizeText(exercise.displayName);
+      const partial =
+        catalog.exercises.find(
+          exercise => {
+            const catalogName =
+              normalizeText(
+                exercise.displayName
+              );
 
-        return catalogName.includes(normalizedAlias) ||
-          normalizedAlias.includes(catalogName);
-      });
+            return (
+              catalogName.includes(
+                normalizedAlias
+              ) ||
+              normalizedAlias.includes(
+                catalogName
+              )
+            );
+          }
+        );
 
       if (partial) {
         return partial;
@@ -3021,118 +3986,170 @@
     }
 
     function getExerciseTarget(exercise) {
-      const text = String(exercise.reps || "");
-      const seconds = text.match(/(\d+)\s*(?:to|-)?\s*(\d+)?\s*seconds?/i);
+      const text =
+        String(exercise.reps || "");
 
-      if (seconds) {
+      const timeMatch =
+        text.match(
+          /(\d+)\s*(?:to|-)?\s*(\d+)?\s*seconds?/i
+        );
+
+      if (timeMatch) {
         return {
           conditionTypeId: 2,
           conditionTypeKey: "time",
-          value: Number(seconds[1])
+          value: Number(timeMatch[1])
         };
       }
 
-      const reps = text.match(/\d+/);
+      const repsMatch =
+        text.match(/\d+/);
 
       return {
         conditionTypeId: 10,
         conditionTypeKey: "reps",
-        value: reps ? Number(reps[0]) : 10
+        value: repsMatch
+          ? Number(repsMatch[0])
+          : 10
       };
     }
 
-    function createGarminPayload(weekNumber, sessionIndex) {
-      const week = workoutPlan[`week${weekNumber}`];
-      const session = week.workouts[sessionIndex];
-      const workoutName = getCanonicalWorkoutName(weekNumber, session);
+    function createGarminPayload(
+      weekNumber,
+      sessionIndex
+    ) {
+      const week =
+        workoutPlan[
+          `week${weekNumber}`
+        ];
+
+      const session =
+        week.workouts[sessionIndex];
+
+      const workoutName =
+        getCanonicalWorkoutName(
+          weekNumber,
+          session
+        );
 
       let stepId = 1;
       let stepOrder = 1;
+
       const workoutSteps = [];
 
-      session.exercises.forEach(exercise => {
-        const mapped = resolveGarminExercise(exercise.name);
-        const target = getExerciseTarget(exercise);
-        const repeatStepId = stepId++;
-        const exerciseStepId = stepId++;
-        const restStepId = stepId++;
+      session.exercises.forEach(
+        exercise => {
+          const mapped =
+            resolveGarminExercise(
+              exercise.name
+            );
 
-        workoutSteps.push({
-          stepId: repeatStepId,
-          stepOrder,
-          stepType: {
-            stepTypeId: 6,
-            stepTypeKey: "repeat",
-            displayOrder: 6
-          },
-          numberOfIterations: Number(exercise.sets),
-          smartRepeat: false,
-          childStepId: 1,
-          workoutSteps: [
-            {
-              stepId: exerciseStepId,
-              stepOrder: stepOrder + 1,
-              stepType: {
-                stepTypeId: 3,
-                stepTypeKey: "interval",
-                displayOrder: 3
-              },
-              type: "ExecutableStepDTO",
-              exerciseName: mapped.exerciseName,
-              category: mapped.category,
-              endCondition: {
-                conditionTypeId: target.conditionTypeId,
-                conditionTypeKey: target.conditionTypeKey,
-                displayOrder: target.conditionTypeId,
-                displayable: true
-              },
-              endConditionValue: target.value,
-              targetType: {
-                workoutTargetTypeId: 1,
-                workoutTargetTypeKey: "no.target",
-                displayOrder: 1
-              }
+          const target =
+            getExerciseTarget(
+              exercise
+            );
+
+          const repeatStepId =
+            stepId++;
+
+          const exerciseStepId =
+            stepId++;
+
+          const restStepId =
+            stepId++;
+
+          workoutSteps.push({
+            stepId: repeatStepId,
+            stepOrder,
+            stepType: {
+              stepTypeId: 6,
+              stepTypeKey: "repeat",
+              displayOrder: 6
             },
-            {
-              stepId: restStepId,
-              stepOrder: stepOrder + 2,
-              stepType: {
-                stepTypeId: 5,
-                stepTypeKey: "rest",
-                displayOrder: 5
+            numberOfIterations:
+              Number(exercise.sets),
+            smartRepeat: false,
+            childStepId: 1,
+            workoutSteps: [
+              {
+                stepId: exerciseStepId,
+                stepOrder:
+                  stepOrder + 1,
+                stepType: {
+                  stepTypeId: 3,
+                  stepTypeKey: "interval",
+                  displayOrder: 3
+                },
+                type:
+                  "ExecutableStepDTO",
+                exerciseName:
+                  mapped.exerciseName,
+                category:
+                  mapped.category,
+                endCondition: {
+                  conditionTypeId:
+                    target.conditionTypeId,
+                  conditionTypeKey:
+                    target.conditionTypeKey,
+                  displayOrder:
+                    target.conditionTypeId,
+                  displayable: true
+                },
+                endConditionValue:
+                  target.value,
+                targetType: {
+                  workoutTargetTypeId: 1,
+                  workoutTargetTypeKey:
+                    "no.target",
+                  displayOrder: 1
+                }
               },
-              type: "ExecutableStepDTO",
-              endCondition: {
-                conditionTypeId: 2,
-                conditionTypeKey: "time",
-                displayOrder: 2,
-                displayable: true
-              },
-              endConditionValue: 60,
-              targetType: {
-                workoutTargetTypeId: 1,
-                workoutTargetTypeKey: "no.target",
-                displayOrder: 1
+              {
+                stepId: restStepId,
+                stepOrder:
+                  stepOrder + 2,
+                stepType: {
+                  stepTypeId: 5,
+                  stepTypeKey: "rest",
+                  displayOrder: 5
+                },
+                type:
+                  "ExecutableStepDTO",
+                endCondition: {
+                  conditionTypeId: 2,
+                  conditionTypeKey: "time",
+                  displayOrder: 2,
+                  displayable: true
+                },
+                endConditionValue: 60,
+                targetType: {
+                  workoutTargetTypeId: 1,
+                  workoutTargetTypeKey:
+                    "no.target",
+                  displayOrder: 1
+                }
               }
-            }
-          ],
-          endCondition: {
-            conditionTypeId: 7,
-            conditionTypeKey: "iterations",
-            displayOrder: 7,
-            displayable: false
-          },
-          skipLastRestStep: false,
-          type: "RepeatGroupDTO"
-        });
+            ],
+            endCondition: {
+              conditionTypeId: 7,
+              conditionTypeKey:
+                "iterations",
+              displayOrder: 7,
+              displayable: false
+            },
+            skipLastRestStep: false,
+            type: "RepeatGroupDTO"
+          });
 
-        stepOrder += 3;
-      });
+          stepOrder += 3;
+        }
+      );
 
       return {
         sportType: {
           sportTypeId: 5,
-          sportTypeKey: "strength_training",
+          sportTypeKey:
+            "strength_training",
           displayOrder: 5
         },
         workoutName,
@@ -3141,72 +4158,37 @@
             segmentOrder: 1,
             sportType: {
               sportTypeId: 5,
-              sportTypeKey: "strength_training",
+              sportTypeKey:
+                "strength_training",
               displayOrder: 5
             },
             workoutSteps
           }
         ],
-        estimatedDurationInSecs: session.exercises.length * 900,
+        estimatedDurationInSecs:
+          session.exercises.length * 900,
         estimatedDistanceInMeters: 0,
         isWheelchair: false
       };
     }
 
-    function createSingleGarminScript(payload) {
+    function createGarminScript(
+      payloads,
+      delay = 2000
+    ) {
       return `(async () => {
-  const payload = ${JSON.stringify(payload, null, 2)};
+  const payloads = ${JSON.stringify(
+    payloads,
+    null,
+    2
+  )};
 
-  function getCsrfToken() {
-    const meta = document.querySelector(
-      'meta[name="csrf-token"], meta[name="connect-csrf-token"]'
-    );
-
-    if (meta && meta.content) {
-      return meta.content;
-    }
-
-    return prompt("Paste the current Connect-Csrf-Token:");
-  }
-
-  const csrfToken = getCsrfToken();
-
-  if (!csrfToken) {
-    throw new Error("No CSRF token supplied.");
-  }
-
-  const response = await fetch(
-    "/gc-api/workout-service/workout",
-    {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Accept": "*/*",
-        "Content-Type": "application/json",
-        "Connect-Csrf-Token": csrfToken
-      },
-      body: JSON.stringify(payload)
-    }
-  );
-
-  const text = await response.text();
-
-  if (!response.ok) {
-    throw new Error("Garmin rejected the workout: HTTP " + response.status + " " + text);
-  }
-
-  console.log("Created Garmin workout:", payload.workoutName, text);
-  alert("Created Garmin workout: " + payload.workoutName);
-})();`;
-    }
-
-    function createBulkGarminScript(payloads, delay) {
-      return `(async () => {
-  const payloads = ${JSON.stringify(payloads, null, 2)};
   const delay = ${Number(delay)};
 
   function sleep(milliseconds) {
-    return new Promise(resolve => setTimeout(resolve, milliseconds));
+    return new Promise(resolve => {
+      setTimeout(resolve, milliseconds);
+    });
   }
 
   function getCsrfToken() {
@@ -3218,7 +4200,9 @@
       return meta.content;
     }
 
-    return prompt("Paste the current Connect-Csrf-Token:");
+    return prompt(
+      "Paste the current Connect-Csrf-Token:"
+    );
   }
 
   const csrfToken = getCsrfToken();
@@ -3248,7 +4232,12 @@
       const text = await response.text();
 
       if (!response.ok) {
-        throw new Error("HTTP " + response.status + " " + text);
+        throw new Error(
+          "HTTP " +
+          response.status +
+          " " +
+          text
+        );
       }
 
       results.push({
@@ -3256,7 +4245,10 @@
         status: "created"
       });
 
-      console.log("Created:", payload.workoutName);
+      console.log(
+        "Created Garmin workout:",
+        payload.workoutName
+      );
     } catch (error) {
       results.push({
         name: payload.workoutName,
@@ -3264,28 +4256,43 @@
         error: error.message
       });
 
-      console.error("Failed:", payload.workoutName, error);
+      console.error(
+        "Failed Garmin workout:",
+        payload.workoutName,
+        error
+      );
     }
 
     await sleep(delay);
   }
 
   console.table(results);
-  alert("Bulk Garmin upload finished. See the Console for details.");
+
+  alert(
+    "Garmin upload finished. See the Console for details."
+  );
 })();`;
     }
 
-    function openGarminUploadModal(weekNumber, sessionIndex) {
+    function openGarminUploadModal(
+      weekNumber,
+      sessionIndex
+    ) {
       try {
-        const payload = createGarminPayload(
-          weekNumber,
-          sessionIndex
-        );
+        const payload =
+          createGarminPayload(
+            weekNumber,
+            sessionIndex
+          );
 
-        document.getElementById("garminScriptOutput").value =
-          createSingleGarminScript(payload);
+        document.getElementById(
+          "garminScriptOutput"
+        ).value =
+          createGarminScript([payload]);
 
-        document.getElementById("garminScriptStatus").textContent =
+        document.getElementById(
+          "garminScriptStatus"
+        ).textContent =
           `Canonical name: ${payload.workoutName}`;
 
         openModal("garminModal");
@@ -3295,14 +4302,25 @@
     }
 
     function populateBulkWeeks() {
-      const select = document.getElementById("bulkWeekSelect");
+      const select =
+        document.getElementById(
+          "bulkWeekSelect"
+        );
+
       select.innerHTML = "";
 
-      for (let week = 1; week <= 12; week++) {
-        const option = document.createElement("option");
+      for (let week = 1; week <= 12; week += 1) {
+        const option =
+          document.createElement(
+            "option"
+          );
 
         option.value = String(week);
-        option.textContent = `Week ${week}: ${workoutPlan[`week${week}`].focus}`;
+        option.textContent =
+          `Week ${week}: ${
+            workoutPlan[`week${week}`].focus
+          }`;
+
         option.selected = week === 1;
 
         select.appendChild(option);
@@ -3310,9 +4328,14 @@
     }
 
     function generateBulkScript() {
-      const selectedWeeks = [
-        ...document.getElementById("bulkWeekSelect").selectedOptions
-      ].map(option => Number(option.value));
+      const selectedWeeks =
+        Array.from(
+          document.getElementById(
+            "bulkWeekSelect"
+          ).selectedOptions
+        ).map(option =>
+          Number(option.value)
+        );
 
       if (!selectedWeeks.length) {
         setStatus(
@@ -3320,25 +4343,42 @@
           "Select at least one week.",
           "error"
         );
+
         return;
       }
 
       try {
         const payloads = [];
 
-        selectedWeeks.forEach(weekNumber => {
-          workoutPlan[`week${weekNumber}`].workouts
-            .forEach((session, sessionIndex) => {
-              payloads.push(
-                createGarminPayload(weekNumber, sessionIndex)
-              );
-            });
-        });
+        selectedWeeks.forEach(
+          weekNumber => {
+            workoutPlan[
+              `week${weekNumber}`
+            ].workouts.forEach(
+              (_, sessionIndex) => {
+                payloads.push(
+                  createGarminPayload(
+                    weekNumber,
+                    sessionIndex
+                  )
+                );
+              }
+            );
+          }
+        );
 
-        const delay = document.getElementById("bulkDelayInput").value;
+        const delay =
+          document.getElementById(
+            "bulkDelayInput"
+          ).value;
 
-        document.getElementById("bulkScriptOutput").value =
-          createBulkGarminScript(payloads, delay);
+        document.getElementById(
+          "bulkScriptOutput"
+        ).value =
+          createGarminScript(
+            payloads,
+            delay
+          );
 
         setStatus(
           "bulkStatus",
@@ -3346,12 +4386,22 @@
           "success"
         );
       } catch (error) {
-        setStatus("bulkStatus", error.message, "error");
+        setStatus(
+          "bulkStatus",
+          error.message,
+          "error"
+        );
       }
     }
 
-    function copyText(textareaId, statusId) {
-      const textarea = document.getElementById(textareaId);
+    function copyText(
+      textareaId,
+      statusId
+    ) {
+      const textarea =
+        document.getElementById(
+          textareaId
+        );
 
       if (!textarea.value.trim()) {
         setStatus(
@@ -3359,33 +4409,647 @@
           "Generate the script first.",
           "error"
         );
+
         return;
       }
 
-      navigator.clipboard.writeText(textarea.value)
+      navigator.clipboard
+        .writeText(textarea.value)
         .then(() => {
-          setStatus(statusId, "Copied to clipboard.", "success");
+          setStatus(
+            statusId,
+            "Copied to clipboard.",
+            "success"
+          );
         })
         .catch(() => {
           textarea.select();
           document.execCommand("copy");
-          setStatus(statusId, "Copied to clipboard.", "success");
+
+          setStatus(
+            statusId,
+            "Copied to clipboard.",
+            "success"
+          );
         });
     }
 
-    function setStatus(id, message, type) {
-      const element = document.getElementById(id);
+    function setStatus(
+      id,
+      message,
+      type
+    ) {
+      const element =
+        document.getElementById(id);
 
       element.textContent = message;
-      element.className = type === "success"
-        ? "catalog-status status-success"
-        : type === "error"
-          ? "catalog-status status-error"
-          : "catalog-status";
+
+      element.className =
+        type === "success"
+          ? "catalog-status status-success"
+          : type === "error"
+            ? "catalog-status status-error"
+            : "catalog-status";
+    }
+
+    function openTcxModal(sessionKey) {
+      const entry =
+        getAllWorkoutEntries().find(
+          item =>
+            item.sessionKey ===
+            sessionKey
+        );
+
+      if (!entry) {
+        return;
+      }
+
+      pendingTcxResult = null;
+
+      document.getElementById(
+        "tcxWorkoutName"
+      ).textContent = entry.name;
+
+      const select =
+        document.getElementById(
+          "tcxTargetSelect"
+        );
+
+      select.innerHTML = "";
+
+      getAllWorkoutEntries().forEach(
+        item => {
+          const option =
+            document.createElement(
+              "option"
+            );
+
+          option.value =
+            item.sessionKey;
+
+          option.textContent =
+            item.name;
+
+          option.selected =
+            item.sessionKey ===
+            sessionKey;
+
+          select.appendChild(option);
+        }
+      );
+
+      document.getElementById(
+        "tcxFileInput"
+      ).value = "";
+
+      document.getElementById(
+        "tcxSummary"
+      ).hidden = true;
+
+      document.getElementById(
+        "applyTcxButton"
+      ).disabled = true;
+
+      showNotice(
+        "tcxNotice",
+        "",
+        ""
+      );
+
+      openModal("tcxModal");
+    }
+
+    function parseTcxFile(file) {
+      return file.text().then(text => {
+        const parser =
+          new DOMParser();
+
+        const xml =
+          parser.parseFromString(
+            text,
+            "application/xml"
+          );
+
+        if (
+          xml.querySelector(
+            "parsererror"
+          )
+        ) {
+          throw new Error(
+            "The selected file is not valid TCX XML."
+          );
+        }
+
+        const activities =
+          Array.from(
+            xml.getElementsByTagNameNS(
+              "*",
+              "Activity"
+            )
+          );
+
+        if (!activities.length) {
+          throw new Error(
+            "No activity was found in the TCX file."
+          );
+        }
+
+        const activity =
+          activities[0];
+
+        const idNode =
+          activity.getElementsByTagNameNS(
+            "*",
+            "Id"
+          )[0];
+
+        const activityNameNode =
+          activity.getElementsByTagNameNS(
+            "*",
+            "Name"
+          )[0];
+
+        const laps =
+          Array.from(
+            activity.getElementsByTagNameNS(
+              "*",
+              "Lap"
+            )
+          );
+
+        let totalDurationSeconds = 0;
+        let totalCalories = 0;
+        let hasCalories = false;
+
+        laps.forEach(lap => {
+          const durationNode =
+            lap.getElementsByTagNameNS(
+              "*",
+              "TotalTimeSeconds"
+            )[0];
+
+          const caloriesNode =
+            lap.getElementsByTagNameNS(
+              "*",
+              "Calories"
+            )[0];
+
+          if (durationNode) {
+            totalDurationSeconds +=
+              parseNumber(
+                durationNode.textContent
+              );
+          }
+
+          if (caloriesNode) {
+            totalCalories +=
+              parseNumber(
+                caloriesNode.textContent
+              );
+
+            hasCalories = true;
+          }
+        });
+
+        const trackpoints =
+          Array.from(
+            activity.getElementsByTagNameNS(
+              "*",
+              "Trackpoint"
+            )
+          );
+
+        const heartRates = [];
+        const trackpointTimes = [];
+        const distances = [];
+
+        trackpoints.forEach(
+          trackpoint => {
+            const timeNode =
+              trackpoint.getElementsByTagNameNS(
+                "*",
+                "Time"
+              )[0];
+
+            const heartRateNode =
+              trackpoint.getElementsByTagNameNS(
+                "*",
+                "HeartRateBpm"
+              )[0];
+
+            const heartRateValueNode =
+              heartRateNode &&
+              heartRateNode.getElementsByTagNameNS(
+                "*",
+                "Value"
+              )[0];
+
+            const distanceNode =
+              trackpoint.getElementsByTagNameNS(
+                "*",
+                "DistanceMeters"
+              )[0];
+
+            if (
+              timeNode &&
+              timeNode.textContent
+            ) {
+              const date =
+                new Date(
+                  timeNode.textContent
+                );
+
+              if (
+                !Number.isNaN(
+                  date.getTime()
+                )
+              ) {
+                trackpointTimes.push(date);
+              }
+            }
+
+            if (heartRateValueNode) {
+              const value =
+                parseNumber(
+                  heartRateValueNode.textContent
+                );
+
+              if (value > 0) {
+                heartRates.push(value);
+              }
+            }
+
+            if (distanceNode) {
+              distances.push(
+                parseNumber(
+                  distanceNode.textContent
+                )
+              );
+            }
+          }
+        );
+
+        if (
+          !totalDurationSeconds &&
+          trackpointTimes.length >= 2
+        ) {
+          const first =
+            trackpointTimes[0].getTime();
+
+          const last =
+            trackpointTimes[
+              trackpointTimes.length - 1
+            ].getTime();
+
+          totalDurationSeconds =
+            Math.max(
+              0,
+              Math.round(
+                (last - first) /
+                  1000
+              )
+            );
+        }
+
+        const startTime =
+          idNode &&
+          idNode.textContent
+            ? new Date(
+                idNode.textContent
+              ).toISOString()
+            : trackpointTimes[0]
+              ? trackpointTimes[0].toISOString()
+              : null;
+
+        const activityName =
+          activityNameNode &&
+          activityNameNode.textContent
+            ? activityNameNode.textContent.trim()
+            : activity.getAttribute(
+                "Sport"
+              ) || "Garmin Activity";
+
+        const averageHeartRate =
+          heartRates.length
+            ? Math.round(
+                heartRates.reduce(
+                  (sum, value) =>
+                    sum + value,
+                  0
+                ) /
+                  heartRates.length
+              )
+            : null;
+
+        const maximumHeartRate =
+          heartRates.length
+            ? Math.max(...heartRates)
+            : null;
+
+        const distanceMeters =
+          distances.length
+            ? Math.max(...distances)
+            : null;
+
+        return {
+          imported: true,
+          fileType: "tcx",
+          fileName: file.name,
+          fileSize: file.size,
+          activityName,
+          startTime,
+          durationSeconds:
+            totalDurationSeconds ||
+            null,
+          durationMinutes:
+            totalDurationSeconds
+              ? Number(
+                  (
+                    totalDurationSeconds /
+                    60
+                  ).toFixed(2)
+                )
+              : null,
+          calories: hasCalories
+            ? Math.round(
+                totalCalories
+              )
+            : null,
+          averageHeartRate,
+          maximumHeartRate,
+          distanceMeters,
+          heartRateSamples:
+            heartRates,
+          importedAt:
+            new Date().toISOString(),
+          fingerprint: [
+            file.name,
+            file.size,
+            activityName,
+            startTime || "",
+            totalDurationSeconds ||
+              "",
+            hasCalories
+              ? Math.round(
+                  totalCalories
+                )
+              : ""
+          ].join("|")
+        };
+      });
+    }
+
+    function parseNumber(value) {
+      const number =
+        Number.parseFloat(value);
+
+      return Number.isFinite(number)
+        ? number
+        : 0;
+    }
+
+    function formatDuration(seconds) {
+      if (
+        seconds === null ||
+        seconds === undefined
+      ) {
+        return "Not available";
+      }
+
+      const total =
+        Math.round(
+          Number(seconds)
+        );
+
+      const hours =
+        Math.floor(total / 3600);
+
+      const minutes =
+        Math.floor(
+          (total % 3600) / 60
+        );
+
+      const remainingSeconds =
+        total % 60;
+
+      if (hours > 0) {
+        return [
+          String(hours).padStart(
+            2,
+            "0"
+          ),
+          String(minutes).padStart(
+            2,
+            "0"
+          ),
+          String(
+            remainingSeconds
+          ).padStart(2, "0")
+        ].join(":");
+      }
+
+      return [
+        String(minutes).padStart(
+          2,
+          "0"
+        ),
+        String(
+          remainingSeconds
+        ).padStart(2, "0")
+      ].join(":");
+    }
+
+    function formatValue(
+      value,
+      suffix = ""
+    ) {
+      return value === null ||
+        value === undefined ||
+        value === ""
+        ? "Not available"
+        : `${value}${suffix}`;
+    }
+
+    function formatDateTime(value) {
+      if (!value) {
+        return "Not available";
+      }
+
+      const date =
+        new Date(value);
+
+      if (
+        Number.isNaN(
+          date.getTime()
+        )
+      ) {
+        return "Not available";
+      }
+
+      return date.toLocaleString();
+    }
+
+    function showNotice(
+      id,
+      message,
+      type
+    ) {
+      const notice =
+        document.getElementById(id);
+
+      notice.textContent = message;
+      notice.className = "notice";
+
+      if (!message) {
+        return;
+      }
+
+      notice.classList.add("show");
+
+      if (type === "success") {
+        notice.classList.add(
+          "notice-success"
+        );
+      }
+
+      if (type === "error") {
+        notice.classList.add(
+          "notice-error"
+        );
+      }
+    }
+
+    function displayTcxResult(result) {
+      pendingTcxResult = result;
+
+      document.getElementById(
+        "tcxSummary"
+      ).hidden = false;
+
+      document.getElementById(
+        "applyTcxButton"
+      ).disabled = false;
+
+      document.getElementById(
+        "tcxActivityName"
+      ).textContent =
+        result.activityName;
+
+      document.getElementById(
+        "tcxStartTime"
+      ).textContent =
+        formatDateTime(
+          result.startTime
+        );
+
+      document.getElementById(
+        "tcxDuration"
+      ).textContent =
+        formatDuration(
+          result.durationSeconds
+        );
+
+      document.getElementById(
+        "tcxCalories"
+      ).textContent =
+        formatValue(
+          result.calories,
+          " kcal"
+        );
+
+      document.getElementById(
+        "tcxAverageHeartRate"
+      ).textContent =
+        formatValue(
+          result.averageHeartRate,
+          " bpm"
+        );
+
+      document.getElementById(
+        "tcxMaximumHeartRate"
+      ).textContent =
+        formatValue(
+          result.maximumHeartRate,
+          " bpm"
+        );
+
+      const duplicate =
+        Object.values(
+          appState.workoutLogs
+        ).some(
+          log =>
+            log &&
+            log.garmin &&
+            log.garmin.imported &&
+            log.garmin.fingerprint ===
+              result.fingerprint
+        );
+
+      if (duplicate) {
+        showNotice(
+          "tcxNotice",
+          "This Garmin activity appears to have already been imported.",
+          "error"
+        );
+      } else {
+        showNotice(
+          "tcxNotice",
+          "TCX results loaded. Review the target workout, then apply the results.",
+          "success"
+        );
+      }
+    }
+
+    function applyTcxResult() {
+      if (!pendingTcxResult) {
+        return;
+      }
+
+      const targetSessionKey =
+        document.getElementById(
+          "tcxTargetSelect"
+        ).value;
+
+      const existingLog =
+        appState.workoutLogs[
+          targetSessionKey
+        ] || {};
+
+      appState.workoutLogs[
+        targetSessionKey
+      ] = {
+        ...existingLog,
+        garmin: pendingTcxResult,
+        importedDurationMinutes:
+          pendingTcxResult.durationMinutes,
+        importedCalories:
+          pendingTcxResult.calories,
+        importedAverageHeartRate:
+          pendingTcxResult.averageHeartRate,
+        importedMaximumHeartRate:
+          pendingTcxResult.maximumHeartRate
+      };
+
+      appState.completedWorkouts[
+        targetSessionKey
+      ] = true;
+
+      delete appState.skippedWorkouts[
+        targetSessionKey
+      ];
+
+      saveState();
+      renderApp();
+      closeModal("tcxModal");
+
+      pendingTcxResult = null;
     }
 
     function importCatalog() {
-      const text = document.getElementById("garminCatalogInput").value.trim();
+      const text =
+        document.getElementById(
+          "garminCatalogInput"
+        ).value.trim();
 
       if (!text) {
         setStatus(
@@ -3393,10 +5057,12 @@
           "Paste the Garmin catalog first.",
           "error"
         );
+
         return;
       }
 
-      const catalog = parseGarminCatalog(text);
+      const catalog =
+        parseGarminCatalog(text);
 
       if (!catalog.count) {
         setStatus(
@@ -3404,10 +5070,12 @@
           "No Garmin exercise entries were found.",
           "error"
         );
+
         return;
       }
 
-      appState.garminCatalog = catalog;
+      appState.garminCatalog =
+        catalog;
 
       localStorage.setItem(
         CATALOG_KEY,
@@ -3427,9 +5095,10 @@
       if (!appState.garminCatalog) {
         setStatus(
           "catalogStatus",
-          "Import the catalog first.",
+          "Import the Garmin catalog first.",
           "error"
         );
+
         return;
       }
 
@@ -3443,22 +5112,29 @@
         "Reverse Crunches"
       ];
 
-      const results = names.map(name => {
-        try {
-          const match = resolveGarminExercise(name);
+      const results =
+        names.map(name => {
+          try {
+            const match =
+              resolveGarminExercise(
+                name
+              );
 
-          return `${name}: ${match.displayName} [${match.exerciseName}]`;
-        } catch (error) {
-          return `${name}: NOT FOUND`;
-        }
-      });
+            return `${name}: ${match.displayName} [${match.exerciseName}]`;
+          } catch (error) {
+            return `${name}: NOT FOUND`;
+          }
+        });
 
-      console.log("Garmin catalog test:", results);
+      const hasMissing =
+        results.some(result =>
+          result.includes("NOT FOUND")
+        );
 
       setStatus(
         "catalogStatus",
         results.join("\n"),
-        results.some(result => result.includes("NOT FOUND"))
+        hasMissing
           ? "error"
           : "success"
       );
@@ -3466,10 +5142,16 @@
 
     function clearCatalog() {
       appState.garminCatalog = null;
-      localStorage.removeItem(CATALOG_KEY);
+
+      localStorage.removeItem(
+        CATALOG_KEY
+      );
+
       saveState();
 
-      document.getElementById("garminCatalogInput").value = "";
+      document.getElementById(
+        "garminCatalogInput"
+      ).value = "";
 
       setStatus(
         "catalogStatus",
@@ -3480,109 +5162,184 @@
 
     function exportBackup() {
       const backup = {
-        exportedAt: new Date().toISOString(),
+        exportedAt:
+          new Date().toISOString(),
         appState
       };
 
-      const blob = new Blob(
-        [JSON.stringify(backup, null, 2)],
-        { type: "application/json" }
-      );
+      const blob =
+        new Blob(
+          [
+            JSON.stringify(
+              backup,
+              null,
+              2
+            )
+          ],
+          {
+            type: "application/json"
+          }
+        );
 
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
+      const url =
+        URL.createObjectURL(blob);
+
+      const anchor =
+        document.createElement(
+          "a"
+        );
 
       anchor.href = url;
-      anchor.download = "fitness-tracker-backup.json";
+      anchor.download =
+        "fitness-tracker-backup.json";
+
       anchor.click();
 
       URL.revokeObjectURL(url);
     }
 
     function importBackup(file) {
-      file.text().then(text => {
-        const imported = JSON.parse(text);
-        const importedState = imported.appState || imported;
+      file.text()
+        .then(text => {
+          const imported =
+            JSON.parse(text);
 
-        appState = normalizeState({
-          ...appState,
-          ...importedState
-        });
+          const importedState =
+            imported.appState ||
+            imported;
 
-        if (appState.garminCatalog) {
-          localStorage.setItem(
-            CATALOG_KEY,
-            JSON.stringify(appState.garminCatalog)
+          appState =
+            normalizeState({
+              ...appState,
+              ...importedState
+            });
+
+          if (appState.garminCatalog) {
+            localStorage.setItem(
+              CATALOG_KEY,
+              JSON.stringify(
+                appState.garminCatalog
+              )
+            );
+          }
+
+          saveState();
+          renderApp();
+
+          alert(
+            "Backup imported successfully."
           );
-        }
-
-        saveState();
-        renderApp();
-
-        alert("Backup imported successfully.");
-      }).catch(error => {
-        alert(`Could not import backup: ${error.message}`);
-      });
+        })
+        .catch(error => {
+          alert(
+            `Could not import backup: ${error.message}`
+          );
+        });
     }
 
-    function getFriendlyFirebaseError(error) {
-      const code = error && error.code
-        ? error.code
-        : "";
-
+    function getFriendlyFirebaseError(
+      error
+    ) {
       const messages = {
-        "auth/invalid-email": "Enter a valid email address.",
-        "auth/user-not-found": "No account was found for this email.",
-        "auth/wrong-password": "The password is incorrect.",
-        "auth/invalid-credential": "The email or password is incorrect.",
-        "auth/email-already-in-use": "An account already exists for this email.",
-        "auth/weak-password": "The password must be at least 6 characters.",
-        "auth/too-many-requests": "Too many attempts. Try again later.",
-        "auth/network-request-failed": "Network error. Check your connection.",
-        "auth/operation-not-allowed": "Enable Email/Password authentication in Firebase Console."
+        "auth/invalid-email":
+          "Enter a valid email address.",
+        "auth/user-not-found":
+          "No account was found for this email.",
+        "auth/wrong-password":
+          "The password is incorrect.",
+        "auth/invalid-credential":
+          "The email or password is incorrect.",
+        "auth/email-already-in-use":
+          "An account already exists for this email.",
+        "auth/weak-password":
+          "The password must be at least 6 characters.",
+        "auth/too-many-requests":
+          "Too many attempts. Try again later.",
+        "auth/network-request-failed":
+          "Network error. Check your connection.",
+        "auth/operation-not-allowed":
+          "Enable Email/Password authentication in Firebase Console."
       };
 
-      return messages[code] || error.message || "Authentication failed.";
+      return (
+        messages[error.code] ||
+        error.message ||
+        "Authentication failed."
+      );
     }
 
     function showAuthModal() {
-      const user = currentFirebaseUser;
+      const user =
+        currentFirebaseUser;
 
-      const accountBox = document.getElementById(
-        "signedInAccountBox"
-      );
+      const accountBox =
+        document.getElementById(
+          "signedInAccountBox"
+        );
 
-      const authForm = document.getElementById("authForm");
-      const authTitle = document.getElementById("authModalTitle");
+      const authForm =
+        document.getElementById(
+          "authForm"
+        );
+
+      const authTitle =
+        document.getElementById(
+          "authModalTitle"
+        );
 
       if (user) {
         accountBox.hidden = false;
-        document.getElementById("signedInEmail").textContent =
+
+        document.getElementById(
+          "signedInEmail"
+        ).textContent =
           `Signed in as ${user.email}`;
 
         authForm.hidden = true;
-        authTitle.textContent = "👤 Account";
+        authTitle.textContent =
+          "👤 Account";
       } else {
         accountBox.hidden = true;
         authForm.hidden = false;
-        authTitle.textContent = "🔐 Sign In";
+        authTitle.textContent =
+          "🔐 Sign In";
       }
 
-      showNotice("authNotice", "", "");
+      showNotice(
+        "authNotice",
+        "",
+        ""
+      );
+
       openModal("authModal");
     }
 
     function signInUser(event) {
       event.preventDefault();
 
-      const email = document.getElementById("authEmail").value.trim();
-      const password = document.getElementById("authPassword").value;
+      const email =
+        document.getElementById(
+          "authEmail"
+        ).value.trim();
+
+      const password =
+        document.getElementById(
+          "authPassword"
+        ).value;
 
       setAuthButtonState(true);
-      showNotice("authNotice", "Signing in...", "");
+
+      showNotice(
+        "authNotice",
+        "Signing in...",
+        ""
+      );
 
       firebaseAuth
-        .signInWithEmailAndPassword(email, password)
+        .signInWithEmailAndPassword(
+          email,
+          password
+        )
         .then(() => {
           showNotice(
             "authNotice",
@@ -3590,7 +5347,9 @@
             "success"
           );
 
-          document.getElementById("authPassword").value = "";
+          document.getElementById(
+            "authPassword"
+          ).value = "";
 
           setTimeout(() => {
             closeModal("authModal");
@@ -3599,7 +5358,9 @@
         .catch(error => {
           showNotice(
             "authNotice",
-            getFriendlyFirebaseError(error),
+            getFriendlyFirebaseError(
+              error
+            ),
             "error"
           );
         })
@@ -3609,8 +5370,15 @@
     }
 
     function registerUser() {
-      const email = document.getElementById("authEmail").value.trim();
-      const password = document.getElementById("authPassword").value;
+      const email =
+        document.getElementById(
+          "authEmail"
+        ).value.trim();
+
+      const password =
+        document.getElementById(
+          "authPassword"
+        ).value;
 
       if (!email || !password) {
         showNotice(
@@ -3618,14 +5386,23 @@
           "Enter an email and password first.",
           "error"
         );
+
         return;
       }
 
       setAuthButtonState(true);
-      showNotice("authNotice", "Creating account...", "");
+
+      showNotice(
+        "authNotice",
+        "Creating account...",
+        ""
+      );
 
       firebaseAuth
-        .createUserWithEmailAndPassword(email, password)
+        .createUserWithEmailAndPassword(
+          email,
+          password
+        )
         .then(() => {
           showNotice(
             "authNotice",
@@ -3633,7 +5410,9 @@
             "success"
           );
 
-          document.getElementById("authPassword").value = "";
+          document.getElementById(
+            "authPassword"
+          ).value = "";
 
           setTimeout(() => {
             closeModal("authModal");
@@ -3642,7 +5421,9 @@
         .catch(error => {
           showNotice(
             "authNotice",
-            getFriendlyFirebaseError(error),
+            getFriendlyFirebaseError(
+              error
+            ),
             "error"
           );
         })
@@ -3652,7 +5433,10 @@
     }
 
     function resetPassword() {
-      const email = document.getElementById("authEmail").value.trim();
+      const email =
+        document.getElementById(
+          "authEmail"
+        ).value.trim();
 
       if (!email) {
         showNotice(
@@ -3660,11 +5444,17 @@
           "Enter your email address first.",
           "error"
         );
+
         return;
       }
 
       setAuthButtonState(true);
-      showNotice("authNotice", "Sending reset email...", "");
+
+      showNotice(
+        "authNotice",
+        "Sending reset email...",
+        ""
+      );
 
       firebaseAuth
         .sendPasswordResetEmail(email)
@@ -3678,7 +5468,9 @@
         .catch(error => {
           showNotice(
             "authNotice",
-            getFriendlyFirebaseError(error),
+            getFriendlyFirebaseError(
+              error
+            ),
             "error"
           );
         })
@@ -3696,106 +5488,196 @@
         .catch(error => {
           showNotice(
             "authNotice",
-            getFriendlyFirebaseError(error),
+            getFriendlyFirebaseError(
+              error
+            ),
             "error"
           );
         });
     }
 
-    function setAuthButtonState(isBusy) {
-      const submitButton = document.getElementById(
+    function setAuthButtonState(
+      isBusy
+    ) {
+      document.getElementById(
         "authSubmitButton"
-      );
+      ).disabled = isBusy;
 
-      const registerButton = document.getElementById(
+      document.getElementById(
         "registerButton"
-      );
+      ).disabled = isBusy;
 
-      const resetButton = document.getElementById(
+      document.getElementById(
         "resetPasswordButton"
-      );
-
-      submitButton.disabled = isBusy;
-      registerButton.disabled = isBusy;
-      resetButton.disabled = isBusy;
+      ).disabled = isBusy;
     }
 
     function updateAccountButton() {
-      const button = document.getElementById("accountButton");
+      const button =
+        document.getElementById(
+          "accountButton"
+        );
 
-      if (currentFirebaseUser) {
-        button.textContent = "👤 Account";
-      } else {
-        button.textContent = "🔐 Sign In";
-      }
+      button.textContent =
+        currentFirebaseUser
+          ? "👤 Account"
+          : "🔐 Sign In";
     }
 
     function setupAuthListener() {
-      firebaseAuth.onAuthStateChanged(user => {
-        if (user) {
-          currentFirebaseUser = user;
-          updateAccountButton();
-          startFirebaseSync(user);
-        } else {
-          stopFirebaseSync();
-          updateAccountButton();
+      firebaseAuth.onAuthStateChanged(
+        user => {
+          if (user) {
+            currentFirebaseUser = user;
+            updateAccountButton();
+            startFirebaseSync(user);
+          } else {
+            stopFirebaseSync();
+            updateAccountButton();
 
-          updateSyncStatus(
-            "offline",
-            "Not signed in. Data is stored locally."
-          );
+            updateSyncStatus(
+              "offline",
+              "Not signed in. Data is stored locally."
+            );
+          }
         }
-      });
+      );
     }
 
     function setupEventListeners() {
-      document.getElementById("accountButton")
-        .addEventListener("click", showAuthModal);
+      document.getElementById(
+        "analyticsButton"
+      ).addEventListener(
+        "click",
+        () => {
+          renderAnalytics();
+          openModal("analyticsModal");
+        }
+      );
 
-      document.getElementById("authForm")
-        .addEventListener("submit", signInUser);
+      document.getElementById(
+        "analyticsWeekSelect"
+      ).addEventListener(
+        "change",
+        event => {
+          renderWeeklyAnalytics(
+            Number(event.target.value)
+          );
+        }
+      );
 
-      document.getElementById("registerButton")
-        .addEventListener("click", registerUser);
+      document.getElementById(
+        "accountButton"
+      ).addEventListener(
+        "click",
+        showAuthModal
+      );
 
-      document.getElementById("resetPasswordButton")
-        .addEventListener("click", resetPassword);
+      document.getElementById(
+        "authForm"
+      ).addEventListener(
+        "submit",
+        signInUser
+      );
 
-      document.getElementById("logoutButton")
-        .addEventListener("click", logoutUser);
+      document.getElementById(
+        "registerButton"
+      ).addEventListener(
+        "click",
+        registerUser
+      );
 
-      document.getElementById("logForm")
-        .addEventListener("submit", saveWorkoutLog);
+      document.getElementById(
+        "resetPasswordButton"
+      ).addEventListener(
+        "click",
+        resetPassword
+      );
 
-      document.getElementById("difficultyInput")
-        .addEventListener("input", event => {
-          document.getElementById("difficultyValue").textContent =
+      document.getElementById(
+        "logoutButton"
+      ).addEventListener(
+        "click",
+        logoutUser
+      );
+
+      document.getElementById(
+        "logForm"
+      ).addEventListener(
+        "submit",
+        saveWorkoutLog
+      );
+
+      document.getElementById(
+        "difficultyInput"
+      ).addEventListener(
+        "input",
+        event => {
+          document.getElementById(
+            "difficultyValue"
+          ).textContent =
             event.target.value;
-        });
+        }
+      );
 
-      document.getElementById("logImportGarminButton")
-        .addEventListener("click", openTcxForCurrentLog);
+      document.getElementById(
+        "logImportGarminButton"
+      ).addEventListener(
+        "click",
+        () => {
+          const sessionKey =
+            document.getElementById(
+              "logSessionKey"
+            ).value;
 
-      document.getElementById("openGarminActivitiesButton")
-        .addEventListener("click", openGarminActivities);
+          closeModal("logModal");
+          openTcxModal(sessionKey);
+        }
+      );
 
-      document.getElementById("applyTcxButton")
-        .addEventListener("click", applyTcxResult);
+      document.getElementById(
+        "openGarminActivitiesButton"
+      ).addEventListener(
+        "click",
+        () => {
+          window.open(
+            GARMIN_ACTIVITIES_URL,
+            "_blank",
+            "noopener,noreferrer"
+          );
+        }
+      );
 
-      document.getElementById("tcxFileInput")
-        .addEventListener("change", event => {
-          const file = event.target.files[0];
+      document.getElementById(
+        "applyTcxButton"
+      ).addEventListener(
+        "click",
+        applyTcxResult
+      );
+
+      document.getElementById(
+        "tcxFileInput"
+      ).addEventListener(
+        "change",
+        event => {
+          const file =
+            event.target.files[0];
 
           if (!file) {
             return;
           }
 
-          if (!file.name.toLowerCase().endsWith(".tcx")) {
+          if (
+            !file.name
+              .toLowerCase()
+              .endsWith(".tcx")
+          ) {
             showNotice(
               "tcxNotice",
               "Please select a TCX file.",
               "error"
             );
+
             return;
           }
 
@@ -3803,7 +5685,10 @@
             .then(displayTcxResult)
             .catch(error => {
               pendingTcxResult = null;
-              document.getElementById("applyTcxButton").disabled = true;
+
+              document.getElementById(
+                "applyTcxButton"
+              ).disabled = true;
 
               showNotice(
                 "tcxNotice",
@@ -3811,134 +5696,227 @@
                 "error"
               );
             });
-        });
+        }
+      );
 
-      document.getElementById("openGarminWorkoutsButton")
-        .addEventListener("click", () => {
+      document.getElementById(
+        "openGarminWorkoutsButton"
+      ).addEventListener(
+        "click",
+        () => {
           window.open(
             GARMIN_WORKOUTS_URL,
             "_blank",
             "noopener,noreferrer"
           );
-        });
+        }
+      );
 
-      document.getElementById("openBulkGarminWorkoutsButton")
-        .addEventListener("click", () => {
+      document.getElementById(
+        "openBulkGarminWorkoutsButton"
+      ).addEventListener(
+        "click",
+        () => {
           window.open(
             GARMIN_WORKOUTS_URL,
             "_blank",
             "noopener,noreferrer"
           );
-        });
+        }
+      );
 
-      document.getElementById("copyGarminScriptButton")
-        .addEventListener("click", () => {
+      document.getElementById(
+        "copyGarminScriptButton"
+      ).addEventListener(
+        "click",
+        () => {
           copyText(
             "garminScriptOutput",
             "garminScriptStatus"
           );
-        });
+        }
+      );
 
-      document.getElementById("copyBulkScriptButton")
-        .addEventListener("click", () => {
+      document.getElementById(
+        "copyBulkScriptButton"
+      ).addEventListener(
+        "click",
+        () => {
           copyText(
             "bulkScriptOutput",
             "bulkStatus"
           );
-        });
+        }
+      );
 
-      document.getElementById("generateBulkScriptButton")
-        .addEventListener("click", generateBulkScript);
+      document.getElementById(
+        "generateBulkScriptButton"
+      ).addEventListener(
+        "click",
+        generateBulkScript
+      );
 
-      document.getElementById("selectAllWeeksButton")
-        .addEventListener("click", () => {
-          [...document.getElementById("bulkWeekSelect").options]
-            .forEach(option => {
-              option.selected = true;
-            });
-        });
+      document.getElementById(
+        "selectAllWeeksButton"
+      ).addEventListener(
+        "click",
+        () => {
+          Array.from(
+            document.getElementById(
+              "bulkWeekSelect"
+            ).options
+          ).forEach(option => {
+            option.selected = true;
+          });
+        }
+      );
 
-      document.getElementById("clearWeeksButton")
-        .addEventListener("click", () => {
-          [...document.getElementById("bulkWeekSelect").options]
-            .forEach(option => {
-              option.selected = false;
-            });
-        });
+      document.getElementById(
+        "clearWeeksButton"
+      ).addEventListener(
+        "click",
+        () => {
+          Array.from(
+            document.getElementById(
+              "bulkWeekSelect"
+            ).options
+          ).forEach(option => {
+            option.selected = false;
+          });
+        }
+      );
 
-      document.getElementById("settingsButton")
-        .addEventListener("click", () => {
-          document.getElementById("garminCatalogInput").value =
-            "";
+      document.getElementById(
+        "settingsButton"
+      ).addEventListener(
+        "click",
+        () => {
+          document.getElementById(
+            "garminCatalogInput"
+          ).value = "";
 
           openModal("settingsModal");
-        });
+        }
+      );
 
-      document.getElementById("bulkGarminButton")
-        .addEventListener("click", () => {
-          document.getElementById("bulkScriptOutput").value = "";
-          setStatus("bulkStatus", "", "");
+      document.getElementById(
+        "bulkGarminButton"
+      ).addEventListener(
+        "click",
+        () => {
+          document.getElementById(
+            "bulkScriptOutput"
+          ).value = "";
+
+          setStatus(
+            "bulkStatus",
+            "",
+            ""
+          );
+
           populateBulkWeeks();
           openModal("bulkGarminModal");
-        });
+        }
+      );
 
-      document.getElementById("importCatalogButton")
-        .addEventListener("click", importCatalog);
+      document.getElementById(
+        "importCatalogButton"
+      ).addEventListener(
+        "click",
+        importCatalog
+      );
 
-      document.getElementById("testCatalogButton")
-        .addEventListener("click", testCatalog);
+      document.getElementById(
+        "testCatalogButton"
+      ).addEventListener(
+        "click",
+        testCatalog
+      );
 
-      document.getElementById("clearCatalogButton")
-        .addEventListener("click", clearCatalog);
+      document.getElementById(
+        "clearCatalogButton"
+      ).addEventListener(
+        "click",
+        clearCatalog
+      );
 
-      document.getElementById("exportBackupButton")
-        .addEventListener("click", exportBackup);
+      document.getElementById(
+        "exportBackupButton"
+      ).addEventListener(
+        "click",
+        exportBackup
+      );
 
-      document.getElementById("importBackupInput")
-        .addEventListener("change", event => {
-          const file = event.target.files[0];
+      document.getElementById(
+        "importBackupInput"
+      ).addEventListener(
+        "change",
+        event => {
+          const file =
+            event.target.files[0];
 
           if (file) {
             importBackup(file);
           }
-        });
+        }
+      );
 
-      document.querySelectorAll("[data-close-modal]")
+      document
+        .querySelectorAll(
+          "[data-close-modal]"
+        )
         .forEach(button => {
-          button.addEventListener("click", () => {
-            closeModal(button.dataset.closeModal);
-          });
-        });
-
-      document.querySelectorAll(".modal")
-        .forEach(modal => {
-          modal.addEventListener("click", event => {
-            if (event.target === modal) {
-              closeModal(modal.id);
+          button.addEventListener(
+            "click",
+            () => {
+              closeModal(
+                button.dataset.closeModal
+              );
             }
-          });
+          );
         });
 
-      window.addEventListener("online", () => {
-        if (currentFirebaseUser) {
-          updateSyncStatus(
-            "online",
-            "Online. Firebase synchronization active."
+      document
+        .querySelectorAll(".modal")
+        .forEach(modal => {
+          modal.addEventListener(
+            "click",
+            event => {
+              if (
+                event.target === modal
+              ) {
+                closeModal(modal.id);
+              }
+            }
           );
-        } else {
+        });
+
+      window.addEventListener(
+        "online",
+        () => {
+          if (currentFirebaseUser) {
+            updateSyncStatus(
+              "online",
+              "Online. Firebase synchronization active."
+            );
+          } else {
+            updateSyncStatus(
+              "offline",
+              "Not signed in. Data is stored locally."
+            );
+          }
+        }
+      );
+
+      window.addEventListener(
+        "offline",
+        () => {
           updateSyncStatus(
             "offline",
-            "Not signed in. Data is stored locally."
+            "Offline. Local changes will remain on this device."
           );
         }
-      });
-
-      window.addEventListener("offline", () => {
-        updateSyncStatus(
-          "offline",
-          "Offline. Local changes will remain on this device."
-        );
-      });
+      );
     }
 
     loadState();
