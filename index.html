@@ -902,7 +902,7 @@
 
         <div class="stat">
           <span class="stat-label">Average Difficulty</span>
-          <span class="stat-value" id="averageDifficulty">0/10</span>
+          <span class="stat-value" id="averageDifficulty">Not recorded</span>
         </div>
 
         <div class="stat">
@@ -1024,15 +1024,25 @@
       ></div>
 
       <div class="form-group">
-        <label class="form-label">
-          Exercise performance
-        </label>
+  <label class="form-label">
+    Exercise performance
+  </label>
 
-        <div
-          class="exercise-analysis"
-          id="exerciseAnalytics"
-        ></div>
-      </div>
+  <div class="instructions">
+    Difficulty is recorded for the completed workout session, not for
+    individual exercises. The workout session difficulty is shown for every
+    exercise included in that completed workout. Garmin TCX files provide
+    workout results such as duration, calories, and heart rate, but do not
+    provide a separate difficulty score for each exercise. If no difficulty
+    was recorded for the workout session, the result remains
+    <strong>Not recorded</strong>.
+  </div>
+
+  <div
+    class="exercise-analysis"
+    id="exerciseAnalytics"
+  ></div>
+</div>
 
       <div class="modal-actions">
         <button
@@ -2378,72 +2388,59 @@
     }
 
     function updateStats() {
-      const total =
-        getAllWorkoutEntries().length;
+  const total =
+    getAllWorkoutEntries().length;
 
-      const completed =
-        Object.keys(
-          appState.completedWorkouts
-        ).length;
+  const completedLogs =
+    getCompletedWorkoutLogs();
 
-      const logs =
-        Object.values(
-          appState.workoutLogs
-        );
+  const completed =
+    completedLogs.length;
 
-      const difficulties =
-        logs
-          .map(log =>
-            Number(log.difficulty)
-          )
-          .filter(
-            value =>
-              Number.isFinite(value) &&
-              value > 0
-          );
+  const difficulties =
+    completedLogs
+      .map(({ log }) =>
+        getValidWorkoutDifficulty(log)
+      )
+      .filter(value => value !== null);
 
-      const imported =
-        logs.filter(
-          log =>
-            log &&
-            log.garmin &&
-            log.garmin.imported
-        ).length;
+  const imported =
+    completedLogs.filter(
+      ({ log }) =>
+        log &&
+        log.garmin &&
+        log.garmin.imported
+    ).length;
 
-      const averageDifficulty =
-        difficulties.length
-          ? difficulties.reduce(
-              (sum, value) =>
-                sum + value,
-              0
-            ) / difficulties.length
-          : null;
+  const averageDifficulty =
+    getAverage(difficulties);
 
-      document.getElementById(
-        "completedCount"
-      ).textContent =
-        `${completed}/${total}`;
+  document.getElementById(
+    "completedCount"
+  ).textContent =
+    `${completed}/${total}`;
 
-      document.getElementById(
-        "progressPercent"
-      ).textContent =
-        `${Math.round(
+  document.getElementById(
+    "progressPercent"
+  ).textContent =
+    `${total
+      ? Math.round(
           (completed / total) * 100
-        )}%`;
+        )
+      : 0}%`;
 
-      document.getElementById(
-        "averageDifficulty"
-      ).textContent =
-        averageDifficulty === null
-          ? "0/10"
-          : `${averageDifficulty.toFixed(1)}/10`;
+  document.getElementById(
+    "averageDifficulty"
+  ).textContent =
+    averageDifficulty === null
+      ? "Not recorded"
+      : `${averageDifficulty.toFixed(1)}/10`;
 
-      document.getElementById(
-        "garminImportCount"
-      ).textContent =
-        String(imported);
-    }
-
+  document.getElementById(
+    "garminImportCount"
+  ).textContent =
+    String(imported);
+}
     function renderWeeks() {
       const container =
         document.getElementById(
@@ -2993,128 +2990,160 @@
     }
 
     function renderGarminResultsCard(
+  sessionKey
+) {
+  const result =
+    getGarminResultsForSession(
       sessionKey
-    ) {
-      const result =
-        getGarminResultsForSession(
-          sessionKey
-        );
+    );
 
-      if (!result) {
-        return "";
-      }
+  if (!result) {
+    return "";
+  }
 
-      return `
-        <div class="garmin-results-card">
-          <div class="garmin-results-title">
-            📊 Imported Garmin Results
+  const sessionLog =
+    appState.workoutLogs[
+      sessionKey
+    ] || {};
+
+  const sessionDifficulty =
+    getValidWorkoutDifficulty(
+      sessionLog
+    );
+
+  const difficultyMarkup =
+    sessionDifficulty === null
+      ? `
+        <div class="garmin-import-date">
+          Workout session difficulty:
+          Not recorded
+          <br>
+          Garmin TCX files do not provide
+          a separate exercise difficulty score.
+        </div>
+      `
+      : `
+        <div class="garmin-import-date">
+          Workout session difficulty:
+          ${sessionDifficulty.toFixed(1)}/10
+          <br>
+          This session score is applied to
+          all exercises in this workout.
+        </div>
+      `;
+
+  return `
+    <div class="garmin-results-card">
+      <div class="garmin-results-title">
+        📊 Imported Garmin Results
+      </div>
+
+      <div class="garmin-results-grid">
+        <div class="garmin-result-item">
+          <div class="garmin-result-label">
+            Activity
           </div>
 
-          <div class="garmin-results-grid">
-            <div class="garmin-result-item">
-              <div class="garmin-result-label">
-                Activity
-              </div>
-
-              <div class="garmin-result-value">
-                ${escapeHtml(
-                  result.activityName ||
-                    "Not available"
-                )}
-              </div>
-            </div>
-
-            <div class="garmin-result-item">
-              <div class="garmin-result-label">
-                Duration
-              </div>
-
-              <div class="garmin-result-value">
-                ${escapeHtml(
-                  formatGarminDuration(
-                    result
-                  )
-                )}
-              </div>
-            </div>
-
-            <div class="garmin-result-item">
-              <div class="garmin-result-label">
-                Calories
-              </div>
-
-              <div class="garmin-result-value">
-                ${escapeHtml(
-                  formatValue(
-                    result.calories,
-                    " kcal"
-                  )
-                )}
-              </div>
-            </div>
-
-            <div class="garmin-result-item">
-              <div class="garmin-result-label">
-                Average HR
-              </div>
-
-              <div class="garmin-result-value">
-                ${escapeHtml(
-                  formatValue(
-                    result.averageHeartRate,
-                    " bpm"
-                  )
-                )}
-              </div>
-            </div>
-
-            <div class="garmin-result-item">
-              <div class="garmin-result-label">
-                Maximum HR
-              </div>
-
-              <div class="garmin-result-value">
-                ${escapeHtml(
-                  formatValue(
-                    result.maximumHeartRate,
-                    " bpm"
-                  )
-                )}
-              </div>
-            </div>
-
-            <div class="garmin-result-item">
-              <div class="garmin-result-label">
-                Distance
-              </div>
-
-              <div class="garmin-result-value">
-                ${
-                  result.distanceMeters !==
-                    null &&
-                  result.distanceMeters !==
-                    undefined
-                    ? `${Math.round(
-                        result.distanceMeters
-                      )} m`
-                    : "Not available"
-                }
-              </div>
-            </div>
-          </div>
-
-          <div class="garmin-import-date">
-            Imported:
+          <div class="garmin-result-value">
             ${escapeHtml(
-              formatDateTime(
-                result.importedAt
+              result.activityName ||
+                "Not available"
+            )}
+          </div>
+        </div>
+
+        <div class="garmin-result-item">
+          <div class="garmin-result-label">
+            Duration
+          </div>
+
+          <div class="garmin-result-value">
+            ${escapeHtml(
+              formatGarminDuration(
+                result
               )
             )}
           </div>
         </div>
-      `;
-    }
 
+        <div class="garmin-result-item">
+          <div class="garmin-result-label">
+            Calories
+          </div>
+
+          <div class="garmin-result-value">
+            ${escapeHtml(
+              formatValue(
+                result.calories,
+                " kcal"
+              )
+            )}
+          </div>
+        </div>
+
+        <div class="garmin-result-item">
+          <div class="garmin-result-label">
+            Average HR
+          </div>
+
+          <div class="garmin-result-value">
+            ${escapeHtml(
+              formatValue(
+                result.averageHeartRate,
+                " bpm"
+              )
+            )}
+          </div>
+        </div>
+
+        <div class="garmin-result-item">
+          <div class="garmin-result-label">
+            Maximum HR
+          </div>
+
+          <div class="garmin-result-value">
+            ${escapeHtml(
+              formatValue(
+                result.maximumHeartRate,
+                " bpm"
+              )
+            )}
+          </div>
+        </div>
+
+        <div class="garmin-result-item">
+          <div class="garmin-result-label">
+            Distance
+          </div>
+
+          <div class="garmin-result-value">
+            ${
+              result.distanceMeters !==
+                null &&
+              result.distanceMeters !==
+                undefined
+                ? `${Math.round(
+                    result.distanceMeters
+                  )} m`
+                : "Not available"
+            }
+          </div>
+        </div>
+      </div>
+
+      ${difficultyMarkup}
+
+      <div class="garmin-import-date">
+        Imported:
+        ${escapeHtml(
+          formatDateTime(
+            result.importedAt
+          )
+        )}
+      </div>
+    </div>
+  `;
+}
     function openLogModal(
       sessionKey,
       workoutName
@@ -3189,26 +3218,36 @@
     }
 
     function saveWorkoutLog(event) {
-      event.preventDefault();
+  event.preventDefault();
 
-      const sessionKey =
-        document.getElementById(
-          "logSessionKey"
-        ).value;
+  const sessionKey =
+    document.getElementById(
+      "logSessionKey"
+    ).value;
 
-      appState.workoutLogs[
-        sessionKey
-      ] = {
+  const enteredDifficulty =
+    Number(
+      document.getElementById(
+        "difficultyInput"
+      ).value
+    );
+
+  appState.workoutLogs[
+    sessionKey
+  ] = {
         ...(
           appState.workoutLogs[
             sessionKey
           ] || {}
         ),
-        difficulty: Number(
-          document.getElementById(
-            "difficultyInput"
-          ).value
-        ),
+        difficulty:
+      Number.isFinite(
+        enteredDifficulty
+      ) &&
+      enteredDifficulty >= 1 &&
+      enteredDifficulty <= 10
+        ? enteredDifficulty
+        : null,
         duration:
           document.getElementById(
             "durationInput"
@@ -3273,258 +3312,285 @@
 
       return 0;
     }
+function getValidWorkoutDifficulty(log) {
+  if (!log) {
+    return null;
+  }
 
+  const difficulty = Number(log.difficulty);
+
+  if (
+    !Number.isFinite(difficulty) ||
+    difficulty < 1 ||
+    difficulty > 10
+  ) {
+    return null;
+  }
+
+  return difficulty;
+}
+
+function getAverage(values) {
+  const validValues = values.filter(value =>
+    Number.isFinite(value)
+  );
+
+  if (!validValues.length) {
+    return null;
+  }
+
+  return validValues.reduce(
+    (sum, value) => sum + value,
+    0
+  ) / validValues.length;
+}
+
+function getCompletedWorkoutLogs() {
+  return getAllWorkoutEntries()
+    .filter(entry =>
+      Boolean(
+        appState.completedWorkouts[
+          entry.sessionKey
+        ]
+      )
+    )
+    .map(entry => ({
+      entry,
+      log:
+        appState.workoutLogs[
+          entry.sessionKey
+        ] || null
+    }));
+}
     function getOverallAnalytics() {
-      const entries =
-        getAllWorkoutEntries();
+  const entries =
+    getAllWorkoutEntries();
 
-      const logs =
-        Object.values(
-          appState.workoutLogs || {}
-        );
+  const completedLogs =
+    getCompletedWorkoutLogs();
 
-      const completed =
-        Object.keys(
-          appState.completedWorkouts || {}
-        ).length;
+  const completed =
+    completedLogs.length;
 
-      const skipped =
-        Object.keys(
-          appState.skippedWorkouts || {}
-        ).length;
+  const skipped =
+    Object.keys(
+      appState.skippedWorkouts || {}
+    ).filter(sessionKey =>
+      Boolean(
+        appState.skippedWorkouts[
+          sessionKey
+        ]
+      )
+    ).length;
 
-      const difficulties =
-        logs
-          .map(log =>
-            Number(log.difficulty)
+  const difficulties =
+    completedLogs
+      .map(({ log }) =>
+        getValidWorkoutDifficulty(log)
+      )
+      .filter(value => value !== null);
+
+  const calories =
+    completedLogs
+      .map(({ log }) =>
+        Number(
+          log?.garmin?.calories
+        )
+      )
+      .filter(value =>
+        Number.isFinite(value) &&
+        value > 0
+      );
+
+  const heartRates =
+    completedLogs
+      .map(({ log }) =>
+        Number(
+          log?.garmin?.averageHeartRate
+        )
+      )
+      .filter(value =>
+        Number.isFinite(value) &&
+        value > 0
+      );
+
+  const totalDuration =
+    completedLogs.reduce(
+      (sum, { log }) => {
+        const garminDuration =
+          getGarminDurationMinutes(log);
+
+        if (garminDuration > 0) {
+          return sum + garminDuration;
+        }
+
+        const manualDuration =
+          Number(log?.duration);
+
+        if (
+          Number.isFinite(manualDuration) &&
+          manualDuration > 0
+        ) {
+          return sum + manualDuration;
+        }
+
+        return sum;
+      },
+      0
+    );
+
+  return {
+    total: entries.length,
+    completed,
+    skipped,
+    pending:
+      entries.length -
+      completed -
+      skipped,
+    completionPercent:
+      entries.length
+        ? Math.round(
+            (completed /
+              entries.length) *
+              100
           )
-          .filter(
-            value =>
-              Number.isFinite(value) &&
-              value > 0
-          );
-
-      const manualDurations =
-        logs
-          .map(log =>
-            Number(log.duration)
-          )
-          .filter(
-            value =>
-              Number.isFinite(value) &&
-              value > 0
-          );
-
-      const garminDurations =
-        logs
-          .map(log =>
-            getGarminDurationMinutes(log)
-          )
-          .filter(value => value > 0);
-
-      const calories =
-        logs
-          .map(log =>
-            Number(
-              log.garmin?.calories
-            ) || 0
-          )
-          .filter(value => value > 0);
-
-      const heartRates =
-        logs
-          .map(log =>
-            Number(
-              log.garmin?.averageHeartRate
-            ) || 0
-          )
-          .filter(value => value > 0);
-
-      const totalDuration =
-        manualDurations.reduce(
-          (sum, value) =>
-            sum + value,
-          0
-        ) +
-        garminDurations.reduce(
-          (sum, value) =>
-            sum + value,
-          0
-        );
-
-      return {
-        total: entries.length,
-        completed,
-        skipped,
-        pending:
-          entries.length -
-          completed -
-          skipped,
-        completionPercent: entries.length
-          ? Math.round(
-              (completed /
-                entries.length) *
-                100
-            )
-          : 0,
-        averageDifficulty:
-          difficulties.length
-            ? difficulties.reduce(
-                (sum, value) =>
-                  sum + value,
-                0
-              ) / difficulties.length
-            : null,
-        totalDuration,
-        calories: calories.reduce(
-          (sum, value) =>
-            sum + value,
-          0
-        ),
-        averageHeartRate:
-          heartRates.length
-            ? heartRates.reduce(
-                (sum, value) =>
-                  sum + value,
-                0
-              ) / heartRates.length
-            : null
-      };
-    }
-
+        : 0,
+    averageDifficulty:
+      getAverage(difficulties),
+    totalDuration,
+    calories:
+      calories.reduce(
+        (sum, value) =>
+          sum + value,
+        0
+      ),
+    averageHeartRate:
+      getAverage(heartRates)
+  };
+}
     function getWeekAnalytics(
-      weekNumber
-    ) {
-      const entries =
-        getAllWorkoutEntries().filter(
-          entry =>
-            entry.weekNumber ===
-            Number(weekNumber)
-        );
+  weekNumber
+) {
+  const entries =
+    getAllWorkoutEntries().filter(
+      entry =>
+        entry.weekNumber ===
+        Number(weekNumber)
+    );
 
-      const completedEntries =
-        entries.filter(entry =>
-          Boolean(
-            appState.completedWorkouts[
-              entry.sessionKey
-            ]
+  const completedEntries =
+    entries.filter(entry =>
+      Boolean(
+        appState.completedWorkouts[
+          entry.sessionKey
+        ]
+      )
+    );
+
+  const skippedEntries =
+    entries.filter(entry =>
+      Boolean(
+        appState.skippedWorkouts[
+          entry.sessionKey
+        ]
+      )
+    );
+
+  const logs =
+    completedEntries
+      .map(entry =>
+        appState.workoutLogs[
+          entry.sessionKey
+        ]
+      )
+      .filter(Boolean);
+
+  const difficulties =
+    logs
+      .map(log =>
+        getValidWorkoutDifficulty(log)
+      )
+      .filter(value => value !== null);
+
+  const durations =
+    logs
+      .map(log => {
+        const garmin =
+          getGarminDurationMinutes(log);
+
+        if (garmin > 0) {
+          return garmin;
+        }
+
+        const manual =
+          Number(log.duration);
+
+        return Number.isFinite(manual) &&
+          manual > 0
+          ? manual
+          : 0;
+      })
+      .filter(value => value > 0);
+
+  const calories =
+    logs
+      .map(log =>
+        Number(
+          log.garmin?.calories
+        )
+      )
+      .filter(value =>
+        Number.isFinite(value) &&
+        value > 0
+      );
+
+  const heartRates =
+    logs
+      .map(log =>
+        Number(
+          log.garmin?.averageHeartRate
+        )
+      )
+      .filter(value =>
+        Number.isFinite(value) &&
+        value > 0
+      );
+
+  return {
+    weekNumber: Number(weekNumber),
+    total: entries.length,
+    completed:
+      completedEntries.length,
+    skipped:
+      skippedEntries.length,
+    pending:
+      entries.length -
+      completedEntries.length -
+      skippedEntries.length,
+    completionPercent:
+      entries.length
+        ? Math.round(
+            (completedEntries.length /
+              entries.length) *
+              100
           )
-        );
+        : 0,
+    averageDifficulty:
+      getAverage(difficulties),
+    averageDuration:
+      getAverage(durations),
+    calories:
+      calories.reduce(
+        (sum, value) =>
+          sum + value,
+        0
+      ),
+    averageHeartRate:
+      getAverage(heartRates)
+  };
+}
 
-      const skippedEntries =
-        entries.filter(entry =>
-          Boolean(
-            appState.skippedWorkouts[
-              entry.sessionKey
-            ]
-          )
-        );
-
-      const logs =
-        completedEntries
-          .map(
-            entry =>
-              appState.workoutLogs[
-                entry.sessionKey
-              ]
-          )
-          .filter(Boolean);
-
-      const difficulties =
-        logs
-          .map(log =>
-            Number(log.difficulty)
-          )
-          .filter(
-            value =>
-              Number.isFinite(value) &&
-              value > 0
-          );
-
-      const durations =
-        logs
-          .map(log => {
-            const manual =
-              Number(log.duration) || 0;
-
-            const garmin =
-              getGarminDurationMinutes(
-                log
-              );
-
-            return garmin > 0
-              ? garmin
-              : manual;
-          })
-          .filter(value => value > 0);
-
-      const calories =
-        logs
-          .map(log =>
-            Number(
-              log.garmin?.calories
-            ) || 0
-          )
-          .filter(value => value > 0);
-
-      const heartRates =
-        logs
-          .map(log =>
-            Number(
-              log.garmin?.averageHeartRate
-            ) || 0
-          )
-          .filter(value => value > 0);
-
-      return {
-        weekNumber: Number(weekNumber),
-        total: entries.length,
-        completed: completedEntries.length,
-        skipped: skippedEntries.length,
-        pending:
-          entries.length -
-          completedEntries.length -
-          skippedEntries.length,
-        completionPercent: entries.length
-          ? Math.round(
-              (completedEntries.length /
-                entries.length) *
-                100
-            )
-          : 0,
-        averageDifficulty:
-          difficulties.length
-            ? difficulties.reduce(
-                (sum, value) =>
-                  sum + value,
-                0
-              ) / difficulties.length
-            : null,
-        averageDuration:
-          durations.length
-            ? durations.reduce(
-                (sum, value) =>
-                  sum + value,
-                0
-              ) / durations.length
-            : null,
-        calories: calories.reduce(
-          (sum, value) =>
-            sum + value,
-          0
-        ),
-        averageHeartRate:
-          heartRates.length
-            ? heartRates.reduce(
-                (sum, value) =>
-                  sum + value,
-                0
-              ) / heartRates.length
-            : null
-      };
-    }
-
-    function renderWeeklyAnalytics(
+function renderWeeklyAnalytics(
       weekNumber
     ) {
       const container =
@@ -3616,122 +3682,133 @@
     }
 
     function getExerciseAnalytics() {
-      const result = {};
+  const result = {};
 
-      getAllWorkoutEntries().forEach(entry => {
-        const completed =
-          Boolean(
-            appState.completedWorkouts[
-              entry.sessionKey
-            ]
-          );
+  getAllWorkoutEntries().forEach(entry => {
+    const completed =
+      Boolean(
+        appState.completedWorkouts[
+          entry.sessionKey
+        ]
+      );
 
-        if (!completed) {
-          return;
+    if (!completed) {
+      return;
+    }
+
+    const log =
+      appState.workoutLogs[
+        entry.sessionKey
+      ] || null;
+
+    /*
+     * Difficulty belongs to the workout session.
+     * The same session difficulty is applied
+     * to every exercise in that session.
+     */
+    const sessionDifficulty =
+      getValidWorkoutDifficulty(log);
+
+    entry.session.exercises.forEach(
+      exercise => {
+        const exerciseName =
+          exercise.name;
+
+        if (!result[exerciseName]) {
+          result[exerciseName] = {
+            completedSessions: 0,
+            totalSets: 0,
+            sessionDifficulties: []
+          };
         }
 
-        const log =
-          appState.workoutLogs[
-            entry.sessionKey
-          ];
+        const exerciseResult =
+          result[exerciseName];
 
-        entry.session.exercises.forEach(
-          exercise => {
-            if (!result[exercise.name]) {
-              result[exercise.name] = {
-                completedSessions: 0,
-                totalSets: 0,
-                difficulties: []
-              };
-            }
+        exerciseResult.completedSessions +=
+          1;
 
-            result[exercise.name]
-              .completedSessions += 1;
+        exerciseResult.totalSets +=
+          Number(exercise.sets) || 0;
 
-            result[exercise.name].totalSets +=
-              Number(exercise.sets) || 0;
-
-            const difficulty =
-              Number(log?.difficulty);
-
-            if (
-              Number.isFinite(difficulty) &&
-              difficulty > 0
-            ) {
-              result[exercise.name]
-                .difficulties
-                .push(difficulty);
-            }
-          }
-        );
-      });
-
-      return result;
-    }
-
-    function renderExerciseAnalytics() {
-      const container =
-        document.getElementById(
-          "exerciseAnalytics"
-        );
-
-      const data =
-        getExerciseAnalytics();
-
-      const rows =
-        Object.entries(data);
-
-      if (!rows.length) {
-        container.innerHTML = `
-          <div class="instructions">
-            No completed workouts have been logged yet.
-          </div>
-        `;
-
-        return;
+        if (
+          sessionDifficulty !== null
+        ) {
+          exerciseResult
+            .sessionDifficulties
+            .push(sessionDifficulty);
+        }
       }
+    );
+  });
 
-      container.innerHTML = rows
-        .map(([name, values]) => {
-          const averageDifficulty =
-            values.difficulties.length
-              ? values.difficulties.reduce(
-                  (sum, value) =>
-                    sum + value,
-                  0
-                ) /
-                values.difficulties.length
-              : null;
+  return result;
+}
+    function renderExerciseAnalytics() {
+  const container =
+    document.getElementById(
+      "exerciseAnalytics"
+    );
 
-          return `
-            <div class="exercise-analysis-row">
-              <div class="exercise-analysis-name">
-                ${escapeHtml(name)}
-              </div>
+  const data =
+    getExerciseAnalytics();
 
-              <div class="exercise-analysis-text">
-                Completed sessions:
-                ${values.completedSessions}
-                <br>
+  const rows =
+    Object.entries(data);
 
-                Planned sets across completed
-                sessions:
-                ${values.totalSets}
-                <br>
+  if (!rows.length) {
+    container.innerHTML = `
+      <div class="instructions">
+        No completed workouts have been logged yet.
+      </div>
+    `;
 
-                Average session difficulty:
-                ${
-                  averageDifficulty === null
-                    ? "Not recorded"
-                    : `${averageDifficulty.toFixed(1)}/10`
-                }
-              </div>
-            </div>
-          `;
-        })
-        .join("");
-    }
+    return;
+  }
 
+  container.innerHTML = rows
+    .map(([name, values]) => {
+      const averageDifficulty =
+        getAverage(
+          values.sessionDifficulties
+        );
+
+      const difficultyText =
+        averageDifficulty === null
+          ? "Not recorded"
+          : `${averageDifficulty.toFixed(1)}/10`;
+
+      const explanation =
+        averageDifficulty === null
+          ? "No completed workout session containing this exercise has a recorded difficulty."
+          : "Average difficulty of completed workout sessions containing this exercise.";
+
+      return `
+        <div class="exercise-analysis-row">
+          <div class="exercise-analysis-name">
+            ${escapeHtml(name)}
+          </div>
+
+          <div class="exercise-analysis-text">
+            Completed sessions:
+            ${values.completedSessions}
+            <br>
+
+            Planned sets across completed sessions:
+            ${values.totalSets}
+            <br>
+
+            Average workout session difficulty:
+            ${difficultyText}
+            <br>
+
+            ${escapeHtml(explanation)}
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+}
     function renderAnalytics() {
       const analytics =
         getOverallAnalytics();
