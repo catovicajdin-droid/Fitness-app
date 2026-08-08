@@ -241,23 +241,34 @@
     }
 
     .workout {
+      overflow: hidden;
       margin-bottom: 1rem;
       border: 1px solid var(--border);
       border-radius: 8px;
       background: var(--surface);
-      padding: 1rem;
     }
 
     .workout:last-child {
       margin-bottom: 0;
     }
 
-    .workout-header {
+    .workout-header-toggle {
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       gap: 1rem;
-      margin-bottom: 1rem;
+      cursor: pointer;
+      user-select: none;
+      padding: 1rem;
+    }
+
+    .workout-header-toggle:hover {
+      background: rgba(0, 217, 255, 0.04);
+    }
+
+    .workout-header {
+      flex: 1;
+      min-width: 0;
     }
 
     .workout-title {
@@ -271,11 +282,32 @@
       font-size: 0.75rem;
     }
 
+    .workout-toggle-icon {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 1.1rem;
+      transition: transform 0.2s ease;
+    }
+
+    .workout-toggle-icon.open {
+      transform: rotate(180deg);
+    }
+
+    .workout-content {
+      display: none;
+      padding: 0 1rem 1rem;
+    }
+
+    .workout-content.open {
+      display: block;
+    }
+
     .badges {
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-end;
       gap: 0.35rem;
+      margin-top: 0.2rem;
     }
 
     .badge {
@@ -387,6 +419,58 @@
     .workout-actions button {
       padding: 0.55rem 0.4rem;
       font-size: 0.75rem;
+    }
+
+    .garmin-results-card {
+      margin: 0.85rem 0;
+      border: 1px solid var(--garmin);
+      border-radius: 7px;
+      background: rgba(79, 196, 198, 0.08);
+      padding: 0.8rem;
+    }
+
+    .garmin-results-title {
+      margin-bottom: 0.65rem;
+      color: var(--garmin);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .garmin-results-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.55rem;
+    }
+
+    .garmin-result-item {
+      border-radius: 5px;
+      background: rgba(0, 0, 0, 0.18);
+      padding: 0.55rem;
+    }
+
+    .garmin-result-label {
+      color: var(--muted);
+      font-size: 0.68rem;
+    }
+
+    .garmin-result-value {
+      margin-top: 0.2rem;
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .garmin-import-date {
+      margin-top: 0.65rem;
+      color: var(--muted);
+      font-size: 0.7rem;
+    }
+
+    .garmin-results-empty {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.5;
     }
 
     .modal {
@@ -575,6 +659,12 @@
       }
     }
 
+    @media (max-width: 600px) {
+      .garmin-results-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
     @media (max-width: 450px) {
       main,
       header {
@@ -585,8 +675,12 @@
         grid-template-columns: 1fr;
       }
 
+      .workout-header-toggle {
+        gap: 0.5rem;
+      }
+
       .workout-header {
-        flex-direction: column;
+        min-width: 0;
       }
 
       .badges {
@@ -660,6 +754,18 @@
       <h2 class="modal-title" id="logModalTitle">
         Log Workout
       </h2>
+
+      <div
+        class="garmin-results-card"
+        id="logGarminResults"
+        hidden
+      >
+        <div class="garmin-results-title">
+          📊 Imported Garmin Results
+        </div>
+
+        <div id="logGarminResultsContent"></div>
+      </div>
 
       <form id="logForm">
         <input
@@ -1507,6 +1613,7 @@
             data-week-header="${week}"
             role="button"
             tabindex="0"
+            aria-expanded="false"
           >
             <div>
               <div class="week-title">
@@ -1555,6 +1662,22 @@
           });
         });
 
+      container.querySelectorAll("[data-workout-toggle]")
+        .forEach(toggle => {
+          const sessionKey = toggle.dataset.workoutToggle;
+
+          toggle.addEventListener("click", () => {
+            toggleWorkout(sessionKey);
+          });
+
+          toggle.addEventListener("keydown", event => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              toggleWorkout(sessionKey);
+            }
+          });
+        });
+
       container.querySelectorAll("[data-action]")
         .forEach(button => {
           button.addEventListener("click", handleWorkoutAction);
@@ -1566,8 +1689,16 @@
       const log = appState.workoutLogs[sessionKey];
       const complete = Boolean(appState.completedWorkouts[sessionKey]);
       const skipped = Boolean(appState.skippedWorkouts[sessionKey]);
-      const imported = Boolean(log && log.garmin && log.garmin.imported);
-      const workoutName = getCanonicalWorkoutName(weekNumber, session);
+      const imported = Boolean(
+        log &&
+        log.garmin &&
+        log.garmin.imported
+      );
+
+      const workoutName = getCanonicalWorkoutName(
+        weekNumber,
+        session
+      );
 
       const statusBadge = complete
         ? '<span class="badge badge-complete">Complete</span>'
@@ -1581,104 +1712,132 @@
 
       return `
         <article class="workout">
-          <div class="workout-header">
-            <div>
+          <div
+            class="workout-header-toggle"
+            data-workout-toggle="${sessionKey}"
+            role="button"
+            tabindex="0"
+            aria-expanded="false"
+          >
+            <div class="workout-header">
               <div class="workout-title">
                 ${escapeHtml(workoutName)}
               </div>
 
               <div class="workout-subtitle">
-                Canonical Garmin name: ${escapeHtml(workoutName)}
+                Canonical Garmin name:
+                ${escapeHtml(workoutName)}
+              </div>
+
+              <div class="badges">
+                ${statusBadge}
+                ${garminBadge}
               </div>
             </div>
 
-            <div class="badges">
-              ${statusBadge}
-              ${garminBadge}
+            <div
+              class="workout-toggle-icon"
+              id="workoutToggleIcon${sessionKey}"
+            >
+              ▼
             </div>
           </div>
 
-          <div class="section">
-            <div class="section-title">🔥 Warm-up</div>
-            <div class="section-text">
-              ${escapeHtml(session.warmup)}
-            </div>
-          </div>
+          <div
+            class="workout-content"
+            id="workoutContent${sessionKey}"
+          >
+            <div class="section">
+              <div class="section-title">🔥 Warm-up</div>
 
-          <div class="exercises">
-            <div class="section-title">💪 Exercises</div>
-
-            ${session.exercises.map(exercise => `
-              <div class="exercise">
-                <div class="exercise-name">
-                  ${escapeHtml(exercise.name)}
-                </div>
-
-                <div class="exercise-specs">
-                  <span>Sets: ${escapeHtml(exercise.sets)}</span>
-                  <span>Target: ${escapeHtml(exercise.reps)}</span>
-                </div>
-
-                <div class="exercise-note">
-                  ${escapeHtml(exercise.notes)}
-                </div>
-
-                <a
-                  class="video-link"
-                  href="${videoSearches[exercise.searchKey] || "#"}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  🎥 Search Tutorial
-                </a>
+              <div class="section-text">
+                ${escapeHtml(session.warmup)}
               </div>
-            `).join("")}
-          </div>
-
-          <div class="section">
-            <div class="section-title">🏥 Recovery</div>
-            <div class="section-text">
-              ${escapeHtml(session.recovery)}
             </div>
-          </div>
 
-          <div class="workout-actions">
-            <button
-              type="button"
-              data-action="log"
-              data-session-key="${sessionKey}"
-              data-workout-name="${escapeHtml(workoutName)}"
-            >
-              ${complete ? "✓ Edit Log" : "📝 Log"}
-            </button>
+            <div class="exercises">
+              <div class="section-title">💪 Exercises</div>
 
-            <button
-              type="button"
-              class="button-garmin"
-              data-action="import-tcx"
-              data-session-key="${sessionKey}"
-            >
-              📥 Import TCX
-            </button>
+              ${session.exercises.map(exercise => `
+                <div class="exercise">
+                  <div class="exercise-name">
+                    ${escapeHtml(exercise.name)}
+                  </div>
 
-            <button
-              type="button"
-              class="button-garmin"
-              data-action="send-garmin"
-              data-week="${weekNumber}"
-              data-session-index="${sessionIndex}"
-            >
-              📤 Send Garmin
-            </button>
+                  <div class="exercise-specs">
+                    <span>
+                      Sets: ${escapeHtml(exercise.sets)}
+                    </span>
 
-            <button
-              type="button"
-              class="button-danger"
-              data-action="skip"
-              data-session-key="${sessionKey}"
-            >
-              ⊘ Skip
-            </button>
+                    <span>
+                      Target: ${escapeHtml(exercise.reps)}
+                    </span>
+                  </div>
+
+                  <div class="exercise-note">
+                    ${escapeHtml(exercise.notes)}
+                  </div>
+
+                  <a
+                    class="video-link"
+                    href="${videoSearches[exercise.searchKey] || "#"}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    🎥 Search Tutorial
+                  </a>
+                </div>
+              `).join("")}
+            </div>
+
+            <div class="section">
+              <div class="section-title">🏥 Recovery</div>
+
+              <div class="section-text">
+                ${escapeHtml(session.recovery)}
+              </div>
+            </div>
+
+            ${renderGarminResultsCard(sessionKey)}
+
+            <div class="workout-actions">
+              <button
+                type="button"
+                data-action="log"
+                data-session-key="${sessionKey}"
+                data-workout-name="${escapeHtml(workoutName)}"
+              >
+                ${complete ? "✓ Edit Log" : "📝 Log"}
+              </button>
+
+              <button
+                type="button"
+                class="button-garmin"
+                data-action="import-tcx"
+                data-session-key="${sessionKey}"
+              >
+                📥 Import TCX
+              </button>
+
+              <button
+                type="button"
+                class="button-garmin"
+                data-action="send-garmin"
+                data-week="${weekNumber}"
+                data-session-index="${sessionIndex}"
+              >
+                📤 Send Garmin
+              </button>
+
+              <button
+                type="button"
+                class="button-danger"
+                data-action="skip"
+                data-session-key="${sessionKey}"
+              >
+                ⊘ Skip
+              </button>
+            </div>
           </div>
         </article>
       `;
@@ -1687,9 +1846,40 @@
     function toggleWeek(weekNumber) {
       const content = document.getElementById(`weekContent${weekNumber}`);
       const arrow = document.getElementById(`weekArrow${weekNumber}`);
+      const header = document.querySelector(
+        `[data-week-header="${weekNumber}"]`
+      );
 
-      content.classList.toggle("open");
-      arrow.classList.toggle("open");
+      const isOpen = content.classList.toggle("open");
+
+      arrow.classList.toggle("open", isOpen);
+
+      if (header) {
+        header.setAttribute("aria-expanded", String(isOpen));
+      }
+    }
+
+    function toggleWorkout(sessionKey) {
+      const content = document.getElementById(
+        `workoutContent${sessionKey}`
+      );
+
+      const icon = document.getElementById(
+        `workoutToggleIcon${sessionKey}`
+      );
+
+      const toggle = document.querySelector(
+        `[data-workout-toggle="${sessionKey}"]`
+      );
+
+      if (!content || !icon || !toggle) {
+        return;
+      }
+
+      const isOpen = content.classList.toggle("open");
+
+      icon.classList.toggle("open", isOpen);
+      toggle.setAttribute("aria-expanded", String(isOpen));
     }
 
     function handleWorkoutAction(event) {
@@ -1721,20 +1911,155 @@
 
     function openModal(id) {
       const modal = document.getElementById(id);
+
       modal.classList.add("open");
       modal.setAttribute("aria-hidden", "false");
     }
 
     function closeModal(id) {
       const modal = document.getElementById(id);
+
       modal.classList.remove("open");
       modal.setAttribute("aria-hidden", "true");
     }
 
+    function getGarminResultsForSession(sessionKey) {
+      const log = appState.workoutLogs[sessionKey];
+
+      if (!log || !log.garmin || !log.garmin.imported) {
+        return null;
+      }
+
+      return log.garmin;
+    }
+
+    function formatGarminDuration(result) {
+      if (
+        result.durationSeconds !== null &&
+        result.durationSeconds !== undefined
+      ) {
+        return formatDuration(result.durationSeconds);
+      }
+
+      if (
+        result.durationMinutes !== null &&
+        result.durationMinutes !== undefined
+      ) {
+        return `${result.durationMinutes} min`;
+      }
+
+      return "Not available";
+    }
+
+    function renderGarminResultsCard(sessionKey) {
+      const result = getGarminResultsForSession(sessionKey);
+
+      if (!result) {
+        return "";
+      }
+
+      return `
+        <div class="garmin-results-card">
+          <div class="garmin-results-title">
+            📊 Imported Garmin Results
+          </div>
+
+          <div class="garmin-results-grid">
+            <div class="garmin-result-item">
+              <div class="garmin-result-label">
+                Activity
+              </div>
+
+              <div class="garmin-result-value">
+                ${escapeHtml(result.activityName || "Not available")}
+              </div>
+            </div>
+
+            <div class="garmin-result-item">
+              <div class="garmin-result-label">
+                Duration
+              </div>
+
+              <div class="garmin-result-value">
+                ${escapeHtml(formatGarminDuration(result))}
+              </div>
+            </div>
+
+            <div class="garmin-result-item">
+              <div class="garmin-result-label">
+                Calories
+              </div>
+
+              <div class="garmin-result-value">
+                ${escapeHtml(formatValue(result.calories, " kcal"))}
+              </div>
+            </div>
+
+            <div class="garmin-result-item">
+              <div class="garmin-result-label">
+                Average HR
+              </div>
+
+              <div class="garmin-result-value">
+                ${escapeHtml(formatValue(result.averageHeartRate, " bpm"))}
+              </div>
+            </div>
+
+            <div class="garmin-result-item">
+              <div class="garmin-result-label">
+                Maximum HR
+              </div>
+
+              <div class="garmin-result-value">
+                ${escapeHtml(formatValue(result.maximumHeartRate, " bpm"))}
+              </div>
+            </div>
+
+            <div class="garmin-result-item">
+              <div class="garmin-result-label">
+                Distance
+              </div>
+
+              <div class="garmin-result-value">
+                ${
+                  result.distanceMeters !== null &&
+                  result.distanceMeters !== undefined
+                    ? `${Math.round(result.distanceMeters)} m`
+                    : "Not available"
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="garmin-import-date">
+            Imported:
+            ${escapeHtml(formatDateTime(result.importedAt))}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderGarminResultsPreview(sessionKey) {
+      const result = getGarminResultsForSession(sessionKey);
+
+      if (!result) {
+        return `
+          <div class="garmin-results-empty">
+            No Garmin results imported yet.
+          </div>
+        `;
+      }
+
+      return renderGarminResultsCard(sessionKey);
+    }
+
     function openLogModal(sessionKey, workoutName) {
       const log = appState.workoutLogs[sessionKey] || {};
+      const garminResults = getGarminResultsForSession(sessionKey);
 
-      document.getElementById("logSessionKey").value = sessionKey;
+      document.getElementById("logSessionKey").value =
+        sessionKey;
+
       document.getElementById("logModalTitle").textContent =
         `Log Workout: ${workoutName}`;
 
@@ -1750,8 +2075,25 @@
       document.getElementById("notesInput").value =
         log.notes || "";
 
-      document.getElementById("logImportGarminButton").dataset.sessionKey =
-        sessionKey;
+      document.getElementById("logImportGarminButton")
+        .dataset.sessionKey = sessionKey;
+
+      const resultsContainer = document.getElementById(
+        "logGarminResults"
+      );
+
+      const resultsContent = document.getElementById(
+        "logGarminResultsContent"
+      );
+
+      if (garminResults) {
+        resultsContainer.hidden = false;
+        resultsContent.innerHTML =
+          renderGarminResultsPreview(sessionKey);
+      } else {
+        resultsContainer.hidden = true;
+        resultsContent.innerHTML = "";
+      }
 
       openModal("logModal");
     }
@@ -2220,8 +2562,6 @@
         });
 
         if (relatedLine) {
-          const separator = relatedLine.indexOf("=");
-
           for (const category of sortedCategories) {
             const prefix = `${category}_`;
 
