@@ -1872,21 +1872,33 @@
     let firebaseInitialLoadComplete = false;
 
     const garminAliases = {
-      "push ups": "Push-up",
-      pushups: "Push-up",
-      "push up": "Push-up",
-      "standard push ups": "Push-up",
-      "incline push ups": "Incline Push-up",
-      "incline push ups hands elevated": "Incline Push-up",
-      crunches: "Crunch",
-      "plank hold": "Plank",
-      "dead bug": "Dead Bug",
-      "bicycle crunches": "Bicycle Crunch",
-      "reverse crunches": "Reverse Crunch",
-      "mountain climbers": "Mountain Climber",
-      "v ups": "V-up",
-      "hollow body hold": "Plank"
-    };
+  "push ups": "Push-up",
+  pushups: "Push-up",
+  "push up": "Push-up",
+  "standard push ups": "Push-up",
+  "incline push ups": "Incline Push-up",
+  "incline push ups hands elevated": "Incline Push-up",
+  crunches: "Crunch",
+  "plank hold": "Plank",
+  "dead bug": "Dead Bug",
+  "bicycle crunches": "Bicycle Crunch",
+  "reverse crunches": "Reverse Crunch",
+  "mountain climbers": "Mountain Climber",
+  "v ups": "V-up",
+  "hollow body hold": "Plank"
+};
+
+const garminCanonicalCategories = {
+  PUSH_UP: "PUSH_UP",
+  INCLINE_PUSH_UP: "PUSH_UP",
+  CRUNCH: "CRUNCH",
+  BICYCLE_CRUNCH: "CRUNCH",
+  REVERSE_CRUNCH: "CRUNCH",
+  PLANK: "PLANK",
+  DEAD_BUG: "HIP_STABILITY",
+  MOUNTAIN_CLIMBER: "PLANK",
+  V_UP: "SIT_UP"
+};
 
     function createWorkoutPlan() {
       const exercise = {
@@ -5174,13 +5186,10 @@ function renderWeeklyAnalytics(
           })
           .map(exercise => {
             const matchingCategory =
-              categories.find(category =>
-                lines.some(line =>
-                  line.startsWith(
-                    `${category}_${exercise.exerciseName}=`
-                  )
-                )
-              );
+  garminCanonicalCategories[
+    exercise.exerciseName
+  ] ||
+  null;
 
             return {
               exerciseName:
@@ -6432,8 +6441,7 @@ function renderWeeklyAnalytics(
               resolveGarminExercise(
                 name
               );
-
-            return `${name}: ${match.displayName} [${match.exerciseName}]`;
+return `${name}: ${match.displayName} [category=${match.category}, exerciseName=${match.exerciseName}]`;
           } catch (error) {
             return `${name}: NOT FOUND`;
           }
