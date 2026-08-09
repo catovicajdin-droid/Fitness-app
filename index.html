@@ -3140,43 +3140,65 @@ const garminCanonicalCategories = {
     }
 
     function getAdjustedExercise(
-      exercise,
+    function getAdjustedExercise(
+  exercise,
+  sessionKey
+) {
+  const exerciseDifficulty =
+    getExerciseDifficulty(
+      sessionKey,
+      exercise
+    );
+
+  /*
+   * Progression is allowed only when
+   * this specific exercise is rated 1 to 3.
+   *
+   * Blank, invalid, or 4 to 10 means
+   * keep the original exercise unchanged.
+   */
+  if (
+    exerciseDifficulty === null ||
+    exerciseDifficulty > 3
+  ) {
+    return {
+      ...exercise
+    };
+  }
+
+  const adjustment =
+    getProgressionAdjustment(
       sessionKey
-    ) {
-      const adjustment =
-        getProgressionAdjustment(
-          sessionKey
-        );
+    );
 
-      if (
-        adjustment.position < 0 ||
-        (
-          adjustment.reps === 0 &&
-          adjustment.sets === 0
-        )
-      ) {
-        return {
-          ...exercise
-        };
-      }
+  if (
+    adjustment.position < 0 ||
+    (
+      adjustment.reps === 0 &&
+      adjustment.sets === 0
+    )
+  ) {
+    return {
+      ...exercise
+    };
+  }
 
-      const adjustedSets =
-        Math.max(
-          1,
-          Number(exercise.sets) +
-            adjustment.sets
-        );
+  const adjustedSets =
+    Math.max(
+      1,
+      Number(exercise.sets) +
+        adjustment.sets
+    );
 
-      return {
-        ...exercise,
-        sets: adjustedSets,
-        reps: adjustRepText(
-          exercise.reps,
-          adjustment.reps
-        )
-      };
+  return {
+    ...exercise,
+    sets: adjustedSets,
+    reps: adjustRepText(
+      exercise.reps,
+      adjustment.reps
+    )
+  };
     }
-
     function renderProgressionNotice(
       sessionKey
     ) {
