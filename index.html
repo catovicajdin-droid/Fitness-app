@@ -385,7 +385,41 @@
       background: rgba(0, 217, 255, 0.045);
       padding: 0.75rem;
     }
+.exercise-difficulty-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
 
+.exercise-difficulty-row {
+  display: grid;
+  grid-template-columns: 1fr minmax(120px, 180px);
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--background);
+  padding: 0.7rem;
+}
+
+.exercise-difficulty-name {
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.exercise-difficulty-help {
+  margin-bottom: 0.7rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 450px) {
+  .exercise-difficulty-row {
+    grid-template-columns: 1fr;
+  }
+}
     .exercise-name {
       margin-bottom: 0.35rem;
       font-weight: 700;
