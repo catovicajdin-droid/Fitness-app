@@ -3893,76 +3893,169 @@ const garminCanonicalCategories = {
   `;
 }
     function openLogModal(
-      sessionKey,
-      workoutName
-    ) {
-      const log =
-        appState.workoutLogs[
-          sessionKey
-        ] || {};
+  sessionKey,
+  workoutName
+) {
+  const log =
+    appState.workoutLogs[
+      sessionKey
+    ] || {};
 
-      const garminResults =
-        getGarminResultsForSession(
-          sessionKey
-        );
+  const entry =
+    getWorkoutEntryBySessionKey(
+      sessionKey
+    );
 
-      document.getElementById(
-        "logSessionKey"
-      ).value = sessionKey;
+  const garminResults =
+    getGarminResultsForSession(
+      sessionKey
+    );
 
-      document.getElementById(
-        "logModalTitle"
-      ).textContent =
-        `Log Workout: ${workoutName}`;
+  document.getElementById(
+    "logSessionKey"
+  ).value = sessionKey;
 
-      document.getElementById(
-        "difficultyInput"
-      ).value =
-        log.difficulty || 5;
+  document.getElementById(
+    "logModalTitle"
+  ).textContent =
+    `Log Workout: ${workoutName}`;
 
-      document.getElementById(
-        "difficultyValue"
-      ).textContent =
-        log.difficulty || 5;
+  const overallDifficulty =
+    getValidWorkoutDifficulty(
+      log
+    ) || 5;
 
-      document.getElementById(
-        "durationInput"
-      ).value =
-        log.duration || "";
+  document.getElementById(
+    "difficultyInput"
+  ).value =
+    overallDifficulty;
 
-      document.getElementById(
-        "notesInput"
-      ).value =
-        log.notes || "";
+  document.getElementById(
+    "difficultyValue"
+  ).textContent =
+    overallDifficulty;
 
-      document.getElementById(
-        "logImportGarminButton"
-      ).dataset.sessionKey =
-        sessionKey;
+  const difficultyContainer =
+    document.getElementById(
+      "exerciseDifficultyFields"
+    );
 
-      const resultsContainer =
-        document.getElementById(
-          "logGarminResults"
-        );
+  if (
+    difficultyContainer &&
+    entry &&
+    entry.session &&
+    Array.isArray(
+      entry.session.exercises
+    )
+  ) {
+    difficultyContainer.innerHTML =
+      entry.session.exercises
+        .map(exercise => {
+          const savedValue =
+            log.exerciseDifficulties &&
+            log.exerciseDifficulties[
+              exercise.searchKey
+            ];
 
-      const resultsContent =
-        document.getElementById(
-          "logGarminResultsContent"
-        );
+          const selectedValue =
+            Number.isFinite(
+              Number(savedValue)
+            ) &&
+            Number(savedValue) >= 1 &&
+            Number(savedValue) <= 10
+              ? Number(savedValue)
+              : "";
 
-      if (garminResults) {
-        resultsContainer.hidden = false;
+          const options = [
+            `<option value="">Not recorded</option>`,
+            ...Array.from(
+              { length: 10 },
+              (_, index) => {
+                const value =
+                  index + 1;
 
-        resultsContent.innerHTML =
-          renderGarminResultsCard(
-            sessionKey
-          );
-      } else {
-        resultsContainer.hidden = true;
-        resultsContent.innerHTML = "";
-      }
+                return `
+                  <option
+                    value="${value}"
+                    ${
+                      selectedValue === value
+                        ? "selected"
+                        : ""
+                    }
+                  >
+                    ${value}/10
+                  </option>
+                `;
+              }
+            )
+          ].join("");
 
-      openModal("logModal");
+          return `
+            <div class="exercise-difficulty-row">
+              <label
+                class="exercise-difficulty-name"
+                for="exerciseDifficulty-${exercise.searchKey}"
+              >
+                ${escapeHtml(
+                  exercise.name
+                )}
+              </label>
+
+              <select
+                class="exercise-difficulty-select"
+                id="exerciseDifficulty-${exercise.searchKey}"
+                data-exercise-difficulty-key="${escapeHtml(
+                  exercise.searchKey
+                )}"
+              >
+                ${options}
+              </select>
+            </div>
+          `;
+        })
+        .join("");
+  } else if (difficultyContainer) {
+    difficultyContainer.innerHTML = "";
+  }
+
+  document.getElementById(
+    "durationInput"
+  ).value =
+    log.duration || "";
+
+  document.getElementById(
+    "notesInput"
+  ).value =
+    log.notes || "";
+
+  document.getElementById(
+    "logImportGarminButton"
+  ).dataset.sessionKey =
+    sessionKey;
+
+  const resultsContainer =
+    document.getElementById(
+      "logGarminResults"
+    );
+
+  const resultsContent =
+    document.getElementById(
+      "logGarminResultsContent"
+    );
+
+  if (garminResults) {
+    resultsContainer.hidden = false;
+
+    resultsContent.innerHTML =
+      renderGarminResultsCard(
+        sessionKey
+      );
+  } else {
+    resultsContainer.hidden = true;
+    resultsContent.innerHTML = "";
+  }
+
+  openModal("logModal");
     }
 
     function saveWorkoutLog(event) {
