@@ -4073,15 +4073,42 @@ const garminCanonicalCategories = {
       ).value
     );
 
+  const exerciseDifficulties = {};
+
+  document
+    .querySelectorAll(
+      "[data-exercise-difficulty-key]"
+    )
+    .forEach(select => {
+      const exerciseKey =
+        select.dataset
+          .exerciseDifficultyKey;
+
+      const value =
+        Number(select.value);
+
+      if (
+        exerciseKey &&
+        Number.isFinite(value) &&
+        value >= 1 &&
+        value <= 10
+      ) {
+        exerciseDifficulties[
+          exerciseKey
+        ] = value;
+      }
+    });
+
   appState.workoutLogs[
     sessionKey
   ] = {
-        ...(
-          appState.workoutLogs[
-            sessionKey
-          ] || {}
-        ),
-        difficulty:
+    ...(
+      appState.workoutLogs[
+        sessionKey
+      ] || {}
+    ),
+
+    difficulty:
       Number.isFinite(
         enteredDifficulty
       ) &&
@@ -4089,35 +4116,40 @@ const garminCanonicalCategories = {
       enteredDifficulty <= 10
         ? enteredDifficulty
         : null,
-        duration:
-          document.getElementById(
-            "durationInput"
-          ).value
-            ? Number(
-                document.getElementById(
-                  "durationInput"
-                ).value
-              )
-            : null,
-        notes:
-          document.getElementById(
-            "notesInput"
-          ).value,
-        loggedAt:
-          new Date().toISOString()
-      };
 
-      appState.completedWorkouts[
-        sessionKey
-      ] = true;
+    exerciseDifficulties,
 
-      delete appState.skippedWorkouts[
-        sessionKey
-      ];
+    duration:
+      document.getElementById(
+        "durationInput"
+      ).value
+        ? Number(
+            document.getElementById(
+              "durationInput"
+            ).value
+          )
+        : null,
 
-      saveState();
-      renderApp();
-      closeModal("logModal");
+    notes:
+      document.getElementById(
+        "notesInput"
+      ).value,
+
+    loggedAt:
+      new Date().toISOString()
+  };
+
+  appState.completedWorkouts[
+    sessionKey
+  ] = true;
+
+  delete appState.skippedWorkouts[
+    sessionKey
+  ];
+
+  saveState();
+  renderApp();
+  closeModal("logModal");
     }
 
     function getGarminDurationMinutes(log) {
