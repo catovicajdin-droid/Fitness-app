@@ -5095,72 +5095,104 @@ function renderWeeklyAnalytics(
           .map(line => line.trim())
           .filter(Boolean);
 
-      const exercises = [];
-      const categories = [];
-
-      lines.forEach(line => {
-        const separator =
-          line.indexOf("=");
-
-        if (separator < 1) {
-          return;
-        }
-
-        const key =
-          line.slice(0, separator).trim();
-
-        const value =
-          line.slice(separator + 1).trim();
-
-        if (
-          key.startsWith(
-            "category_type_"
-          )
-        ) {
-          categories.push(
-            key.slice(
-              "category_type_".length
+      const categories =
+        lines
+          .filter(line =>
+            line.startsWith(
+              "category_type_"
             )
-          );
-        }
-
-        if (
-          key.startsWith(
-            "exercise_type_"
           )
-        ) {
-          exercises.push({
-            exerciseName:
-              key.slice(
-                "exercise_type_".length
-              ),
-            displayName: value,
-            category: null
-          });
-        }
-      });
+          .map(line =>
+            line
+              .slice(
+                "category_type_".length
+              )
+              .split("=")[0]
+              .trim()
+          )
+          .sort(
+            (first, second) =>
+              second.length - first.length
+          );
 
-      const sortedCategories =
-        categories.sort(
-          (first, second) =>
-            second.length - first.length
+      const exerciseLines =
+        lines
+          .filter(line =>
+            line.startsWith(
+              "exercise_type_"
+            )
+          )
+          .map(line => {
+            const separator =
+              line.indexOf("=");
+
+            return {
+              exerciseName:
+                line.slice(
+                  "exercise_type_".length,
+                  separator
+                ).trim(),
+
+              displayName:
+                line
+                  .slice(separator + 1)
+                  .trim()
+            };
+          });
+
+      const allExerciseNames =
+        new Set(
+          exerciseLines.map(
+            exercise =>
+              exercise.exerciseName
+          )
         );
 
-      exercises.forEach(exercise => {
-        const matchingCategory =
-          sortedCategories.find(
-            category =>
-              lines.some(line =>
-                line.startsWith(
-                  `${category}_${exercise.exerciseName}=`
-                )
-              )
-          );
+      const exercises =
+        exerciseLines
+          .filter(exercise => {
+            const categoryPrefix =
+              categories.find(
+                category =>
+                  exercise.exerciseName.startsWith(
+                    `${category}_`
+                  )
+              );
 
-        exercise.category =
-          matchingCategory ||
-          "STRENGTH";
-      });
+            if (!categoryPrefix) {
+              return true;
+            }
+
+            const bareExerciseName =
+              exercise.exerciseName.slice(
+                categoryPrefix.length + 1
+              );
+
+            return !allExerciseNames.has(
+              bareExerciseName
+            );
+          })
+          .map(exercise => {
+            const matchingCategory =
+              categories.find(category =>
+                lines.some(line =>
+                  line.startsWith(
+                    `${category}_${exercise.exerciseName}=`
+                  )
+                )
+              );
+
+            return {
+              exerciseName:
+                exercise.exerciseName,
+
+              displayName:
+                exercise.displayName,
+
+              category:
+                matchingCategory || null
+            };
+          });
 
       return {
         version: 1,
@@ -5170,7 +5202,6 @@ function renderWeeklyAnalytics(
         exercises
       };
     }
-
     function resolveGarminExercise(name) {
       const catalog =
         appState.garminCatalog
@@ -5363,10 +5394,13 @@ function renderWeeklyAnalytics(
                   displayOrder: 3
                 },
                 type:
-                  "ExecutableStepDTO",
-                exerciseName:
-                  mapped.exerciseName,
-                endCondition: {
+            "ExecutableStepDTO",
+              category:
+                mapped.category,
+              exerciseName:
+              mapped.exerciseName,
+          endCondition: {
+            
                   conditionTypeId:
                     target.conditionTypeId,
                   conditionTypeKey:
