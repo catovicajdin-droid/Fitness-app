@@ -5668,6 +5668,18 @@ function getProgressionScopeSummary() {
       };
     }
 
+function getWarmupDurationSeconds(warmupText) {
+  const match = String(warmupText || "").match(
+    /(\d+)\s*minutes?/i
+  );
+
+  if (!match) {
+    return 300;
+  }
+
+  return Number(match[1]) * 60;
+}
+    
     function createGarminPayload(
       weekNumber,
       sessionIndex
@@ -5712,9 +5724,38 @@ function getProgressionScopeSummary() {
         );
 
       let stepId = 1;
-      let stepOrder = 1;
+let stepOrder = 1;
 
-      const workoutSteps = [];
+const workoutSteps = [];
+
+const warmupDurationSeconds =
+  getWarmupDurationSeconds(
+    session.warmup
+  );
+
+workoutSteps.push({
+  stepId: stepId++,
+  stepOrder: stepOrder++,
+  stepType: {
+    stepTypeId: 1,
+    stepTypeKey: "warmup",
+    displayOrder: 1
+  },
+  type: "ExecutableStepDTO",
+  description: session.warmup,
+  endCondition: {
+    conditionTypeId: 2,
+    conditionTypeKey: "time",
+    displayOrder: 2,
+    displayable: true
+  },
+  endConditionValue: warmupDurationSeconds,
+  targetType: {
+    workoutTargetTypeId: 1,
+    workoutTargetTypeKey: "no.target",
+    displayOrder: 1
+  }
+});
 
       adjustedExercises.forEach(
         exercise => {
@@ -5821,11 +5862,35 @@ function getProgressionScopeSummary() {
             type: "RepeatGroupDTO"
           });
 
-          stepOrder += 3;
-        }
-      );
+         stepOrder += 3;
+}
+);
 
-      return {
+workoutSteps.push({
+  stepId: stepId++,
+  stepOrder: stepOrder++,
+  stepType: {
+    stepTypeId: 2,
+    stepTypeKey: "cooldown",
+    displayOrder: 2
+  },
+  type: "ExecutableStepDTO",
+  description: "Indoor Bike",
+  endCondition: {
+    conditionTypeId: 2,
+    conditionTypeKey: "time",
+    displayOrder: 2,
+    displayable: true
+  },
+  endConditionValue: 300,
+  targetType: {
+    workoutTargetTypeId: 1,
+    workoutTargetTypeKey: "no.target",
+    displayOrder: 1
+  }
+});
+
+return {
         sportType: {
           sportTypeId: 5,
           sportTypeKey:
