@@ -5911,7 +5911,9 @@ return {
           }
         ],
         estimatedDurationInSecs:
-          adjustedExercises.length * 900,
+  warmupDurationSeconds +
+  300 +
+  adjustedExercises.length * 900,
         estimatedDistanceInMeters: 0,
         isWheelchair: false
       };
