@@ -7178,7 +7178,6 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
         );
 
       document.getElementById(
-            document.getElementById(
         "clearProgressionButton"
       ).addEventListener(
         "click",
@@ -7540,7 +7539,7 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
           );
         });
 
-      window.addEventListener(
+            window.addEventListener(
         "online",
         () => {
           if (currentFirebaseUser) {
@@ -7555,7 +7554,6 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
             );
           }
         }
-              updateClearProgressionButton();
       );
 
       window.addEventListener(
@@ -7567,8 +7565,9 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
           );
         }
       );
-    }
 
+      updateClearProgressionButton();
+    }
     loadState();
     setupEventListeners();
     setupAuthListener();
