@@ -4725,6 +4725,18 @@ function renderWeeklyAnalytics(
         }));
     }
 
+function getPendingWorkoutEntries() {
+  return getAllWorkoutEntries()
+    .filter(entry =>
+      !appState.completedWorkouts[
+        entry.sessionKey
+      ] &&
+      !appState.skippedWorkouts[
+        entry.sessionKey
+      ]
+    );
+}
+    
     function getProgressionEligibleEntries() {
   const plan =
     appState.progressionPlan;
