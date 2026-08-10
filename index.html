@@ -4775,6 +4775,133 @@ function renderWeeklyAnalytics(
             exerciseAverage === null
               ? "No individual difficulty has been recorded for this exercise."
               : "Average difficulty recorded specifically for this exercise.";
+    function getExerciseAnalytics() {
+      const result = {};
+
+      getAllWorkoutEntries().forEach(entry => {
+        const completed =
+          Boolean(
+            appState.completedWorkouts[
+              entry.sessionKey
+            ]
+          );
+
+        if (!completed) {
+          return;
+        }
+
+        const log =
+          appState.workoutLogs[
+            entry.sessionKey
+          ] || null;
+
+        const sessionDifficulty =
+          getValidWorkoutDifficulty(log);
+
+        entry.session.exercises.forEach(
+          exercise => {
+            const exerciseName =
+              exercise.name;
+
+            if (!result[exerciseName]) {
+              result[exerciseName] = {
+                completedSessions: 0,
+                totalSets: 0,
+                exerciseDifficulties: [],
+                sessionDifficulties: []
+              };
+            }
+
+            const exerciseResult =
+              result[exerciseName];
+
+            exerciseResult.completedSessions +=
+              1;
+
+            exerciseResult.totalSets +=
+              Number(exercise.sets) || 0;
+
+            if (
+              typeof getExerciseDifficulty ===
+                "function"
+            ) {
+              const exerciseDifficulty =
+                getExerciseDifficulty(
+                  entry.sessionKey,
+                  exercise
+                );
+
+              if (
+                exerciseDifficulty !== null
+              ) {
+                exerciseResult
+                  .exerciseDifficulties
+                  .push(exerciseDifficulty);
+              }
+            }
+
+            if (
+              sessionDifficulty !== null
+            ) {
+              exerciseResult
+                .sessionDifficulties
+                .push(sessionDifficulty);
+            }
+          }
+        );
+      });
+
+      return result;
+    }
+
+    function renderExerciseAnalytics() {
+      const container =
+        document.getElementById(
+          "exerciseAnalytics"
+        );
+
+      const data =
+        getExerciseAnalytics();
+
+      const rows =
+        Object.entries(data);
+
+      if (!rows.length) {
+        container.innerHTML = `
+          <div class="instructions">
+            No completed workouts have been logged yet.
+          </div>
+        `;
+
+        return;
+      }
+
+      container.innerHTML = rows
+        .map(([name, values]) => {
+          const exerciseAverage =
+            getAverage(
+              values.exerciseDifficulties
+            );
+
+          const sessionAverage =
+            getAverage(
+              values.sessionDifficulties
+            );
+
+          const exerciseDifficultyText =
+            exerciseAverage === null
+              ? "Not recorded"
+              : `${exerciseAverage.toFixed(1)}/10`;
+
+          const sessionDifficultyText =
+            sessionAverage === null
+              ? "Not recorded"
+              : `${sessionAverage.toFixed(1)}/10`;
+
+          const exerciseExplanation =
+            exerciseAverage === null
+              ? "No individual difficulty has been recorded for this exercise."
+              : "Average difficulty recorded specifically for this exercise.";
 
           return `
             <div class="exercise-analysis-row">
