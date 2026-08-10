@@ -5293,8 +5293,10 @@ function renderWeeklyAnalytics(
         recommendations.join("");
     }
     function renderAnalytics() {
-      const analytics =
-        getOverallAnalytics();
+  updateClearProgressionButton();
+
+  const analytics =
+    getOverallAnalytics();
 
       document.getElementById(
         "analyticsCompletion"
