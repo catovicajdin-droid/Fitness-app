@@ -7178,6 +7178,7 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
         );
 
       document.getElementById(
+            document.getElementById(
         "clearProgressionButton"
       ).addEventListener(
         "click",
@@ -7189,7 +7190,7 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
 
           saveState();
           renderApp();
-          renderRecommendations();
+          renderAnalytics();
         }
       );
 
