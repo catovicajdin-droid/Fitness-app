@@ -3138,7 +3138,37 @@ const garminCanonicalCategories = {
         mode: "normal"
       };
     }
+function getExerciseDifficulty(
+  sessionKey,
+  exercise
+) {
+  const log =
+    appState.workoutLogs[
+      sessionKey
+    ];
 
+  if (
+    !log ||
+    !log.exerciseDifficulties ||
+    !exercise ||
+    !exercise.searchKey
+  ) {
+    return null;
+  }
+
+  const value =
+    Number(
+      log.exerciseDifficulties[
+        exercise.searchKey
+      ]
+    );
+
+  return Number.isFinite(value) &&
+    value >= 1 &&
+    value <= 10
+    ? value
+    : null;
+}
     function getAdjustedExercise(
   exercise,
   sessionKey
@@ -4620,6 +4650,85 @@ function renderWeeklyAnalytics(
     function renderExerciseAnalytics() {
   const container =
     document.getElementById(
+function getExerciseAnalytics() {
+  const result = {};
+
+  getAllWorkoutEntries().forEach(entry => {
+    const completed =
+      Boolean(
+        appState.completedWorkouts[
+          entry.sessionKey
+        ]
+      );
+
+    if (!completed) {
+      return;
+    }
+
+    const log =
+      appState.workoutLogs[
+        entry.sessionKey
+      ] || null;
+
+    entry.session.exercises.forEach(
+      exercise => {
+        const exerciseName =
+          exercise.name;
+
+        if (!result[exerciseName]) {
+          result[exerciseName] = {
+            completedSessions: 0,
+            totalSets: 0,
+            exerciseDifficulties: [],
+            sessionDifficulties: []
+          };
+        }
+
+        const exerciseResult =
+          result[exerciseName];
+
+        exerciseResult.completedSessions +=
+          1;
+
+        exerciseResult.totalSets +=
+          Number(exercise.sets) || 0;
+
+        const exerciseDifficulty =
+          getExerciseDifficulty(
+            entry.sessionKey,
+            exercise
+          );
+
+        if (
+          exerciseDifficulty !== null
+        ) {
+          exerciseResult
+            .exerciseDifficulties
+            .push(exerciseDifficulty);
+        }
+
+        const sessionDifficulty =
+          getValidWorkoutDifficulty(
+            log
+          );
+
+        if (
+          sessionDifficulty !== null
+        ) {
+          exerciseResult
+            .sessionDifficulties
+            .push(sessionDifficulty);
+        }
+      }
+    );
+  });
+
+  return result;
+}
+
+function renderExerciseAnalytics() {
+  const container =
+    document.getElementById(
       "exerciseAnalytics"
     );
 
@@ -4641,20 +4750,30 @@ function renderWeeklyAnalytics(
 
   container.innerHTML = rows
     .map(([name, values]) => {
-      const averageDifficulty =
+      const exerciseAverage =
+        getAverage(
+          values.exerciseDifficulties
+        );
+
+      const sessionAverage =
         getAverage(
           values.sessionDifficulties
         );
 
-      const difficultyText =
-        averageDifficulty === null
+      const exerciseDifficultyText =
+        exerciseAverage === null
           ? "Not recorded"
-          : `${averageDifficulty.toFixed(1)}/10`;
+          : `${exerciseAverage.toFixed(1)}/10`;
 
-      const explanation =
-        averageDifficulty === null
-          ? "No completed workout session containing this exercise has a recorded difficulty."
-          : "Average difficulty of completed workout sessions containing this exercise.";
+      const sessionDifficultyText =
+        sessionAverage === null
+          ? "Not recorded"
+          : `${sessionAverage.toFixed(1)}/10`;
+
+      const exerciseExplanation =
+        exerciseAverage === null
+          ? "No individual difficulty has been recorded for this exercise."
+          : "Average difficulty recorded specifically for this exercise.";
 
       return `
         <div class="exercise-analysis-row">
@@ -4671,11 +4790,17 @@ function renderWeeklyAnalytics(
             ${values.totalSets}
             <br>
 
-            Average workout session difficulty:
-            ${difficultyText}
+            Individual exercise difficulty:
+            ${exerciseDifficultyText}
             <br>
 
-            ${escapeHtml(explanation)}
+            Workout session difficulty:
+            ${sessionDifficultyText}
+            <br>
+
+            ${escapeHtml(
+              exerciseExplanation
+            )}
           </div>
         </div>
       `;
@@ -6520,50 +6645,57 @@ function renderWeeklyAnalytics(
     }
 
     function applyTcxResult() {
-      if (!pendingTcxResult) {
-        return;
-      }
+  if (!pendingTcxResult) {
+    return;
+  }
 
-      const targetSessionKey =
-        document.getElementById(
-          "tcxTargetSelect"
-        ).value;
+  const targetSessionKey =
+    document.getElementById(
+      "tcxTargetSelect"
+    ).value;
 
-      const existingLog =
-        appState.workoutLogs[
-          targetSessionKey
-        ] || {};
+  const existingLog =
+    appState.workoutLogs[
+      targetSessionKey
+    ] || {};
 
-      appState.workoutLogs[
-        targetSessionKey
-      ] = {
-        ...existingLog,
-        garmin: pendingTcxResult,
-        importedDurationMinutes:
-          pendingTcxResult.durationMinutes,
-        importedCalories:
-          pendingTcxResult.calories,
-        importedAverageHeartRate:
-          pendingTcxResult.averageHeartRate,
-        importedMaximumHeartRate:
-          pendingTcxResult.maximumHeartRate
-      };
+  appState.workoutLogs[
+    targetSessionKey
+  ] = {
+    ...existingLog,
 
-      appState.completedWorkouts[
-        targetSessionKey
-      ] = true;
+    exerciseDifficulties:
+      existingLog.exerciseDifficulties || {},
 
-      delete appState.skippedWorkouts[
-        targetSessionKey
-      ];
+    garmin: pendingTcxResult,
 
-      saveState();
-      renderApp();
-      closeModal("tcxModal");
+    importedDurationMinutes:
+      pendingTcxResult.durationMinutes,
 
-      pendingTcxResult = null;
+    importedCalories:
+      pendingTcxResult.calories,
+
+    importedAverageHeartRate:
+      pendingTcxResult.averageHeartRate,
+
+    importedMaximumHeartRate:
+      pendingTcxResult.maximumHeartRate
+  };
+
+  appState.completedWorkouts[
+    targetSessionKey
+  ] = true;
+
+  delete appState.skippedWorkouts[
+    targetSessionKey
+  ];
+
+  saveState();
+  renderApp();
+  closeModal("tcxModal");
+
+  pendingTcxResult = null;
     }
-
     function importCatalog() {
       const text =
         document.getElementById(
