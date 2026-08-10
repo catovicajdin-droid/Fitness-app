@@ -3122,6 +3122,69 @@ function getExerciseDifficulty(
     ? value
     : null;
 }
+
+function getLatestPreviousExerciseDifficulty(
+  sessionKey,
+  exercise
+) {
+  if (
+    !exercise ||
+    !exercise.searchKey
+  ) {
+    return null;
+  }
+
+  const targetIndex =
+    getWorkoutEntryIndex(
+      sessionKey
+    );
+
+  if (targetIndex < 0) {
+    return null;
+  }
+
+  const previousEntry =
+    getCompletedWorkoutEntries()
+      .filter(entry =>
+        getWorkoutEntryIndex(
+          entry.sessionKey
+        ) < targetIndex &&
+        entry.session &&
+        Array.isArray(
+          entry.session.exercises
+        ) &&
+        entry.session.exercises.some(
+          previousExercise =>
+            previousExercise.searchKey ===
+            exercise.searchKey
+        )
+      )
+      .sort((first, second) =>
+        getWorkoutEntryIndex(
+          second.sessionKey
+        ) -
+        getWorkoutEntryIndex(
+          first.sessionKey
+        )
+      )[0];
+
+  if (!previousEntry) {
+    return null;
+  }
+
+  const previousExercise =
+    previousEntry.session.exercises.find(
+      previousItem =>
+        previousItem.searchKey ===
+        exercise.searchKey
+    );
+
+  return getExerciseDifficulty(
+    previousEntry.sessionKey,
+    previousExercise
+  );
+}
+    
     function getAdjustedExercise(
   exercise,
   sessionKey
@@ -3138,6 +3201,23 @@ function getExerciseDifficulty(
       adjustment.sets === 0
     )
   ) {
+    return {
+      ...exercise
+    };
+  }
+
+  const previousDifficulty =
+    getLatestPreviousExerciseDifficulty(
+      sessionKey,
+      exercise
+    );
+
+  const exerciseExempt =
+    adjustment.mode === "increase" &&
+    previousDifficulty !== null &&
+    previousDifficulty > 3;
+
+  if (exerciseExempt) {
     return {
       ...exercise
     };
