@@ -4209,8 +4209,9 @@ function refreshAnalyticsIfOpen() {
     sessionKey
   ];
 
-  saveState();
+    saveState();
   renderApp();
+  refreshAnalyticsIfOpen();
   closeModal("logModal");
     }
 
