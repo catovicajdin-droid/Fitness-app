@@ -2911,91 +2911,44 @@ const garminCanonicalCategories = {
     }
 
     function createProgressionPlan(
-      mode,
-      recommendationKey,
-      workoutKey
-    ) {
-      const anchorKey =
-        workoutKey ||
-        getNextPendingWorkout()?.sessionKey ||
-        null;
+  mode,
+  recommendationKey
+) {
+  const firstPendingWorkout =
+    getPendingWorkoutEntries()[0] || null;
 
-      const anchorIndex =
-        anchorKey
-          ? getWorkoutEntryIndex(
-              anchorKey
-            )
-          : -1;
+  if (!firstPendingWorkout) {
+    return null;
+  }
 
-      if (anchorIndex < 0) {
-        return null;
-      }
+  const anchorIndex =
+    getWorkoutEntryIndex(
+      firstPendingWorkout.sessionKey
+    );
 
-      return {
-        active: true,
-        mode,
-        recommendationKey,
-        anchorKey,
-        anchorIndex,
-        createdAt:
-          new Date().toISOString()
-      };
-    }
+  return {
+    active: true,
+    mode,
+    recommendationKey,
+    anchorKey: firstPendingWorkout.sessionKey,
+    anchorIndex,
+    anchorWeekNumber: firstPendingWorkout.weekNumber,
+    createdAt: new Date().toISOString()
+  };
+}
 
     function getProgressionPosition(
+  sessionKey
+) {
+  const eligibleEntries =
+    getProgressionEligibleEntries();
+
+  return eligibleEntries.findIndex(
+    entry =>
+      entry.sessionKey ===
       sessionKey
-    ) {
-      const plan =
-        appState.progressionPlan;
-
-      if (
-        !plan ||
-        !plan.active ||
-        !plan.anchorKey
-      ) {
-        return -1;
-      }
-
-      const entries =
-        getAllWorkoutEntries();
-
-      const anchorIndex =
-        entries.findIndex(
-          entry =>
-            entry.sessionKey ===
-            plan.anchorKey
-        );
-
-      const targetIndex =
-        entries.findIndex(
-          entry =>
-            entry.sessionKey ===
-            sessionKey
-        );
-
-      if (
-        anchorIndex < 0 ||
-        targetIndex < anchorIndex
-      ) {
-        return -1;
-      }
-
-      return entries
-        .slice(
-          anchorIndex,
-          targetIndex + 1
-        )
-        .filter(entry =>
-          !appState.skippedWorkouts[
-            entry.sessionKey
-          ]
-        )
-        .findIndex(
-          entry =>
-            entry.sessionKey ===
-            sessionKey
-        );
-    }
+  );
+}
     function parseRepRange(value) {
       const text =
         String(value || "");
@@ -3173,28 +3126,6 @@ function getExerciseDifficulty(
   exercise,
   sessionKey
 ) {
-  const exerciseDifficulty =
-    getExerciseDifficulty(
-      sessionKey,
-      exercise
-    );
-
-  /*
-   * Progression is allowed only when
-   * this specific exercise is rated 1 to 3.
-   *
-   * Blank, invalid, or 4 to 10 means
-   * keep the original exercise unchanged.
-   */
-  if (
-    exerciseDifficulty === null ||
-    exerciseDifficulty > 3
-  ) {
-    return {
-      ...exercise
-    };
-  }
-
   const adjustment =
     getProgressionAdjustment(
       sessionKey
@@ -3227,7 +3158,7 @@ function getExerciseDifficulty(
       adjustment.reps
     )
   };
-    }
+}
     function renderProgressionNotice(
       sessionKey
     ) {
@@ -3323,12 +3254,11 @@ function getExerciseDifficulty(
         return;
       }
 
-      appState.progressionPlan =
-        createProgressionPlan(
-          mode,
-          recommendationKey,
-          workoutKey
-        );
+     appState.progressionPlan =
+  createProgressionPlan(
+    mode,
+    recommendationKey
+  );
     }
 
     function clearProgressionRecommendation() {
@@ -4795,17 +4725,43 @@ function renderWeeklyAnalytics(
         }));
     }
 
-    function getPendingWorkoutEntries() {
-      return getAllWorkoutEntries()
-        .filter(entry =>
-          !appState.completedWorkouts[
-            entry.sessionKey
-          ] &&
-          !appState.skippedWorkouts[
-            entry.sessionKey
-          ]
-        );
-    }
+    function getProgressionEligibleEntries() {
+  const plan =
+    appState.progressionPlan;
+
+  if (
+    !plan ||
+    !plan.active ||
+    !plan.anchorKey
+  ) {
+    return [];
+  }
+
+  const entries =
+    getAllWorkoutEntries();
+
+  const anchorIndex =
+    entries.findIndex(
+      entry =>
+        entry.sessionKey ===
+        plan.anchorKey
+    );
+
+  if (anchorIndex < 0) {
+    return [];
+  }
+
+  return entries
+    .slice(anchorIndex)
+    .filter(entry =>
+      !appState.completedWorkouts[
+        entry.sessionKey
+      ] &&
+      !appState.skippedWorkouts[
+        entry.sessionKey
+      ]
+    );
+}
 
     function getRecentCompletedEntries(limit = 5) {
       return getCompletedWorkoutEntries()
@@ -4875,6 +4831,21 @@ function renderWeeklyAnalytics(
       return `${entry.name} with ${entry.session.exercises.length} exercises`;
     }
 
+function getProgressionScopeSummary() {
+  const firstPending = getNextPendingWorkout();
+
+  if (!firstPending) {
+    return "No pending workouts remain.";
+  }
+
+  return (
+    `Progression begins with ${firstPending.name} ` +
+    `and continues through later pending workouts. ` +
+    `Completed and skipped workouts are excluded from both ` +
+    `modification and progression counting.`
+  );
+}
+    
     function getRecommendationData() {
       const recentEntries =
         getRecentCompletedEntries(5);
@@ -5173,7 +5144,7 @@ function renderWeeklyAnalytics(
             nextWorkout
               ? `Your recent average difficulty is ${averageDifficulty.toFixed(1)}/10. You may be ready for a gradual increase beginning with one additional repetition per set. Further increases will occur only after additional progression steps.`
               : "Your recent average difficulty is low. You may be ready for a small increase in repetitions or sets.",
-            `Next planned workout: ${getNextWorkoutSummary(nextWorkout)}`,
+           getProgressionScopeSummary(),
             "",
             "progression",
             nextWorkout
