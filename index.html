@@ -3336,6 +3336,38 @@ function getExerciseDifficulty(
         null;
     }
 
+    function updateClearProgressionButton() {
+  const button =
+    document.getElementById(
+      "clearProgressionButton"
+    );
+
+  if (!button) {
+    return;
+  }
+
+  button.disabled = !(
+    appState.progressionPlan &&
+    appState.progressionPlan.active
+  );
+}
+
+function refreshAnalyticsIfOpen() {
+  updateClearProgressionButton();
+
+  const modal =
+    document.getElementById(
+      "analyticsModal"
+    );
+
+  if (
+    modal &&
+    modal.classList.contains("open")
+  ) {
+    renderAnalytics();
+  }
+}
+    
     function renderWorkout(
       session,
       weekNumber,
