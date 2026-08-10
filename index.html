@@ -6660,12 +6660,13 @@ function renderWeeklyAnalytics(
     targetSessionKey
   ];
 
-  saveState();
+    saveState();
   renderApp();
+  refreshAnalyticsIfOpen();
   closeModal("tcxModal");
 
   pendingTcxResult = null;
-    }
+}
     function importCatalog() {
       const text =
         document.getElementById(
