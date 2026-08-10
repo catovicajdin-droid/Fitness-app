@@ -5944,72 +5944,119 @@ function renderWeeklyAnalytics(
     }
 
     function generateBulkScript() {
-      const selectedWeeks =
-        Array.from(
-          document.getElementById(
-            "bulkWeekSelect"
-          ).selectedOptions
-        ).map(option =>
-          Number(option.value)
-        );
+  const select =
+    document.getElementById(
+      "bulkWeekSelect"
+    );
 
-      if (!selectedWeeks.length) {
-        setStatus(
-          "bulkStatus",
-          "Select at least one week.",
-          "error"
-        );
+  const output =
+    document.getElementById(
+      "bulkScriptOutput"
+    );
 
-        return;
-      }
+  const selectedWeeks =
+    Array.from(
+      select.selectedOptions
+    ).map(option =>
+      Number(option.value)
+    );
 
-      try {
-        const payloads = [];
+  output.value = "";
 
-        selectedWeeks.forEach(
-          weekNumber => {
-            workoutPlan[
-              `week${weekNumber}`
-            ].workouts.forEach(
-              (_, sessionIndex) => {
-                payloads.push(
-                  createGarminPayload(
-                    weekNumber,
-                    sessionIndex
-                  )
-                );
-              }
+  if (!selectedWeeks.length) {
+    setStatus(
+      "bulkStatus",
+      "Select at least one week before generating the Garmin script.",
+      "error"
+    );
+
+    return;
+  }
+
+  setStatus(
+    "bulkStatus",
+    `Preparing Garmin workouts for ${
+      selectedWeeks.length
+    } selected week${
+      selectedWeeks.length === 1
+        ? ""
+        : "s"
+    }...`,
+    ""
+  );
+
+  try {
+    const payloads = [];
+
+    selectedWeeks.forEach(
+      weekNumber => {
+        const week =
+          workoutPlan[
+            `week${weekNumber}`
+          ];
+
+        if (
+          !week ||
+          !Array.isArray(
+            week.workouts
+          )
+        ) {
+          throw new Error(
+            `Week ${weekNumber} could not be found in the workout plan.`
+          );
+        }
+
+        week.workouts.forEach(
+          (_, sessionIndex) => {
+            payloads.push(
+              createGarminPayload(
+                weekNumber,
+                sessionIndex
+              )
             );
           }
         );
-
-        const delay =
-          document.getElementById(
-            "bulkDelayInput"
-          ).value;
-
-        document.getElementById(
-          "bulkScriptOutput"
-        ).value =
-          createGarminScript(
-            payloads,
-            delay
-          );
-
-        setStatus(
-          "bulkStatus",
-          `Generated ${payloads.length} workouts using canonical names.`,
-          "success"
-        );
-      } catch (error) {
-        setStatus(
-          "bulkStatus",
-          error.message,
-          "error"
-        );
       }
-    }
+    );
 
+    const delay =
+      Number(
+        document.getElementById(
+          "bulkDelayInput"
+        ).value
+      ) || 2000;
+
+    output.value =
+      createGarminScript(
+        payloads,
+        delay
+      );
+
+    setStatus(
+      "bulkStatus",
+      `Generated ${
+        payloads.length
+      } Garmin workouts from ${
+        selectedWeeks.length
+      } selected week${
+        selectedWeeks.length === 1
+          ? ""
+          : "s"
+      }. Review the script, copy it, then paste it into the Garmin Connect Console.`,
+      "success"
+    );
+  } catch (error) {
+    output.value = "";
+
+    setStatus(
+      "bulkStatus",
+      `Bulk generation failed: ${
+        error.message
+      }`,
+      "error"
+    );
+  }
+}
     function copyText(
       textareaId,
       statusId
@@ -7420,19 +7467,29 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
       );
 
       document.getElementById(
-        "clearWeeksButton"
-      ).addEventListener(
-        "click",
-        () => {
-          Array.from(
-            document.getElementById(
-              "bulkWeekSelect"
-            ).options
-          ).forEach(option => {
-            option.selected = false;
-          });
-        }
-      );
+  "clearWeeksButton"
+).addEventListener(
+  "click",
+  () => {
+    Array.from(
+      document.getElementById(
+        "bulkWeekSelect"
+      ).options
+    ).forEach(option => {
+      option.selected = false;
+    });
+
+    document.getElementById(
+      "bulkScriptOutput"
+    ).value = "";
+
+    setStatus(
+      "bulkStatus",
+      "Week selection cleared.",
+      ""
+    );
+  }
+);
 
       document.getElementById(
         "settingsButton"
@@ -7448,24 +7505,25 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
       );
 
       document.getElementById(
-        "bulkGarminButton"
-      ).addEventListener(
-        "click",
-        () => {
-          document.getElementById(
-            "bulkScriptOutput"
-          ).value = "";
+  "bulkGarminButton"
+).addEventListener(
+  "click",
+  () => {
+    document.getElementById(
+      "bulkScriptOutput"
+    ).value = "";
 
-          setStatus(
-            "bulkStatus",
-            "",
-            ""
-          );
+    populateBulkWeeks();
 
-          populateBulkWeeks();
-          openModal("bulkGarminModal");
-        }
-      );
+    setStatus(
+      "bulkStatus",
+      "Select one or more weeks, then press Generate Script.",
+      ""
+    );
+
+    openModal("bulkGarminModal");
+  }
+);
 
       document.getElementById(
         "importCatalogButton"
