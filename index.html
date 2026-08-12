@@ -209,25 +209,6 @@
       );
     }
 
-.week-card.week-complete {
-  opacity: 0.68;
-  border-color: var(--border);
-}
-
-.week-card.week-complete .week-title {
-  color: var(--muted);
-  text-decoration: line-through;
-  text-decoration-thickness: 2px;
-}
-
-.week-card.week-complete .week-subtitle {
-  color: var(--success);
-}
-
-.week-card.week-complete .week-header {
-  background: rgba(63, 185, 80, 0.05);
-}
-    
     .week-header {
       display: flex;
       align-items: center;
@@ -1183,15 +1164,14 @@
         </label>
 
         <div class="instructions">
-  Difficulty is recorded both for the completed workout session and,
-  when available, for each individual exercise. Exercise-specific
-  difficulty scores are used for exercise progression decisions. The
-  workout-session score is used for overall recommendations and is
-  shown as additional context in exercise analytics. Garmin TCX files
-  provide workout results such as duration, calories, and heart rate,
-  but do not provide difficulty scores. If no difficulty was recorded,
-  the result remains <strong>Not recorded</strong>.
-</div>
+          Difficulty is recorded for the completed workout session, not for
+          individual exercises. The workout session difficulty is shown for
+          every exercise included in that completed workout. Garmin TCX files
+          provide workout results such as duration, calories, and heart rate,
+          but do not provide a separate difficulty score for each exercise. If
+          no difficulty was recorded for the workout session, the result
+          remains <strong>Not recorded</strong>.
+        </div>
 
         <div
           class="exercise-analysis"
@@ -1395,6 +1375,23 @@
             class="exercise-difficulty-fields"
             id="exerciseDifficultyFields"
           ></div>
+        </div>
+
+        <div class="form-group">
+          <label
+            class="form-label"
+            for="durationInput"
+          >
+            Manual duration in minutes
+          </label>
+
+          <input
+            id="durationInput"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="For example, 30"
+          >
         </div>
 
         <div class="form-group">
@@ -2711,220 +2708,169 @@ const garminCanonicalCategories = {
         String(imported);
     }
 
-function isWeekComplete(weekNumber) {
-  const entries =
-    getAllWorkoutEntries().filter(
-      entry =>
-        entry.weekNumber ===
-        Number(weekNumber)
-    );
-
-  return (
-    entries.length > 0 &&
-    entries.every(entry =>
-      Boolean(
-        appState.completedWorkouts[
-          entry.sessionKey
-        ]
-      ) ||
-      Boolean(
-        appState.skippedWorkouts[
-          entry.sessionKey
-        ]
-      )
-    )
-  );
-}
-    
     function renderWeeks() {
-  const container =
-    document.getElementById(
-      "weeksContainer"
-    );
+      const container =
+        document.getElementById(
+          "weeksContainer"
+        );
 
-  container.innerHTML = "";
+      container.innerHTML =
+        "";
 
-  const weekNumbers =
-    Array.from(
-      { length: 12 },
-      (_, index) => index + 1
-    ).sort(
-      (firstWeek, secondWeek) => {
-        const firstComplete =
-          isWeekComplete(firstWeek);
+      for (
+        let week = 1;
+        week <= 12;
+        week += 1
+      ) {
+        const weekData =
+          workoutPlan[
+            `week${week}`
+          ];
 
-        const secondComplete =
-          isWeekComplete(secondWeek);
+        const card =
+          document.createElement(
+            "section"
+          );
 
-        if (
-          firstComplete !==
-          secondComplete
-        ) {
-          return firstComplete
-            ? 1
-            : -1;
-        }
+        card.className =
+          "week-card";
 
-        return firstWeek - secondWeek;
+        card.innerHTML = `
+          <div
+            class="week-header"
+            data-week-header="${week}"
+            role="button"
+            tabindex="0"
+            aria-expanded="false"
+          >
+            <div>
+              <div class="week-title">
+                Week ${week}:
+                ${escapeHtml(
+                  weekData.focus
+                )}
+              </div>
+
+              <div class="week-subtitle">
+                ${weekData.workouts.length}
+                structured sessions
+              </div>
+            </div>
+
+            <div
+              class="week-arrow"
+              id="weekArrow${week}"
+            >
+              ▼
+            </div>
+          </div>
+
+          <div
+            class="week-content"
+            id="weekContent${week}"
+          >
+            ${weekData.workouts
+              .map(
+                (
+                  session,
+                  sessionIndex
+                ) =>
+                  renderWorkout(
+                    session,
+                    week,
+                    sessionIndex
+                  )
+              )
+              .join("")}
+          </div>
+        `;
+
+        container.appendChild(
+          card
+        );
       }
-    );
 
-  weekNumbers.forEach(week => {
-    const weekData =
-      workoutPlan[
-        `week${week}`
-      ];
-
-    const card =
-      document.createElement(
-        "section"
-      );
-
-    const weekComplete =
-      isWeekComplete(week);
-
-    card.className =
-      weekComplete
-        ? "week-card week-complete"
-        : "week-card";
-
-    card.innerHTML = `
-      <div
-        class="week-header"
-        data-week-header="${week}"
-        role="button"
-        tabindex="0"
-        aria-expanded="false"
-      >
-        <div>
-          <div class="week-title">
-            Week ${week}:
-            ${escapeHtml(
-              weekData.focus
-            )}
-          </div>
-
-          <div class="week-subtitle">
-            ${
-              weekComplete
-                ? "Completed or skipped"
-                : `${weekData.workouts.length} structured sessions`
+      container
+        .querySelectorAll(
+          "[data-week-header]"
+        )
+        .forEach(header => {
+          header.addEventListener(
+            "click",
+            () => {
+              toggleWeek(
+                Number(
+                  header.dataset
+                    .weekHeader
+                )
+              );
             }
-          </div>
-        </div>
-
-        <div
-          class="week-arrow"
-          id="weekArrow${week}"
-        >
-          ▼
-        </div>
-      </div>
-
-      <div
-        class="week-content"
-        id="weekContent${week}"
-      >
-        ${weekData.workouts
-          .map(
-            (
-              session,
-              sessionIndex
-            ) =>
-              renderWorkout(
-                session,
-                week,
-                sessionIndex
-              )
-          )
-          .join("")}
-      </div>
-    `;
-
-    container.appendChild(card);
-  });
-
-  container
-    .querySelectorAll(
-      "[data-week-header]"
-    )
-    .forEach(header => {
-      header.addEventListener(
-        "click",
-        () => {
-          toggleWeek(
-            Number(
-              header.dataset
-                .weekHeader
-            )
           );
-        }
-      );
 
-      header.addEventListener(
-        "keydown",
-        event => {
-          if (
-            event.key === "Enter" ||
-            event.key === " "
-          ) {
-            event.preventDefault();
+          header.addEventListener(
+            "keydown",
+            event => {
+              if (
+                event.key === "Enter" ||
+                event.key === " "
+              ) {
+                event.preventDefault();
 
-            toggleWeek(
-              Number(
-                header.dataset
-                  .weekHeader
-              )
-            );
-          }
-        }
-      );
-    });
-
-  container
-    .querySelectorAll(
-      "[data-workout-toggle]"
-    )
-    .forEach(toggle => {
-      toggle.addEventListener(
-        "click",
-        () => {
-          toggleWorkout(
-            toggle.dataset
-              .workoutToggle
+                toggleWeek(
+                  Number(
+                    header.dataset
+                      .weekHeader
+                  )
+                );
+              }
+            }
           );
-        }
-      );
+        });
 
-      toggle.addEventListener(
-        "keydown",
-        event => {
-          if (
-            event.key === "Enter" ||
-            event.key === " "
-          ) {
-            event.preventDefault();
+      container
+        .querySelectorAll(
+          "[data-workout-toggle]"
+        )
+        .forEach(toggle => {
+          toggle.addEventListener(
+            "click",
+            () => {
+              toggleWorkout(
+                toggle.dataset
+                  .workoutToggle
+              );
+            }
+          );
 
-            toggleWorkout(
-              toggle.dataset
-                .workoutToggle
-            );
-          }
-        }
-      );
-    });
+          toggle.addEventListener(
+            "keydown",
+            event => {
+              if (
+                event.key === "Enter" ||
+                event.key === " "
+              ) {
+                event.preventDefault();
 
-  container
-    .querySelectorAll(
-      "[data-action]"
-    )
-    .forEach(button => {
-      button.addEventListener(
-        "click",
-        handleWorkoutAction
-      );
-    });
-}
+                toggleWorkout(
+                  toggle.dataset
+                    .workoutToggle
+                );
+              }
+            }
+          );
+        });
+
+      container
+        .querySelectorAll(
+          "[data-action]"
+        )
+        .forEach(button => {
+          button.addEventListener(
+            "click",
+            handleWorkoutAction
+          );
+        });
+    }
 
     function getWorkoutEntryBySessionKey(
       sessionKey
@@ -4148,7 +4094,7 @@ function refreshAnalyticsIfOpen() {
     "durationInput"
   ).value =
     log.duration || "";
-      
+
   document.getElementById(
     "notesInput"
   ).value =
@@ -4244,6 +4190,18 @@ function refreshAnalyticsIfOpen() {
         : null,
 
     exerciseDifficulties,
+
+    duration:
+      document.getElementById(
+        "durationInput"
+      ).value
+        ? Number(
+            document.getElementById(
+              "durationInput"
+            ).value
+          )
+        : null,
+
     notes:
       document.getElementById(
         "notesInput"
@@ -4403,14 +4361,14 @@ function getCompletedWorkoutLogs() {
       );
 
   const totalDuration =
-  completedLogs.reduce(
-    (sum, { log }) =>
-      sum +
-      getGarminDurationMinutes(
-        log
-      ),
-    0
-  );
+    completedLogs.reduce(
+      (sum, { log }) => {
+        const garminDuration =
+          getGarminDurationMinutes(log);
+
+        if (garminDuration > 0) {
+          return sum + garminDuration;
+        }
 
         const manualDuration =
           Number(log?.duration);
@@ -4500,16 +4458,16 @@ function getCompletedWorkoutLogs() {
       )
       .filter(value => value !== null);
 
- const durations =
-  logs
-    .map(log =>
-      getGarminDurationMinutes(
-        log
-      )
-    )
-    .filter(
-      value => value > 0
-    );
+  const durations =
+    logs
+      .map(log => {
+        const garmin =
+          getGarminDurationMinutes(log);
+
+        if (garmin > 0) {
+          return garmin;
+        }
+
         const manual =
           Number(log.duration);
 
@@ -4998,16 +4956,18 @@ function getProgressionScopeSummary() {
       const skippedCount =
         getRecentSkippedCount(5);
 
-     const recentDurations =
-  recentEntries
-    .map(entry =>
-      getGarminDurationMinutes(
-        entry.log
-      )
-    )
-    .filter(
-      value => value > 0
-    );
+      const recentDurations =
+        recentEntries
+          .map(entry => {
+            const garminDuration =
+              getGarminDurationMinutes(
+                entry.log
+              );
+
+            if (garminDuration > 0) {
+              return garminDuration;
+            }
+
             const manualDuration =
               Number(entry.log?.duration);
 
@@ -5680,69 +5640,33 @@ function getProgressionScopeSummary() {
     }
 
     function getExerciseTarget(exercise) {
-  const text =
-    String(
-      exercise.reps || ""
-    ).trim();
+      const text =
+        String(exercise.reps || "");
 
-  const timeRangeMatch =
-    text.match(
-      /^\s*(\d+)\s*(?:to|-)\s*(\d+)\s*seconds?\s*$/i
-    );
+      const timeMatch =
+        text.match(
+          /(\d+)\s*(?:to|-)?\s*(\d+)?\s*seconds?/i
+        );
 
-  if (timeRangeMatch) {
-    return {
-      conditionTypeId: 2,
-      conditionTypeKey: "time",
-      value: Number(
-        timeRangeMatch[2]
-      )
-    };
-  }
+      if (timeMatch) {
+        return {
+          conditionTypeId: 2,
+          conditionTypeKey: "time",
+          value: Number(timeMatch[1])
+        };
+      }
 
-  const singleTimeMatch =
-    text.match(
-      /^\s*(\d+)\s*seconds?\s*$/i
-    );
+      const repsMatch =
+        text.match(/\d+/);
 
-  if (singleTimeMatch) {
-    return {
-      conditionTypeId: 2,
-      conditionTypeKey: "time",
-      value: Number(
-        singleTimeMatch[1]
-      )
-    };
-  }
-
-  const repRangeMatch =
-    text.match(
-      /^\s*(\d+)\s*(?:to|-)\s*(\d+)\s*$/i
-    );
-
-  if (repRangeMatch) {
-    return {
-      conditionTypeId: 10,
-      conditionTypeKey: "reps",
-      value: Number(
-        repRangeMatch[2]
-      )
-    };
-  }
-
-  const repsMatch =
-    text.match(/\d+/);
-
-  return {
-    conditionTypeId: 10,
-    conditionTypeKey: "reps",
-    value: repsMatch
-      ? Number(
-          repsMatch[0]
-        )
-      : 10
-  };
-}
+      return {
+        conditionTypeId: 10,
+        conditionTypeKey: "reps",
+        value: repsMatch
+          ? Number(repsMatch[0])
+          : 10
+      };
+    }
 
 function getWarmupDurationSeconds(warmupText) {
   const match = String(warmupText || "").match(
@@ -5808,30 +5732,6 @@ const warmupDurationSeconds =
   getWarmupDurationSeconds(
     session.warmup
   );
-
-workoutSteps.push({
-  stepId: stepId++,
-  stepOrder: stepOrder++,
-  stepType: {
-    stepTypeId: 1,
-    stepTypeKey: "warmup",
-    displayOrder: 1
-  },
-  type: "ExecutableStepDTO",
-  description: session.warmup,
-  endCondition: {
-    conditionTypeId: 2,
-    conditionTypeKey: "time",
-    displayOrder: 2,
-    displayable: true
-  },
-  endConditionValue: warmupDurationSeconds,
-  targetType: {
-    workoutTargetTypeId: 1,
-    workoutTargetTypeKey: "no.target",
-    displayOrder: 1
-  }
-});
 
 workoutSteps.push({
   stepId: stepId++,
