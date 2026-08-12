@@ -209,6 +209,25 @@
       );
     }
 
+.week-card.week-complete {
+  opacity: 0.68;
+  border-color: var(--border);
+}
+
+.week-card.week-complete .week-title {
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+
+.week-card.week-complete .week-subtitle {
+  color: var(--success);
+}
+
+.week-card.week-complete .week-header {
+  background: rgba(63, 185, 80, 0.05);
+}
+    
     .week-header {
       display: flex;
       align-items: center;
@@ -1164,14 +1183,15 @@
         </label>
 
         <div class="instructions">
-          Difficulty is recorded for the completed workout session, not for
-          individual exercises. The workout session difficulty is shown for
-          every exercise included in that completed workout. Garmin TCX files
-          provide workout results such as duration, calories, and heart rate,
-          but do not provide a separate difficulty score for each exercise. If
-          no difficulty was recorded for the workout session, the result
-          remains <strong>Not recorded</strong>.
-        </div>
+  Difficulty is recorded both for the completed workout session and,
+  when available, for each individual exercise. Exercise-specific
+  difficulty scores are used for exercise progression decisions. The
+  workout-session score is used for overall recommendations and is
+  shown as additional context in exercise analytics. Garmin TCX files
+  provide workout results such as duration, calories, and heart rate,
+  but do not provide difficulty scores. If no difficulty was recorded,
+  the result remains <strong>Not recorded</strong>.
+</div>
 
         <div
           class="exercise-analysis"
@@ -2708,32 +2728,83 @@ const garminCanonicalCategories = {
         String(imported);
     }
 
+function isWeekComplete(weekNumber) {
+  const entries =
+    getAllWorkoutEntries().filter(
+      entry =>
+        entry.weekNumber ===
+        Number(weekNumber)
+    );
+
+  return (
+    entries.length > 0 &&
+    entries.every(entry =>
+      Boolean(
+        appState.completedWorkouts[
+          entry.sessionKey
+        ]
+      ) ||
+      Boolean(
+        appState.skippedWorkouts[
+          entry.sessionKey
+        ]
+      )
+    )
+  );
+}
+    
     function renderWeeks() {
-      const container =
-        document.getElementById(
-          "weeksContainer"
-        );
+  const container =
+    document.getElementById(
+      "weeksContainer"
+    );
 
-      container.innerHTML =
-        "";
+  container.innerHTML =
+    "";
 
-      for (
-        let week = 1;
-        week <= 12;
-        week += 1
-      ) {
-        const weekData =
-          workoutPlan[
-            `week${week}`
-          ];
+  const weekNumbers =
+    Array.from(
+      { length: 12 },
+      (_, index) => index + 1
+    ).sort(
+      (firstWeek, secondWeek) => {
+        const firstComplete =
+          isWeekComplete(firstWeek);
 
-        const card =
-          document.createElement(
-            "section"
-          );
+        const secondComplete =
+          isWeekComplete(secondWeek);
 
-        card.className =
-          "week-card";
+        if (
+          firstComplete !==
+          secondComplete
+        ) {
+          return firstComplete
+            ? 1
+            : -1;
+        }
+
+        return firstWeek - secondWeek;
+      }
+    );
+
+  weekNumbers.forEach(week => {
+    const weekData =
+      workoutPlan[
+        `week${week}`
+      ];
+
+    const card =
+      document.createElement(
+        "section"
+      );
+
+    const weekComplete =
+      isWeekComplete(week);
+
+    card.className =
+      weekComplete
+        ? "week-card week-complete"
+        : "week-card";
 
         card.innerHTML = `
           <div
@@ -2752,9 +2823,619 @@ const garminCanonicalCategories = {
               </div>
 
               <div class="week-subtitle">
-                ${weekData.workouts.length}
-                structured sessions
-              </div>
+  ${
+    weekComplete
+      ? "Completed or skipped"
+      : `${weekData.workouts.length} structured sessions`
+  }
+</div>
+```
+
+### 1E. Close the new `forEach()`
+
+Current code near the end of the week creation loop:
+
+```javascript
+        container.appendChild(
+          card
+        );
+      }
+
+      container
+        .querySelectorAll(
+```
+
+Replace it with:
+
+```javascript
+        container.appendChild(
+          card
+        );
+      });
+
+      container
+        .querySelectorAll(
+```
+
+This leaves completed weeks clickable and editable. It only changes their position and appearance. The current GitHub code still renders Weeks 1 through 12 in fixed order, so this change is required. ([raw.githubusercontent.com](https://raw.githubusercontent.com/catovicajdin-droid/Fitness-app/main/index.html?cb=20260812T123333Z))
+
+---
+
+## Change 2. Garmin uses the upper range value
+
+The latest code still sends the first value from both time and repetition ranges. For example, it currently sends 8 for `8 to 12`. ([raw.githubusercontent.com](https://raw.githubusercontent.com/catovicajdin-droid/Fitness-app/main/index.html?cb=20260812T123333Z))
+
+Find the complete current function:
+
+```javascript
+function getExerciseTarget(exercise) {
+  const text =
+    String(exercise.reps || "");
+
+  const timeMatch =
+    text.match(
+      /(\d+)\s*(?:to|-)?\s*(\d+)?\s*seconds?/i
+    );
+
+  if (timeMatch) {
+    return {
+      conditionTypeId: 2,
+      conditionTypeKey: "time",
+      value: Number(timeMatch[1])
+    };
+  }
+
+  const repsMatch =
+    text.match(/\d+/);
+
+  return {
+    conditionTypeId: 10,
+    conditionTypeKey: "reps",
+    value: repsMatch
+      ? Number(repsMatch[0])
+      : 10
+  };
+}
+```
+
+Replace the entire function with:
+
+```javascript
+function getExerciseTarget(exercise) {
+  const text =
+    String(exercise.reps || "");
+
+  const timeMatch =
+    text.match(
+      /(\d+)\s*(?:to|-)\s*(\d+)\s*seconds?/i
+    );
+
+  if (timeMatch) {
+    return {
+      conditionTypeId: 2,
+      conditionTypeKey: "time",
+      value: Number(timeMatch[2])
+    };
+  }
+
+  const singleTimeMatch =
+    text.match(
+      /(\d+)\s*seconds?/i
+    );
+
+  if (singleTimeMatch) {
+    return {
+      conditionTypeId: 2,
+      conditionTypeKey: "time",
+      value: Number(singleTimeMatch[1])
+    };
+  }
+
+  const repRange =
+    parseRepRange(text);
+
+  if (repRange) {
+    return {
+      conditionTypeId: 10,
+      conditionTypeKey: "reps",
+      value: repRange.maximum
+    };
+  }
+
+  const repsMatch =
+    text.match(/\d+/);
+
+  return {
+    conditionTypeId: 10,
+    conditionTypeKey: "reps",
+    value: repsMatch
+      ? Number(repsMatch[0])
+      : 10
+  };
+}
+```
+
+Expected results:
+
+```text
+8 to 12       → 12 repetitions
+10 to 14      → 14 repetitions
+15 to 25 seconds → 25 seconds
+30 seconds    → 30 seconds
+```
+
+`parseRepRange()` already returns `minimum` and `maximum` correctly in the latest GitHub version, so do not replace it. ([raw.githubusercontent.com](https://raw.githubusercontent.com/catovicajdin-droid/Fitness-app/main/index.html?cb=20260812T123333Z))
+
+This applies to individual and bulk Garmin exports because both use `createGarminPayload()`. ([raw.githubusercontent.com](https://raw.githubusercontent.com/catovicajdin-droid/Fitness-app/main/index.html?cb=20260812T123333Z))
+
+---
+
+## Change 3. Remove the duplicate Garmin warmup code
+
+The latest GitHub version contains `getWarmupDurationSeconds()` twice. Remove the second copy completely. ([raw.githubusercontent.com](https://raw.githubusercontent.com/catovicajdin-droid/Fitness-app/main/index.html?cb=20260812T123333Z))
+
+Keep only this one:
+
+```javascript
+function getWarmupDurationSeconds(
+  warmupText
+) {
+  const match =
+    String(warmupText || "").match(
+      /(\d+)\s*minutes?/i
+    );
+
+  if (!match) {
+    return 300;
+  }
+
+  return Number(match[1]) * 60;
+}
+```
+
+Delete the second duplicate block:
+
+```javascript
+function getWarmupDurationSeconds(
+  warmupText
+) {
+  const match =
+    String(warmupText || "").match(
+      /(\d+)\s*minutes?/i
+    );
+
+  if (!match) {
+    return 300;
+  }
+
+  return Number(match[1]) * 60;
+}
+```
+
+### Remove the duplicate warmup step
+
+Inside `createGarminPayload()`, keep the first block beginning with:
+
+```javascript
+const warmupDurationSeconds =
+  getWarmupDurationSeconds(
+    session.warmup
+  );
+
+workoutSteps.push({
+```
+
+Delete the second identical block beginning later with:
+
+```javascript
+const warmupDurationSeconds =
+  getWarmupDurationSeconds(
+    session.warmup
+  );
+```
+
+The resulting order must be:
+
+```javascript
+const workoutSteps = [];
+
+const warmupDurationSeconds =
+  getWarmupDurationSeconds(
+    session.warmup
+  );
+
+workoutSteps.push({
+  stepId: stepId++,
+  stepOrder: stepOrder++,
+  stepType: {
+    stepTypeId: 1,
+    stepTypeKey: "warmup",
+    displayOrder: 1
+  },
+  type: "ExecutableStepDTO",
+  description: session.warmup,
+  endCondition: {
+    conditionTypeId: 2,
+    conditionTypeKey: "time",
+    displayOrder: 2,
+    displayable: true
+  },
+  endConditionValue:
+    warmupDurationSeconds,
+  targetType: {
+    workoutTargetTypeId: 1,
+    workoutTargetTypeKey: "no.target",
+    displayOrder: 1
+  }
+});
+
+adjustedExercises.forEach(
+```
+
+The cooldown is already present correctly in the current GitHub code:
+
+```javascript
+workoutSteps.push({
+  stepId: stepId++,
+  stepOrder: stepOrder++,
+  stepType: {
+    stepTypeId: 2,
+    stepTypeKey: "cooldown",
+    displayOrder: 2
+  },
+  type: "ExecutableStepDTO",
+  description: "Indoor Bike",
+  endCondition: {
+    conditionTypeId: 2,
+    conditionTypeKey: "time",
+    displayOrder: 2,
+    displayable: true
+  },
+  endConditionValue: 300,
+  targetType: {
+    workoutTargetTypeId: 1,
+    workoutTargetTypeKey: "no.target",
+    displayOrder: 1
+  }
+});
+```
+
+The estimated duration already includes the warmup and five minute cooldown. ([raw.githubusercontent.com](https://raw.githubusercontent.com/catovicajdin-droid/Fitness-app/main/index.html?cb=20260812T123333Z))
+
+---
+
+## Change 4. Remove the manual duration field from the log modal
+
+### 4A. Remove the HTML field
+
+Find this entire block:
+
+```html
+<div class="form-group">
+  <label
+    class="form-label"
+    for="durationInput"
+  >
+    Manual duration in minutes
+  </label>
+
+  <input
+    id="durationInput"
+    type="number"
+    min="0"
+    step="1"
+    placeholder="For example, 30"
+  >
+</div>
+```
+
+Delete it completely.
+
+Keep the Notes field immediately after it:
+
+```html
+<div class="form-group">
+  <label
+    class="form-label"
+    for="notesInput"
+  >
+    Notes
+  </label>
+
+  <textarea
+    id="notesInput"
+    placeholder="How did the workout feel?"
+  ></textarea>
+</div>
+```
+
+The current GitHub version still contains the manual duration field. ([raw.githubusercontent.com](https://raw.githubusercontent.com/catovicajdin-droid/Fitness-app/main/index.html?cb=20260812T123333Z))
+
+### 4B. Remove loading the field
+
+In `openLogModal()`, delete:
+
+```javascript
+document.getElementById(
+  "durationInput"
+).value =
+  log.duration || "";
+```
+
+### 4C. Remove saving the field
+
+In `saveWorkoutLog()`, delete:
+
+```javascript
+duration:
+  document.getElementById(
+    "durationInput"
+  ).value
+    ? Number(
+        document.getElementById(
+          "durationInput"
+        ).value
+      )
+    : null,
+```
+
+The saved log should go directly from `exerciseDifficulties` to `notes`:
+
+```javascript
+    exerciseDifficulties,
+
+    notes:
+      document.getElementById(
+        "notesInput"
+      ).value,
+
+    loggedAt:
+      new Date().toISOString()
+```
+
+Do not delete existing `duration` values from old logs. They can remain stored but will no longer be used.
+
+---
+
+## Change 5. Remove manual duration fallbacks from analytics
+
+The Garmin duration helper should remain unchanged:
+
+```javascript
+function getGarminDurationMinutes(log) {
+  if (!log || !log.garmin) {
+    return 0;
+  }
+
+  if (
+    Number.isFinite(
+      Number(
+        log.garmin.durationMinutes
+      )
+    )
+  ) {
+    return Number(
+      log.garmin.durationMinutes
+    );
+  }
+
+  if (
+    Number.isFinite(
+      Number(
+        log.garmin.durationSeconds
+      )
+    )
+  ) {
+    return (
+      Number(
+        log.garmin.durationSeconds
+      ) / 60
+    );
+  }
+
+  return 0;
+}
+```
+
+### 5A. Replace overall duration calculation
+
+Find the current block inside `getOverallAnalytics()`:
+
+```javascript
+const totalDuration =
+  completedLogs.reduce(
+    (sum, { log }) => {
+      const garminDuration =
+        getGarminDurationMinutes(log);
+
+      if (garminDuration > 0) {
+        return sum + garminDuration;
+      }
+
+      const manualDuration =
+        Number(log?.duration);
+
+      if (
+        Number.isFinite(manualDuration) &&
+        manualDuration > 0
+      ) {
+        return sum + manualDuration;
+      }
+
+      return sum;
+    },
+    0
+  );
+```
+
+Replace it with:
+
+```javascript
+const totalDuration =
+  completedLogs.reduce(
+    (sum, { log }) =>
+      sum + getGarminDurationMinutes(log),
+    0
+  );
+```
+
+### 5B. Replace weekly duration calculation
+
+Find this current block inside `getWeekAnalytics()`:
+
+```javascript
+const durations =
+  logs
+    .map(log => {
+      const garmin =
+        getGarminDurationMinutes(log);
+
+      if (garmin > 0) {
+        return garmin;
+      }
+
+      const manual =
+        Number(log.duration);
+
+      return Number.isFinite(manual) &&
+        manual > 0
+        ? manual
+        : 0;
+    })
+    .filter(value => value > 0);
+```
+
+Replace it with:
+
+```javascript
+const durations =
+  logs
+    .map(log =>
+      getGarminDurationMinutes(log)
+    )
+    .filter(value => value > 0);
+```
+
+### 5C. Replace recommendation duration calculation
+
+Find this current block inside `getRecommendationData()`:
+
+```javascript
+const recentDurations =
+  recentEntries
+    .map(entry => {
+      const garminDuration =
+        getGarminDurationMinutes(
+          entry.log
+        );
+
+      if (garminDuration > 0) {
+        return garminDuration;
+      }
+
+      const manualDuration =
+        Number(entry.log?.duration);
+
+      return Number.isFinite(
+        manualDuration
+      ) && manualDuration > 0
+        ? manualDuration
+        : null;
+    })
+    .filter(value => value !== null);
+```
+
+Replace it with:
+
+```javascript
+const recentDurations =
+  recentEntries
+    .map(entry =>
+      getGarminDurationMinutes(
+        entry.log
+      )
+    )
+    .filter(value => value > 0);
+```
+
+The latest GitHub version currently uses manual duration as a fallback in all three locations. ([raw.githubusercontent.com](https://raw.githubusercontent.com/catovicajdin-droid/Fitness-app/main/index.html?cb=20260812T123333Z))
+
+---
+
+## Change 6. Correct the outdated analytics explanation
+
+The current analytics text incorrectly says that difficulty is only recorded at session level. The current code already collects both `exerciseDifficulties` and `sessionDifficulties`. ([raw.githubusercontent.com](https://raw.githubusercontent.com/catovicajdin-droid/Fitness-app/main/index.html?cb=20260812T123333Z))
+
+Find:
+
+```html
+<div class="instructions">
+  Difficulty is recorded for the completed workout session, not for
+  individual exercises. The workout session difficulty is shown for
+  every exercise included in that completed workout. Garmin TCX files
+  provide workout results such as duration, calories, and heart rate,
+  but do not provide a separate difficulty score for each exercise. If
+  no difficulty was recorded for the workout session, the result
+  remains <strong>Not recorded</strong>.
+</div>
+```
+
+Replace it with:
+
+```html
+<div class="instructions">
+  Difficulty is recorded both for the completed workout session and,
+  when available, for each individual exercise. Exercise-specific
+  difficulty scores are used for exercise progression decisions.
+  The workout-session score is used for overall recommendations and
+  is shown as additional context in exercise analytics. Garmin TCX
+  files provide workout results such as duration, calories, and heart
+  rate, but do not provide difficulty scores. If no difficulty was
+  recorded, the result remains
+  <strong>Not recorded</strong>.
+</div>
+```
+
+Also update the exercise analytics rendering if it still describes only session difficulty.
+
+Find:
+
+```javascript
+const explanation =
+  averageDifficulty === null
+    ? "No completed workout session containing this exercise has a recorded difficulty."
+    : "Average difficulty of completed workout sessions containing this exercise.";
+```
+
+Replace it with:
+
+```javascript
+const exerciseAverageDifficulty =
+  getAverage(
+    values.exerciseDifficulties
+  );
+
+const sessionAverageDifficulty =
+  getAverage(
+    values.sessionDifficulties
+  );
+
+const explanation =
+  exerciseAverageDifficulty === null &&
+  sessionAverageDifficulty === null
+    ? "No difficulty has been recorded for this exercise."
+    : "Exercise difficulty is calculated from the individual exercise scores when available. The workout-session score is shown separately as context.";
+```
+
+Then replace the corresponding displayed difficulty section.
+
+Current form:
+
+```javascript
+Average workout session difficulty:
+${difficultyText}
+<br>
+${escapeHtml(explanation)}
             </div>
 
             <div
