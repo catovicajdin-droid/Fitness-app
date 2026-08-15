@@ -3833,6 +3833,14 @@ function handleExerciseRepAdjustment(event) {
       exerciseKey,
       0
     );
+
+    const recommendationKey =
+      `${sessionKey}:${exerciseKey}`;
+
+    delete appState
+      .appliedExerciseRecommendations[
+        recommendationKey
+      ];
   } else {
     setExerciseManualAdjustment(
       sessionKey,
