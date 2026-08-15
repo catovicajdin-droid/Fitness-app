@@ -2420,19 +2420,11 @@ const garminCanonicalCategories = {
           ...remote.garminUploadedWorkouts
         },
 
-        recommendationDecisions: {
-          ...local.recommendationDecisions,
-          ...remote.recommendationDecisions
+        exerciseAdjustments: {
+  ...local.exerciseAdjustments,
+  ...remote.exerciseAdjustments
         },
-
-        progressionPlan:
-          Object.prototype.hasOwnProperty.call(
-            remoteState,
-            "progressionPlan"
-          )
-            ? remote.progressionPlan
-            : local.progressionPlan,
-
+        
         garminCatalog:
           Object.prototype.hasOwnProperty.call(
             remoteState,
