@@ -3229,6 +3229,119 @@ function refreshAnalyticsIfOpen() {
     renderAnalytics();
   }
 }
+
+function renderExerciseRecommendation(
+  sessionKey,
+  exercise
+) {
+  const recommendation =
+    getExerciseRecommendation(
+      sessionKey,
+      exercise
+    );
+
+  const isIncrease =
+    recommendation.adjustment > 0;
+
+  const applyButton =
+    isIncrease
+      ? `
+        <button
+          type="button"
+          class="button-success button-small"
+          data-apply-exercise-recommendation
+          data-session-key="${escapeHtml(sessionKey)}"
+          data-exercise-key="${escapeHtml(exercise.searchKey)}"
+          data-adjustment="${recommendation.adjustment}"
+        >
+          Apply
+        </button>
+      `
+      : "";
+
+  return `
+    <div class="exercise-recommendation ${
+      isIncrease ? "" : "neutral"
+    }">
+      <span>
+        ${escapeHtml(
+          recommendation.text
+        )}
+      </span>
+
+      ${applyButton}
+    </div>
+  `;
+}
+
+function renderExerciseRepAdjuster(
+  sessionKey,
+  exercise
+) {
+  const currentAdjustment =
+    getExerciseManualAdjustment(
+      sessionKey,
+      exercise.searchKey
+    );
+
+  const step =
+    getExerciseAdjustmentStep(exercise);
+
+  const totalAdjustment =
+    currentAdjustment * step;
+
+  const unit =
+    isTimeBasedExercise(exercise)
+      ? "seconds"
+      : "reps";
+
+  const displayText =
+    totalAdjustment === 0
+      ? "No manual adjustment"
+      : `${
+          totalAdjustment > 0
+            ? "+"
+            : ""
+        }${totalAdjustment} ${unit}`;
+
+  return `
+    <div class="exercise-rep-adjuster">
+      <button
+        type="button"
+        class="button-secondary button-small"
+        data-adjust-exercise-reps="-1"
+        data-session-key="${escapeHtml(sessionKey)}"
+        data-exercise-key="${escapeHtml(exercise.searchKey)}"
+      >
+        −
+      </button>
+
+      <span class="exercise-adjustment-value">
+        ${escapeHtml(displayText)}
+      </span>
+
+      <button
+        type="button"
+        class="button-secondary button-small"
+        data-adjust-exercise-reps="1"
+        data-session-key="${escapeHtml(sessionKey)}"
+        data-exercise-key="${escapeHtml(exercise.searchKey)}"
+      >
+        +
+      </button>
+
+      <button
+        type="button"
+        class="button-danger button-small"
+        data-adjust-exercise-reps="reset"
+        data-session-key="${escapeHtml(sessionKey)}"
+        data-exercise-key="${escapeHtml(exercise.searchKey)}"
+      >
+        Reset
+      </button>
+    </div>
+  `;
+}
     
     function renderWorkout(
       session,
@@ -3285,11 +3398,6 @@ function refreshAnalyticsIfOpen() {
           ? '<span class="badge badge-garmin">Garmin Imported</span>'
           : "";
 
-      const progressionNotice =
-        renderProgressionNotice(
-          sessionKey
-        );
-
       return `
         <article class="workout">
           <div
@@ -3331,8 +3439,7 @@ function refreshAnalyticsIfOpen() {
             class="workout-content"
             id="workoutContent${sessionKey}"
           >
-            ${progressionNotice}
-
+      
             <div class="section">
               <div class="section-title">
                 🔥 Warm-up
@@ -3383,13 +3490,23 @@ function refreshAnalyticsIfOpen() {
                       </div>
 
                       <div class="exercise-note">
-                        ${escapeHtml(
-                          adjustedExercise.notes
-                        )}
-                      </div>
+  ${escapeHtml(
+    adjustedExercise.notes
+  )}
+</div>
 
-                      <a
-                        class="video-link"
+${renderExerciseRecommendation(
+  sessionKey,
+  exercise
+)}
+
+${renderExerciseRepAdjuster(
+  sessionKey,
+  exercise
+)}
+
+<a
+  class="video-link"
                         href="${
                           videoSearches[
                             adjustedExercise
