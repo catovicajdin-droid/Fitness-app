@@ -3874,6 +3874,13 @@ function handleApplyExerciseRecommendation(event) {
     adjustment
   );
 
+  const recommendationKey =
+    `${sessionKey}:${exerciseKey}`;
+
+  appState.appliedExerciseRecommendations[
+    recommendationKey
+  ] = true;
+
   saveState();
   renderApp();
 }
