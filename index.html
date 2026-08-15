@@ -2931,60 +2931,6 @@ const garminCanonicalCategories = {
         );
     }
 
-    function getNextPendingWorkoutIndex() {
-      return getAllWorkoutEntries()
-        .findIndex(
-          entry =>
-            !appState
-              .completedWorkouts[
-                entry.sessionKey
-              ] &&
-            !appState
-              .skippedWorkouts[
-                entry.sessionKey
-              ]
-        );
-    }
-
-    function createProgressionPlan(
-  mode,
-  recommendationKey
-) {
-  const firstPendingWorkout =
-    getPendingWorkoutEntries()[0] || null;
-
-  if (!firstPendingWorkout) {
-    return null;
-  }
-
-  const anchorIndex =
-    getWorkoutEntryIndex(
-      firstPendingWorkout.sessionKey
-    );
-
-  return {
-    active: true,
-    mode,
-    recommendationKey,
-    anchorKey: firstPendingWorkout.sessionKey,
-    anchorIndex,
-    anchorWeekNumber: firstPendingWorkout.weekNumber,
-    createdAt: new Date().toISOString()
-  };
-}
-
-    function getProgressionPosition(
-  sessionKey
-) {
-  const eligibleEntries =
-    getProgressionEligibleEntries();
-
-  return eligibleEntries.findIndex(
-    entry =>
-      entry.sessionKey ===
-      sessionKey
-  );
-}
     function parseRepRange(value) {
       const text =
         String(value || "");
@@ -3031,103 +2977,150 @@ const garminCanonicalCategories = {
       return `${minimum} to ${maximum}${parsed.suffix}`;
     }
 
-    function getProgressionAdjustment(
+function isTimeBasedExercise(exercise) {
+  return /seconds?/i.test(
+    String(exercise.reps || "")
+  );
+}
+
+function getExerciseAdjustmentStep(exercise) {
+  return isTimeBasedExercise(exercise)
+    ? 5
+    : 1;
+}
+
+function getExerciseManualAdjustment(
+  sessionKey,
+  exerciseKey
+) {
+  return Number(
+    appState.exerciseAdjustments?.[
       sessionKey
-    ) {
-      const plan =
-        appState.progressionPlan;
+    ]?.[exerciseKey] || 0
+  );
+}
 
-      const position =
-        getProgressionPosition(
-          sessionKey
-        );
+function setExerciseManualAdjustment(
+  sessionKey,
+  exerciseKey,
+  adjustment
+) {
+  appState.exerciseAdjustments[
+    sessionKey
+  ] = appState.exerciseAdjustments[
+    sessionKey
+  ] || {};
 
-      if (
-        !plan ||
-        !plan.active ||
-        position < 0 ||
-        appState.completedWorkouts[
-          sessionKey
-        ] ||
-        appState.skippedWorkouts[
-          sessionKey
-        ]
-      ) {
-        return {
-          reps: 0,
-          sets: 0,
-          position: -1,
-          mode: "normal"
-        };
-      }
+  appState.exerciseAdjustments[
+    sessionKey
+  ][exerciseKey] = adjustment;
 
-      if (plan.mode === "increase") {
-        return {
-          reps: Math.min(
-            3,
-            1 +
-              Math.floor(
-                position / 2
-              )
-          ),
+  if (
+    appState.exerciseAdjustments[
+      sessionKey
+    ][exerciseKey] === 0
+  ) {
+    delete appState.exerciseAdjustments[
+      sessionKey
+    ][exerciseKey];
+  }
 
-          sets: Math.min(
-            1,
-            Math.floor(
-              position / 6
-            )
-          ),
+  if (
+    !Object.keys(
+      appState.exerciseAdjustments[
+        sessionKey
+      ]
+    ).length
+  ) {
+    delete appState.exerciseAdjustments[
+      sessionKey
+    ];
+  }
+}
 
-          position,
-          mode: "increase"
-        };
-      }
+function getExerciseRecommendation(
+  sessionKey,
+  exercise
+) {
+  const previousDifficulty =
+    getLatestPreviousExerciseDifficulty(
+      sessionKey,
+      exercise
+    );
 
-      if (plan.mode === "decrease") {
-        return {
-          reps:
-            position < 3
-              ? -1
-              : 0,
+  if (previousDifficulty === null) {
+    return {
+      previousDifficulty: null,
+      adjustment: 0,
+      text:
+        "No previous difficulty recorded for this exercise."
+    };
+  }
 
-          sets:
-            position < 3
-              ? -1
-              : 0,
+  if (previousDifficulty >= 4) {
+    return {
+      previousDifficulty,
+      adjustment: 0,
+      text:
+        `Previous difficulty: ${previousDifficulty}/10. Maintain the current target.`
+    };
+  }
 
-          position,
-          mode: "decrease"
-        };
-      }
+  const adjustment =
+    previousDifficulty === 1
+      ? 3
+      : previousDifficulty === 2
+        ? 2
+        : 1;
 
-      if (
-        plan.mode === "conservative"
-      ) {
-        return {
-          reps:
-            position < 2
-              ? 0
-              : Math.min(
-                  1,
-                  Math.floor(
-                    position / 4
-                  )
-                ),
+  const step =
+    getExerciseAdjustmentStep(exercise);
 
-          sets: 0,
-          position,
-          mode: "conservative"
-        };
-      }
+  const totalIncrease =
+    adjustment * step;
 
-      return {
-        reps: 0,
-        sets: 0,
-        position,
-        mode: "normal"
-      };
-    }
-function getExerciseDifficulty(
+  const unit =
+    isTimeBasedExercise(exercise)
+      ? "seconds"
+      : "reps";
+
+  return {
+    previousDifficulty,
+    adjustment,
+    text:
+      `Previous difficulty: ${previousDifficulty}/10. Recommended increase: +${totalIncrease} ${unit}.`
+  };
+}
+
+function getAdjustedExercise(
+  exercise,
+  sessionKey
+) {
+  const adjustment =
+    getExerciseManualAdjustment(
+      sessionKey,
+      exercise.searchKey
+    );
+
+  if (!adjustment) {
+    return {
+      ...exercise
+    };
+  }
+
+  const step =
+    getExerciseAdjustmentStep(exercise);
+
+  return {
+    ...exercise,
+    reps: adjustRepText(
+      exercise.reps,
+      adjustment * step
+    )
+  };
+}
+    
+      function getExerciseDifficulty(
   sessionKey,
   exercise
 ) {
@@ -3221,183 +3214,6 @@ function getLatestPreviousExerciseDifficulty(
   );
 }
     
-    function getAdjustedExercise(
-  exercise,
-  sessionKey
-) {
-  const adjustment =
-    getProgressionAdjustment(
-      sessionKey
-    );
-
-  if (
-    adjustment.position < 0 ||
-    (
-      adjustment.reps === 0 &&
-      adjustment.sets === 0
-    )
-  ) {
-    return {
-      ...exercise
-    };
-  }
-
-  const previousDifficulty =
-    getLatestPreviousExerciseDifficulty(
-      sessionKey,
-      exercise
-    );
-
-  const exerciseExempt =
-    adjustment.mode === "increase" &&
-    previousDifficulty !== null &&
-    previousDifficulty > 3;
-
-  if (exerciseExempt) {
-    return {
-      ...exercise
-    };
-  }
-
-  const adjustedSets =
-    Math.max(
-      1,
-      Number(exercise.sets) +
-        adjustment.sets
-    );
-
-  return {
-    ...exercise,
-    sets: adjustedSets,
-    reps: adjustRepText(
-      exercise.reps,
-      adjustment.reps
-    )
-  };
-}
-    function renderProgressionNotice(
-      sessionKey
-    ) {
-      const adjustment =
-        getProgressionAdjustment(
-          sessionKey
-        );
-
-     if (
-        adjustment.position < 0 ||
-        adjustment.mode === "normal"
-      ) {
-        return "";
-      }
-
-      const positionText =
-        adjustment.position === 0
-          ? "first remaining workout"
-          : `progression step ${adjustment.position + 1}`;
-
-      let message =
-`Progression strategy active for this ${positionText}.`;
-      if (
-        adjustment.mode === "increase"
-      ) {
-        message +=
-          " Repetitions increase gradually, followed by a possible set increase.";
-      }
-
-      if (
-        adjustment.mode === "decrease"
-      ) {
-        message +=
-          " Temporary recovery adjustments are active before normal progression resumes.";
-      }
-
-      if (
-        adjustment.mode === "conservative"
-      ) {
-        message +=
-          " Progression is being held conservative while you build tolerance.";
-      }
-
-      return `
-        <div class="instructions">
-          ${escapeHtml(message)}
-        </div>
-      `;
-    }
-
-    function getRecommendationMode(
-      recommendationKey
-    ) {
-      if (
-        recommendationKey ===
-        "progression"
-      ) {
-        return "increase";
-      }
-
-      if (
-        recommendationKey ===
-          "recovery" ||
-        recommendationKey ===
-          "reduce-volume"
-      ) {
-        return "decrease";
-      }
-
-      if (
-        recommendationKey ===
-        "conservative"
-      ) {
-        return "conservative";
-      }
-
-      return "maintain";
-    }
-
-    function applyProgressionRecommendation(
-      recommendationKey,
-      workoutKey
-    ) {
-      const mode =
-        getRecommendationMode(
-          recommendationKey
-        );
-
-      if (mode === "maintain") {
-        appState.progressionPlan =
-          null;
-
-        return;
-      }
-
-     appState.progressionPlan =
-  createProgressionPlan(
-    mode,
-    recommendationKey
-  );
-    }
-
-    function clearProgressionRecommendation() {
-      appState.progressionPlan =
-        null;
-    }
-
-    function updateClearProgressionButton() {
-  const button =
-    document.getElementById(
-      "clearProgressionButton"
-    );
-
-  if (!button) {
-    return;
-  }
-
-  button.disabled = !(
-    appState.progressionPlan &&
-    appState.progressionPlan.active
-  );
-}
-
 function refreshAnalyticsIfOpen() {
   updateClearProgressionButton();
 
