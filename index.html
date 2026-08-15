@@ -2906,6 +2906,29 @@ const garminCanonicalCategories = {
             handleWorkoutAction
           );
         });
+
+      container
+  .querySelectorAll(
+    "[data-adjust-exercise-reps]"
+  )
+  .forEach(button => {
+    button.addEventListener(
+      "click",
+      handleExerciseRepAdjustment
+    );
+  });
+
+container
+  .querySelectorAll(
+    "[data-apply-exercise-recommendation]"
+  )
+  .forEach(button => {
+    button.addEventListener(
+      "click",
+      handleApplyExerciseRecommendation
+    );
+  });
+      
     }
 
     function getWorkoutEntryBySessionKey(
