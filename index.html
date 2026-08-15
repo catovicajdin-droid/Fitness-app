@@ -2651,16 +2651,98 @@ const garminCanonicalCategories = {
     }
 
     function renderApp() {
-      renderWeeks();
-      updateStats();
+  const openWeekIds = Array.from(
+    document.querySelectorAll(
+      ".week-content.open"
+    )
+  ).map(element => element.id);
 
-      if (!currentFirebaseUser) {
-        updateSyncStatus(
-          "offline",
-          "Not signed in. Data is stored locally."
-        );
-      }
+  const openWorkoutIds = Array.from(
+    document.querySelectorAll(
+      ".workout-content.open"
+    )
+  ).map(element => element.id);
+
+  renderWeeks();
+  updateStats();
+
+  openWeekIds.forEach(id => {
+    const content =
+      document.getElementById(id);
+
+    if (!content) {
+      return;
     }
+
+    content.classList.add("open");
+
+    const weekNumber =
+      id.replace("weekContent", "");
+
+    const arrow =
+      document.getElementById(
+        `weekArrow${weekNumber}`
+      );
+
+    const header =
+      document.querySelector(
+        `[data-week-header="${weekNumber}"]`
+      );
+
+    if (arrow) {
+      arrow.classList.add("open");
+    }
+
+    if (header) {
+      header.setAttribute(
+        "aria-expanded",
+        "true"
+      );
+    }
+  });
+
+  openWorkoutIds.forEach(id => {
+    const content =
+      document.getElementById(id);
+
+    if (!content) {
+      return;
+    }
+
+    content.classList.add("open");
+
+    const sessionKey =
+      id.replace("workoutContent", "");
+
+    const icon =
+      document.getElementById(
+        `workoutToggleIcon${sessionKey}`
+      );
+
+    const toggle =
+      document.querySelector(
+        `[data-workout-toggle="${sessionKey}"]`
+      );
+
+    if (icon) {
+      icon.classList.add("open");
+    }
+
+    if (toggle) {
+      toggle.setAttribute(
+        "aria-expanded",
+        "true"
+      );
+    }
+  });
+
+  if (!currentFirebaseUser) {
+    updateSyncStatus(
+      "offline",
+      "Not signed in. Data is stored locally."
+    );
+  }
+}
 
     function updateStats() {
       const total =
