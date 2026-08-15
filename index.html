@@ -3329,6 +3329,26 @@ function renderExerciseRecommendation(
       exercise
     );
 
+  const recommendationKey =
+    `${sessionKey}:${exercise.searchKey}`;
+
+  const applied =
+    Boolean(
+      appState.appliedExerciseRecommendations[
+        recommendationKey
+      ]
+    );
+
+  if (applied) {
+    return `
+      <div class="exercise-recommendation neutral">
+        <span>
+          Recommendation applied.
+        </span>
+      </div>
+    `;
+  }
+
   const isIncrease =
     recommendation.adjustment > 0;
 
@@ -3362,7 +3382,6 @@ function renderExerciseRecommendation(
     </div>
   `;
 }
-
 function renderExerciseRepAdjuster(
   sessionKey,
   exercise
