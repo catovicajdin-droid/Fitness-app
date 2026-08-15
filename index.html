@@ -5339,34 +5339,55 @@ function getProgressionScopeSummary() {
     }
 
     function getExerciseTarget(exercise) {
-      const text =
-        String(exercise.reps || "");
+  const text =
+    String(exercise.reps || "");
 
-      const timeMatch =
-        text.match(
-          /(\d+)\s*(?:to|-)?\s*(\d+)?\s*seconds?/i
-        );
+  const parsedRange =
+    parseRepRange(text);
 
-      if (timeMatch) {
-        return {
-          conditionTypeId: 2,
-          conditionTypeKey: "time",
-          value: Number(timeMatch[1])
-        };
-      }
+  if (parsedRange) {
+    const isTimeBased =
+      /seconds?/i.test(
+        parsedRange.suffix
+      );
 
-      const repsMatch =
-        text.match(/\d+/);
+    return {
+      conditionTypeId: isTimeBased
+        ? 2
+        : 10,
 
-      return {
-        conditionTypeId: 10,
-        conditionTypeKey: "reps",
-        value: repsMatch
-          ? Number(repsMatch[0])
-          : 10
-      };
-    }
+      conditionTypeKey: isTimeBased
+        ? "time"
+        : "reps",
 
+      value: parsedRange.maximum
+    };
+  }
+
+  const timeMatch =
+    text.match(
+      /(\d+)\s*seconds?/i
+    );
+
+  if (timeMatch) {
+    return {
+      conditionTypeId: 2,
+      conditionTypeKey: "time",
+      value: Number(timeMatch[1])
+    };
+  }
+
+  const repsMatch =
+    text.match(/\d+/);
+
+  return {
+    conditionTypeId: 10,
+    conditionTypeKey: "reps",
+    value: repsMatch
+      ? Number(repsMatch[0])
+      : 10
+  };
+}
 function getWarmupDurationSeconds(warmupText) {
   const match = String(warmupText || "").match(
     /(\d+)\s*minutes?/i
