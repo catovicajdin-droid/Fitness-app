@@ -1933,6 +1933,7 @@
   workoutLogs: {},
   garminUploadedWorkouts: {},
   exerciseAdjustments: {},
+  appliedExerciseRecommendations: {},
   lastSync: null,
   garminCatalog: null
 };
@@ -2364,6 +2365,9 @@ const garminCanonicalCategories = {
         exerciseAdjustments:
   state.exerciseAdjustments || {},
 
+appliedExerciseRecommendations:
+  state.appliedExerciseRecommendations || {},
+        
         lastSync:
           state.lastSync || null,
 
@@ -2447,6 +2451,11 @@ const garminCanonicalCategories = {
   ...local.exerciseAdjustments,
   ...remote.exerciseAdjustments
         },
+
+        appliedExerciseRecommendations: {
+  ...local.appliedExerciseRecommendations,
+  ...remote.appliedExerciseRecommendations
+},
         
         garminCatalog:
           Object.prototype.hasOwnProperty.call(
