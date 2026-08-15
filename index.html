@@ -3700,6 +3700,76 @@ ${renderExerciseRepAdjuster(
       }
     }
 
+function handleExerciseRepAdjustment(event) {
+  const button =
+    event.currentTarget;
+
+  const sessionKey =
+    button.dataset.sessionKey;
+
+  const exerciseKey =
+    button.dataset.exerciseKey;
+
+  const action =
+    button.dataset.adjustExerciseReps;
+
+  const currentAdjustment =
+    getExerciseManualAdjustment(
+      sessionKey,
+      exerciseKey
+    );
+
+  if (action === "reset") {
+    setExerciseManualAdjustment(
+      sessionKey,
+      exerciseKey,
+      0
+    );
+  } else {
+    setExerciseManualAdjustment(
+      sessionKey,
+      exerciseKey,
+      currentAdjustment + Number(action)
+    );
+  }
+
+  saveState();
+  renderApp();
+}
+
+function handleApplyExerciseRecommendation(event) {
+  const button =
+    event.currentTarget;
+
+  const sessionKey =
+    button.dataset.sessionKey;
+
+  const exerciseKey =
+    button.dataset.exerciseKey;
+
+  const adjustment =
+    Number(
+      button.dataset.adjustment
+    );
+
+  if (
+    !sessionKey ||
+    !exerciseKey ||
+    !Number.isFinite(adjustment)
+  ) {
+    return;
+  }
+
+  setExerciseManualAdjustment(
+    sessionKey,
+    exerciseKey,
+    adjustment
+  );
+
+  saveState();
+  renderApp();
+}
+    
     function skipWorkout(sessionKey) {
       appState.skippedWorkouts[
         sessionKey
