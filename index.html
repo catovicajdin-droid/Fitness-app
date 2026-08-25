@@ -784,80 +784,6 @@
       font-size: 0.65rem;
     }
 
-    .recommendations {
-      display: flex;
-      flex-direction: column;
-      gap: 0.65rem;
-      margin-top: 1rem;
-    }
-
-    .recommendation-card {
-      border: 1px solid var(--primary);
-      border-radius: 7px;
-      background: rgba(0, 217, 255, 0.06);
-      padding: 0.85rem;
-    }
-
-    .recommendation-card.recommendation-warning {
-      border-color: var(--warning);
-      background: rgba(210, 153, 34, 0.08);
-    }
-
-    .recommendation-card.recommendation-recovery {
-      border-color: var(--danger);
-      background: rgba(248, 81, 73, 0.08);
-    }
-
-    .recommendation-title {
-      margin-bottom: 0.35rem;
-      color: var(--primary);
-      font-weight: 700;
-    }
-
-    .recommendation-warning .recommendation-title {
-      color: var(--warning);
-    }
-
-    .recommendation-recovery .recommendation-title {
-      color: var(--danger);
-    }
-
-    .recommendation-text {
-      color: var(--muted);
-      font-size: 0.78rem;
-      line-height: 1.55;
-    }
-
-    .recommendation-meta {
-      margin-top: 0.5rem;
-      color: var(--accent);
-      font-size: 0.72rem;
-      font-weight: 700;
-    }
-
-    .recommendation-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 0.75rem;
-    }
-
-    .recommendation-actions button {
-      flex: 1;
-      min-width: 150px;
-      padding: 0.55rem 0.7rem;
-      font-size: 0.74rem;
-    }
-
-    .recommendation-decision {
-      margin-top: 0.7rem;
-      border-top: 1px solid var(--border);
-      padding-top: 0.65rem;
-      color: var(--success);
-      font-size: 0.74rem;
-      font-weight: 700;
-    }
-
     .exercise-analysis {
       display: flex;
       flex-direction: column;
@@ -1076,6 +1002,8 @@
   <div
     class="modal"
     id="analyticsModal"
+    role="dialog"
+    aria-modal="true"
     aria-hidden="true"
   >
     <div class="modal-content">
@@ -1084,10 +1012,12 @@
       </h2>
 
       <div class="instructions">
-        This dashboard summarizes your recorded workout results and provides
-        dynamic recommendations. Applying a recommendation creates a gradual
-        adjustment layer for future pending workouts. The original workout
-        plan remains unchanged and can be restored by clearing the progression.
+        This dashboard summarizes your recorded workout results. Per-exercise
+        rep or hold-time recommendations, based on your most recent recorded
+        difficulty, appear directly on each exercise. Applying one, or
+        adjusting reps manually, only changes that exercise going forward —
+        the original workout plan is never modified and any adjustment can
+        be reset from the exercise's own controls.
       </div>
 
       <div class="analytics-grid">
@@ -1187,13 +1117,12 @@
         </label>
 
         <div class="instructions">
-          Difficulty is recorded for the completed workout session, not for
-          individual exercises. The workout session difficulty is shown for
-          every exercise included in that completed workout. Garmin TCX files
-          provide workout results such as duration, calories, and heart rate,
-          but do not provide a separate difficulty score for each exercise. If
-          no difficulty was recorded for the workout session, the result
-          remains <strong>Not recorded</strong>.
+          Two difficulty scores can be recorded when you log a workout: an
+          overall session difficulty, and an optional per-exercise difficulty
+          for each individual exercise. Garmin TCX files provide workout
+          results such as duration, calories, and heart rate, but do not
+          provide any difficulty score. If a score was never recorded, the
+          result remains <strong>Not recorded</strong>.
         </div>
 
         <div
@@ -1217,6 +1146,8 @@
   <div
     class="modal"
     id="authModal"
+    role="dialog"
+    aria-modal="true"
     aria-hidden="true"
   >
     <div class="modal-content">
@@ -1337,6 +1268,8 @@
   <div
     class="modal"
     id="logModal"
+    role="dialog"
+    aria-modal="true"
     aria-hidden="true"
   >
     <div class="modal-content">
@@ -1459,6 +1392,8 @@
   <div
     class="modal"
     id="tcxModal"
+    role="dialog"
+    aria-modal="true"
     aria-hidden="true"
   >
     <div class="modal-content">
@@ -1606,6 +1541,8 @@
   <div
     class="modal"
     id="garminModal"
+    role="dialog"
+    aria-modal="true"
     aria-hidden="true"
   >
     <div class="modal-content">
@@ -1667,6 +1604,8 @@
   <div
     class="modal"
     id="bulkGarminModal"
+    role="dialog"
+    aria-modal="true"
     aria-hidden="true"
   >
     <div class="modal-content">
@@ -1785,6 +1724,8 @@
   <div
     class="modal"
     id="settingsModal"
+    role="dialog"
+    aria-modal="true"
     aria-hidden="true"
   >
     <div class="modal-content">
@@ -2260,7 +2201,13 @@ const garminCanonicalCategories = {
       return `Week ${Number(weekNumber)} - ${session.day}`;
     }
 
+    let cachedWorkoutEntries = null;
+
     function getAllWorkoutEntries() {
+      if (cachedWorkoutEntries) {
+        return cachedWorkoutEntries;
+      }
+
       const entries = [];
 
       for (let week = 1; week <= 12; week += 1) {
@@ -2291,7 +2238,9 @@ const garminCanonicalCategories = {
         );
       }
 
-      return entries;
+      cachedWorkoutEntries = entries;
+
+      return cachedWorkoutEntries;
     }
 
     function normalizeText(value) {
@@ -2416,6 +2365,48 @@ appliedExerciseRecommendations:
       }
     }
 
+    function getLogTimestamp(log) {
+      const value =
+        log &&
+        (log.loggedAt ||
+          (log.garmin && log.garmin.importedAt));
+
+      const time =
+        value
+          ? new Date(value).getTime()
+          : NaN;
+
+      return Number.isFinite(time)
+        ? time
+        : -1;
+    }
+
+    function mergeWorkoutLogs(
+      localLogs,
+      remoteLogs
+    ) {
+      const merged = { ...localLogs };
+
+      Object.keys(remoteLogs).forEach(
+        sessionKey => {
+          const localLog =
+            localLogs[sessionKey];
+
+          const remoteLog =
+            remoteLogs[sessionKey];
+
+          merged[sessionKey] =
+            !localLog ||
+            getLogTimestamp(remoteLog) >=
+              getLogTimestamp(localLog)
+              ? remoteLog
+              : localLog;
+        }
+      );
+
+      return merged;
+    }
+
     function mergeStates(
       localState,
       remoteState
@@ -2437,10 +2428,11 @@ appliedExerciseRecommendations:
           ...remote.skippedWorkouts
         },
 
-        workoutLogs: {
-          ...local.workoutLogs,
-          ...remote.workoutLogs
-        },
+        workoutLogs:
+          mergeWorkoutLogs(
+            local.workoutLogs,
+            remote.workoutLogs
+          ),
 
         garminUploadedWorkouts: {
           ...local.garminUploadedWorkouts,
@@ -3304,8 +3296,6 @@ function getLatestPreviousExerciseDifficulty(
 }
     
 function refreshAnalyticsIfOpen() {
-  updateClearProgressionButton();
-
   const modal =
     document.getElementById(
       "analyticsModal"
@@ -3506,6 +3496,18 @@ function renderExerciseRepAdjuster(
           ? '<span class="badge badge-garmin">Garmin Imported</span>'
           : "";
 
+      const sentToGarmin =
+        Boolean(
+          appState.garminUploadedWorkouts[
+            sessionKey
+          ]
+        );
+
+      const garminSentBadge =
+        sentToGarmin
+          ? '<span class="badge badge-garmin">Sent to Garmin</span>'
+          : "";
+
       return `
         <article class="workout">
           <div
@@ -3523,15 +3525,14 @@ function renderExerciseRepAdjuster(
               </div>
 
               <div class="workout-subtitle">
-                Canonical Garmin name:
-                ${escapeHtml(
-                  workoutName
-                )}
+                ${session.exercises.length}
+                exercises
               </div>
 
               <div class="badges">
                 ${statusBadge}
                 ${garminBadge}
+                ${garminSentBadge}
               </div>
             </div>
 
@@ -3643,6 +3644,22 @@ ${renderExerciseRepAdjuster(
                 )}
               </div>
             </div>
+
+            ${
+              log && log.notes
+                ? `
+                  <div class="section">
+                    <div class="section-title">
+                      📝 Notes
+                    </div>
+
+                    <div class="section-text">
+                      ${escapeHtml(log.notes)}
+                    </div>
+                  </div>
+                `
+                : ""
+            }
 
             ${renderGarminResultsCard(
               sessionKey
@@ -3906,15 +3923,40 @@ function handleApplyExerciseRecommendation(event) {
       renderApp();
     }
 
+    function getFocusableElements(
+      container
+    ) {
+      return Array.from(
+        container.querySelectorAll(
+          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter(
+        element =>
+          element.offsetParent !== null
+      );
+    }
+
+    let lastFocusedTrigger = null;
+
     function openModal(id) {
       const modal =
         document.getElementById(id);
+
+      lastFocusedTrigger =
+        document.activeElement;
 
       modal.classList.add("open");
       modal.setAttribute(
         "aria-hidden",
         "false"
       );
+
+      const focusable =
+        getFocusableElements(modal);
+
+      if (focusable.length) {
+        focusable[0].focus();
+      }
     }
 
     function closeModal(id) {
@@ -3926,6 +3968,65 @@ function handleApplyExerciseRecommendation(event) {
         "aria-hidden",
         "true"
       );
+
+      if (
+        lastFocusedTrigger &&
+        typeof lastFocusedTrigger.focus ===
+          "function"
+      ) {
+        lastFocusedTrigger.focus();
+      }
+
+      lastFocusedTrigger = null;
+    }
+
+    function getOpenModal() {
+      return document.querySelector(
+        ".modal.open"
+      );
+    }
+
+    function handleModalKeydown(event) {
+      const modal = getOpenModal();
+
+      if (!modal) {
+        return;
+      }
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeModal(modal.id);
+        return;
+      }
+
+      if (event.key !== "Tab") {
+        return;
+      }
+
+      const focusable =
+        getFocusableElements(modal);
+
+      if (!focusable.length) {
+        return;
+      }
+
+      const first = focusable[0];
+      const last =
+        focusable[focusable.length - 1];
+
+      if (
+        event.shiftKey &&
+        document.activeElement === first
+      ) {
+        event.preventDefault();
+        last.focus();
+      } else if (
+        !event.shiftKey &&
+        document.activeElement === last
+      ) {
+        event.preventDefault();
+        first.focus();
+      }
     }
 
     function getGarminResultsForSession(
@@ -4967,139 +5068,6 @@ function renderWeeklyAnalytics(
         }));
     }
 
-function getPendingWorkoutEntries() {
-  return getAllWorkoutEntries()
-    .filter(entry =>
-      !appState.completedWorkouts[
-        entry.sessionKey
-      ] &&
-      !appState.skippedWorkouts[
-        entry.sessionKey
-      ]
-    );
-}
-    
-    function getProgressionEligibleEntries() {
-  const plan =
-    appState.progressionPlan;
-
-  if (
-    !plan ||
-    !plan.active ||
-    !plan.anchorKey
-  ) {
-    return [];
-  }
-
-  const entries =
-    getAllWorkoutEntries();
-
-  const anchorIndex =
-    entries.findIndex(
-      entry =>
-        entry.sessionKey ===
-        plan.anchorKey
-    );
-
-  if (anchorIndex < 0) {
-    return [];
-  }
-
-  return entries
-    .slice(anchorIndex)
-    .filter(entry =>
-      !appState.completedWorkouts[
-        entry.sessionKey
-      ] &&
-      !appState.skippedWorkouts[
-        entry.sessionKey
-      ]
-    );
-}
-
-    function getRecentCompletedEntries(limit = 5) {
-      return getCompletedWorkoutEntries()
-        .sort((first, second) => {
-          const firstDate =
-            new Date(
-              first.log?.loggedAt || 0
-            ).getTime();
-
-          const secondDate =
-            new Date(
-              second.log?.loggedAt || 0
-            ).getTime();
-
-          return secondDate - firstDate;
-        })
-        .slice(0, limit);
-    }
-
-    function getRecentDifficultyValues(limit = 5) {
-      return getRecentCompletedEntries(limit)
-        .map(entry =>
-          getValidWorkoutDifficulty(
-            entry.log
-          )
-        )
-        .filter(value => value !== null);
-    }
-
-    function getRecentSkippedCount(limit = 5) {
-      return getAllWorkoutEntries()
-        .filter(entry =>
-          Boolean(
-            appState.skippedWorkouts[
-              entry.sessionKey
-            ]
-          )
-        )
-        .sort((first, second) => {
-          const firstKey =
-            first.sessionKey;
-
-          const secondKey =
-            second.sessionKey;
-
-          return secondKey.localeCompare(
-            firstKey,
-            undefined,
-            {
-              numeric: true
-            }
-          );
-        })
-        .slice(0, limit)
-        .length;
-    }
-
-    function getNextPendingWorkout() {
-      return getPendingWorkoutEntries()[0] || null;
-    }
-
-    function getNextWorkoutSummary(entry) {
-      if (!entry) {
-        return "No pending workouts remain in the current plan.";
-      }
-
-      return `${entry.name} with ${entry.session.exercises.length} exercises`;
-    }
-
-function getProgressionScopeSummary() {
-  const firstPending = getNextPendingWorkout();
-
-  if (!firstPending) {
-    return "No pending workouts remain.";
-  }
-
-  return (
-    `Progression begins with ${firstPending.name} ` +
-    `and continues through later pending workouts. ` +
-    `Completed and skipped workouts are excluded from both ` +
-    `modification and progression counting.`
-  );
-}
-    
     function renderAnalytics() {
   const analytics =
     getOverallAnalytics();
@@ -5804,6 +5772,16 @@ return {
         ).textContent =
           `Canonical name: ${payload.workoutName}`;
 
+        appState.garminUploadedWorkouts[
+          getSessionKey(
+            weekNumber,
+            sessionIndex
+          )
+        ] = true;
+
+        saveState();
+        renderApp();
+
         openModal("garminModal");
       } catch (error) {
         alert(error.message);
@@ -5907,6 +5885,13 @@ return {
                 sessionIndex
               )
             );
+
+            appState.garminUploadedWorkouts[
+              getSessionKey(
+                weekNumber,
+                sessionIndex
+              )
+            ] = true;
           }
         );
       }
@@ -5924,6 +5909,9 @@ return {
         payloads,
         delay
       );
+
+    saveState();
+    renderApp();
 
     setStatus(
       "bulkStatus",
@@ -5969,25 +5957,44 @@ return {
         return;
       }
 
-      navigator.clipboard
-        .writeText(textarea.value)
-        .then(() => {
-          setStatus(
-            statusId,
-            "Copied to clipboard.",
-            "success"
-          );
-        })
-        .catch(() => {
-          textarea.select();
-          document.execCommand("copy");
+      const copyWithFallback = () => {
+        textarea.select();
 
-          setStatus(
-            statusId,
-            "Copied to clipboard.",
-            "success"
-          );
-        });
+        let succeeded = false;
+
+        try {
+          succeeded =
+            document.execCommand("copy");
+        } catch (error) {
+          succeeded = false;
+        }
+
+        setStatus(
+          statusId,
+          succeeded
+            ? "Copied to clipboard."
+            : "Could not copy automatically. Select the text and copy it manually.",
+          succeeded ? "success" : "error"
+        );
+      };
+
+      if (
+        navigator.clipboard &&
+        navigator.clipboard.writeText
+      ) {
+        navigator.clipboard
+          .writeText(textarea.value)
+          .then(() => {
+            setStatus(
+              statusId,
+              "Copied to clipboard.",
+              "success"
+            );
+          })
+          .catch(copyWithFallback);
+      } else {
+        copyWithFallback();
+      }
     }
 
     function setStatus(
@@ -6762,6 +6769,16 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
     }
 
     function importBackup(file) {
+      if (
+        !confirm(
+          "Import this backup? Its data will be merged with what's " +
+            "already on this device, keeping whichever version of each " +
+            "logged workout is newer."
+        )
+      ) {
+        return;
+      }
+
       file.text()
         .then(text => {
           const imported =
@@ -6772,10 +6789,10 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
             imported;
 
           appState =
-            normalizeState({
-              ...appState,
-              ...importedState
-            });
+            mergeStates(
+              appState,
+              importedState
+            );
 
           if (appState.garminCatalog) {
             localStorage.setItem(
@@ -7465,6 +7482,11 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
             }
           );
         });
+
+      document.addEventListener(
+        "keydown",
+        handleModalKeydown
+      );
 
             window.addEventListener(
         "online",
