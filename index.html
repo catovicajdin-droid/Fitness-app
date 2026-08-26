@@ -1570,27 +1570,8 @@
       </h2>
 
       <div class="instructions">
-        <strong>Send via Cloud</strong> signs in to Garmin on a server and
-        creates the workout directly. Requires the Cloud send to be set up
-        (see Settings) and you to be signed in above.
-        <strong>Known issue:</strong> Garmin currently blocks requests from
-        the cloud server this uses, so this option may fail with
-        "Too Many Requests" regardless of retries — use the userscript
-        option below on a phone until that's resolved.
-        <br><br>
         The userscript, bookmarklet, and console-script options below all
-        run in your own browser instead, using your own network.
-      </div>
-
-      <div class="form-group">
-        <button
-          type="button"
-          class="button-success"
-          id="sendGarminCloudButton"
-          style="width: 100%;"
-        >
-          ☁️ Send via Cloud
-        </button>
+        run in your own browser, using your own network.
       </div>
 
       <div class="form-group">
@@ -1783,28 +1764,6 @@
           readonly
           placeholder="Generate the script after selecting one or more weeks."
         ></textarea>
-      </div>
-
-      <div class="form-group">
-        <button
-          type="button"
-          class="button-success"
-          id="sendBulkGarminCloudButton"
-          style="width: 100%;"
-        >
-          ☁️ Send via Cloud
-        </button>
-
-        <div class="instructions">
-          Signs in to Garmin on a server and creates each selected workout
-          directly. Requires the Cloud send to be set up (see Settings) and
-          you to be signed in above. Press "Generate Script" first to build
-          the payloads, then use this button instead of copying anything.
-          <strong>Known issue:</strong> Garmin currently blocks requests
-          from the cloud server this uses, so this may fail with
-          "Too Many Requests" regardless of retries — use the userscript
-          option below on a phone until that's resolved.
-        </div>
       </div>
 
       <div class="form-group">
@@ -2009,7 +1968,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
 
   <script>
     "use strict";
@@ -2028,19 +1986,6 @@
 
     const firebaseAuth = firebase.auth();
     const firebaseDatabase = firebase.database();
-    const firebaseFunctions =
-      firebase.app().functions("europe-west1");
-
-    const sendWorkoutToGarminFunction =
-      firebaseFunctions.httpsCallable(
-        "sendWorkoutToGarmin",
-        {
-          // Must stay at least as high as the function's own
-          // timeoutSeconds (functions/index.js), or the client gives up
-          // on a large bulk send before the server does.
-          timeout: 270000
-        }
-      );
 
     const STORAGE_KEY = "fitnessTrackerState";
     const CATALOG_KEY = "fitnessTrackerGarminCatalog";
@@ -6009,131 +5954,6 @@ return {
 `;
     }
 
-    function formatGarminCloudResults(
-      results
-    ) {
-      return results
-        .map(item =>
-          item.status === "created"
-            ? `✓ ${item.name}`
-            : `✗ ${item.name}: ${item.error}`
-        )
-        .join("\n");
-    }
-
-    function sendPayloadsToGarminCloud(
-      payloads,
-      delayMs,
-      statusId,
-      button
-    ) {
-      if (!currentFirebaseUser) {
-        setStatus(
-          statusId,
-          "Sign in first — sending via Cloud needs your signed-in account.",
-          "error"
-        );
-
-        return Promise.resolve();
-      }
-
-      if (button) {
-        button.disabled = true;
-      }
-
-      setStatus(
-        statusId,
-        `Sending ${payloads.length} workout${
-          payloads.length === 1 ? "" : "s"
-        } to Garmin...`,
-        ""
-      );
-
-      return sendWorkoutToGarminFunction({
-        payloads,
-        delayMs
-      })
-        .then(response => {
-          const results =
-            (response.data &&
-              response.data.results) ||
-            [];
-
-          const failed = results.filter(
-            item =>
-              item.status === "failed"
-          );
-
-          setStatus(
-            statusId,
-            `${
-              failed.length
-                ? `Sent with ${failed.length} failure(s):`
-                : "All workouts created on Garmin:"
-            }\n${formatGarminCloudResults(
-              results
-            )}`,
-            failed.length
-              ? "error"
-              : "success"
-          );
-
-          return results;
-        })
-        .catch(error => {
-          setStatus(
-            statusId,
-            `Cloud send failed: ${
-              error.message || error
-            }`,
-            "error"
-          );
-        })
-        .finally(() => {
-          if (button) {
-            button.disabled = false;
-          }
-        });
-    }
-
-    function sendSingleWorkoutViaCloud() {
-      if (!pendingSingleGarminSend) {
-        return;
-      }
-
-      sendPayloadsToGarminCloud(
-        [pendingSingleGarminSend.payload],
-        2000,
-        "garminScriptStatus",
-        document.getElementById(
-          "sendGarminCloudButton"
-        )
-      );
-    }
-
-    function sendBulkWorkoutsViaCloud() {
-      if (
-        !pendingBulkGarminSend ||
-        !pendingBulkGarminSend.payloads.length
-      ) {
-        setStatus(
-          "bulkStatus",
-          "Generate the script first.",
-          "error"
-        );
-
-        return;
-      }
-
-      sendPayloadsToGarminCloud(
-        pendingBulkGarminSend.payloads,
-        pendingBulkGarminSend.delay,
-        "bulkStatus",
-        document.getElementById(
-          "sendBulkGarminCloudButton"
-        )
-      );
-    }
 
     function copySingleGarminUserscript() {
       if (!pendingSingleGarminSend) {
@@ -6397,7 +6217,7 @@ return {
         selectedWeeks.length === 1
           ? ""
           : "s"
-      }. Paste the script into the Garmin Connect Console, use the bookmarklet, or press "Send via Cloud" below.`,
+      }. Copy the userscript, bookmarklet, or console script below to send it.`,
       "success"
     );
   } catch (error) {
@@ -7878,24 +7698,10 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
       );
 
       document.getElementById(
-        "sendGarminCloudButton"
-      ).addEventListener(
-        "click",
-        sendSingleWorkoutViaCloud
-      );
-
-      document.getElementById(
         "copyGarminUserscriptButton"
       ).addEventListener(
         "click",
         copySingleGarminUserscript
-      );
-
-      document.getElementById(
-        "sendBulkGarminCloudButton"
-      ).addEventListener(
-        "click",
-        sendBulkWorkoutsViaCloud
       );
 
       document.getElementById(
