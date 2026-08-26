@@ -1012,12 +1012,9 @@
       </h2>
 
       <div class="instructions">
-        This dashboard summarizes your recorded workout results. Per-exercise
-        rep or hold-time recommendations, based on your most recent recorded
-        difficulty, appear directly on each exercise. Applying one, or
-        adjusting reps manually, only changes that exercise going forward —
-        the original workout plan is never modified and any adjustment can
-        be reset from the exercise's own controls.
+        Rep/hold-time recommendations based on your last recorded difficulty
+        appear on each exercise. Adjustments only affect future workouts and
+        can be reset anytime.
       </div>
 
       <div class="analytics-grid">
@@ -1117,12 +1114,8 @@
         </label>
 
         <div class="instructions">
-          Two difficulty scores can be recorded when you log a workout: an
-          overall session difficulty, and an optional per-exercise difficulty
-          for each individual exercise. Garmin TCX files provide workout
-          results such as duration, calories, and heart rate, but do not
-          provide any difficulty score. If a score was never recorded, the
-          result remains <strong>Not recorded</strong>.
+          Session and per-exercise difficulty are recorded separately.
+          Garmin TCX imports don't include a difficulty score.
         </div>
 
         <div
@@ -1550,34 +1543,18 @@
         📤 Send Workout to Garmin
       </h2>
 
-      <div class="instructions">
-        The userscript and console-script options below both run in your
-        own browser, using your own network.
-      </div>
-
       <div class="form-group">
         <label class="form-label">
-          Send via Kiwi Browser userscript (recommended on phone)
+          Send via Kiwi Browser userscript (phone)
         </label>
 
         <div class="instructions">
-          Chrome on Android blocks bookmarklets from running, but a real
-          browser extension is not affected. <strong>Kiwi Browser</strong>
-          (free, Chromium-based) supports extensions on Android, including
-          <strong>Tampermonkey</strong>.
+          One-time: install <strong>Kiwi Browser</strong> +
+          <strong>Tampermonkey</strong> extension.
           <br><br>
-          One-time setup: install Kiwi Browser, then install the
-          Tampermonkey extension inside it (Kiwi's menu → Extensions →
-          load from the Chrome Web Store works the same as desktop Chrome).
-          <br><br>
-          Each time you want to send a workout: tap "Copy Userscript"
-          below, open Tampermonkey's dashboard in Kiwi, tap "+" to create a
-          new script, select all the placeholder text and paste over it,
-          then save. Open <code>connect.garmin.com</code> in Kiwi and go to
-          Workouts — the script runs automatically on that page. It only
-          runs once per browser tab session, so open a new tab (or close
-          and reopen Kiwi) before sending another workout with a freshly
-          copied script.
+          Each send: tap "Copy Userscript", paste into a new Tampermonkey
+          script, save, then open <code>connect.garmin.com</code> in Kiwi.
+          Runs once per tab — open a new tab for each additional send.
         </div>
       </div>
 
@@ -1586,7 +1563,7 @@
           class="form-label"
           for="garminScriptOutput"
         >
-          Generated browser-console script (desktop)
+          Console script (desktop)
         </label>
 
         <textarea
@@ -1648,10 +1625,8 @@
       </h2>
 
       <div class="instructions">
-        Import the Garmin exercise catalog first. Select one or more weeks
-        and press Generate Script, then either paste the script into a
-        Garmin Connect Console (desktop) or use the userscript below
-        (works on phone via Kiwi Browser).
+        Import the Garmin catalog first, select weeks, press Generate
+        Script, then send via console (desktop) or userscript (phone).
       </div>
 
       <div class="form-group">
@@ -1720,26 +1695,17 @@
 
       <div class="form-group">
         <label class="form-label">
-          Send via Kiwi Browser userscript (recommended on phone)
+          Send via Kiwi Browser userscript (phone)
         </label>
 
         <div class="instructions">
-          Chrome on Android blocks bookmarklets from running, but a real
-          browser extension is not affected. <strong>Kiwi Browser</strong>
-          (free, Chromium-based) supports extensions on Android, including
-          <strong>Tampermonkey</strong>.
+          One-time: install <strong>Kiwi Browser</strong> +
+          <strong>Tampermonkey</strong> extension.
           <br><br>
-          One-time setup: install Kiwi Browser, then install the
-          Tampermonkey extension inside it (Kiwi's menu → Extensions →
-          load from the Chrome Web Store works the same as desktop Chrome).
-          <br><br>
-          Each time you want to send: press "Generate Script" above first,
-          then tap "Copy Userscript" below, open Tampermonkey's dashboard
-          in Kiwi, tap "+" to create a new script, select all the
-          placeholder text and paste over it, then save. Open
-          <code>connect.garmin.com</code> in Kiwi and go to Workouts — the
-          script runs automatically. It only runs once per browser tab
-          session, so open a new tab before sending another batch.
+          Each send: Generate Script above, tap "Copy Userscript", paste
+          into a new Tampermonkey script, save, then open
+          <code>connect.garmin.com</code> in Kiwi. Runs once per tab — open
+          a new tab for each additional batch.
         </div>
       </div>
 
@@ -5844,7 +5810,7 @@ return {
 // @name         ${safeName}
 // @namespace    fitness-tracker-garmin-send
 // @version      ${Date.now()}
-// @description  Generated by the Fitness Tracker app. Sends the selected workout(s) to Garmin Connect on page load. Disable or delete this script in Tampermonkey after it runs once.
+// @description  Sends the selected workout(s) to Garmin Connect on page load.
 // @match        https://connect.garmin.com/*
 // @grant        none
 // ==/UserScript==
