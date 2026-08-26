@@ -7,10 +7,22 @@ const garminEmail = defineSecret("GARMIN_EMAIL");
 const garminPassword = defineSecret("GARMIN_PASSWORD");
 const allowedUid = defineString("ALLOWED_UID");
 
-const MAX_PAYLOADS_PER_CALL = 20;
+// Kept low deliberately: this app only ever has 36 workouts total, so a
+// realistic bulk send is a handful of weeks (a few payloads), never
+// anywhere near this cap. It exists to bound worst-case function runtime
+// (see FUNCTION_TIMEOUT_SECONDS below) and cost exposure, not to support
+// large batches.
+const MAX_PAYLOADS_PER_CALL = 12;
 const MIN_DELAY_MS = 500;
 const MAX_DELAY_MS = 10000;
 const SESSION_MAX_AGE_MS = 25 * 60 * 1000;
+
+// Worst case: MAX_PAYLOADS_PER_CALL payloads, each waiting MAX_DELAY_MS,
+// plus real Garmin request time per payload and a possible re-login.
+// Keep this comfortably above that so the function is never killed
+// mid-batch, and keep the client's callable timeout (in index.html) at
+// least this high too, or the client gives up before the server does.
+const FUNCTION_TIMEOUT_SECONDS = 240;
 
 let cachedClient = null;
 let cachedClientAt = 0;
@@ -150,9 +162,15 @@ exports.sendWorkoutToGarmin = onCall(
   {
     region: "europe-west1",
     secrets: [garminEmail, garminPassword],
-    timeoutSeconds: 180,
+    timeoutSeconds: FUNCTION_TIMEOUT_SECONDS,
     memory: "256MiB",
-    maxInstances: 3
+    // This is a single-user, manually-triggered app -- there is never a
+    // legitimate reason for more than one or two invocations running at
+    // once. Keeping this low bounds worst-case concurrent cost exposure
+    // even if the endpoint were ever called in a way it shouldn't be
+    // (the ALLOWED_UID check is the real guard against that; this is a
+    // second layer, not a substitute for it).
+    maxInstances: 2
   },
   request => handleSendWorkoutToGarmin(request)
 );

@@ -1975,7 +1975,13 @@
 
     const sendWorkoutToGarminFunction =
       firebaseFunctions.httpsCallable(
-        "sendWorkoutToGarmin"
+        "sendWorkoutToGarmin",
+        {
+          // Must stay at least as high as the function's own
+          // timeoutSeconds (functions/index.js), or the client gives up
+          // on a large bulk send before the server does.
+          timeout: 270000
+        }
       );
 
     const STORAGE_KEY = "fitnessTrackerState";
