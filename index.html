@@ -1756,8 +1756,10 @@
           Garmin Connect app), go to Workouts, then open your bookmarks and
           tap the one you just edited.
           <br><br>
-          Selecting many weeks makes a long link — if your browser struggles
-          to save it as a bookmark, send fewer weeks at a time.
+          Each selected workout adds to the link's length. If your phone's
+          browser won't save it as a bookmark, select fewer weeks — a
+          single workout's link (from the "Send Garmin" button on that
+          workout) is the shortest and most reliable option on a phone.
         </div>
 
         <a
@@ -5750,9 +5752,7 @@ return {
     ) {
       return `(async () => {
   const payloads = ${JSON.stringify(
-    payloads,
-    null,
-    2
+    payloads
   )};
 
   const delay = ${Number(delay)};
