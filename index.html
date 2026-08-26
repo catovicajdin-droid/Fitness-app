@@ -96,25 +96,6 @@
       background: rgba(79, 196, 198, 0.32);
     }
 
-    .bookmarklet-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid var(--garmin);
-      border-radius: 6px;
-      background: rgba(79, 196, 198, 0.18);
-      color: var(--garmin);
-      padding: 0.6rem 1rem;
-      font-weight: 700;
-      text-align: center;
-      text-decoration: none;
-      cursor: grab;
-    }
-
-    .bookmarklet-button:hover {
-      background: rgba(79, 196, 198, 0.32);
-    }
-
     .button-small {
       padding: 0.45rem 0.7rem;
       font-size: 0.78rem;
@@ -1570,8 +1551,8 @@
       </h2>
 
       <div class="instructions">
-        The userscript, bookmarklet, and console-script options below all
-        run in your own browser, using your own network.
+        The userscript and console-script options below both run in your
+        own browser, using your own network.
       </div>
 
       <div class="form-group">
@@ -1601,32 +1582,11 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">
-          Send via bookmarklet (desktop fallback)
-        </label>
-
-        <div class="instructions">
-          Drag the button below to your bookmarks bar, then click it while
-          viewing a Garmin Connect Workouts page. On phone, Chrome blocks
-          this even when set up correctly — use the userscript option
-          above instead.
-        </div>
-
-        <a
-          id="garminBookmarkletLink"
-          class="bookmarklet-button"
-          href="javascript:void(0)"
-        >
-          📌 Send to Garmin
-        </a>
-      </div>
-
-      <div class="form-group">
         <label
           class="form-label"
           for="garminScriptOutput"
         >
-          Generated browser-console script
+          Generated browser-console script (desktop)
         </label>
 
         <textarea
@@ -1642,14 +1602,6 @@
           id="copyGarminUserscriptButton"
         >
           📋 Copy Userscript
-        </button>
-
-        <button
-          type="button"
-          class="button-garmin"
-          id="copyGarminBookmarkletButton"
-        >
-          📋 Copy Bookmarklet Link
         </button>
 
         <button
@@ -1698,8 +1650,8 @@
       <div class="instructions">
         Import the Garmin exercise catalog first. Select one or more weeks
         and press Generate Script, then either paste the script into a
-        Garmin Connect Console (desktop) or use the bookmarklet below
-        (works on phone too).
+        Garmin Connect Console (desktop) or use the userscript below
+        (works on phone via Kiwi Browser).
       </div>
 
       <div class="form-group">
@@ -1791,30 +1743,6 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">
-          Send via bookmarklet (desktop fallback)
-        </label>
-
-        <div class="instructions">
-          Drag the button below to your bookmarks bar, then click it while
-          viewing a Garmin Connect Workouts page. On phone, Chrome blocks
-          this even when set up correctly — use the userscript option
-          above instead.
-          <br><br>
-          Each selected workout adds to the link's length. If your
-          browser won't save it as a bookmark, select fewer weeks.
-        </div>
-
-        <a
-          id="bulkBookmarkletLink"
-          class="bookmarklet-button"
-          href="javascript:void(0)"
-        >
-          📌 Send Selected Weeks to Garmin
-        </a>
-      </div>
-
       <div class="modal-actions">
         <button
           type="button"
@@ -1829,14 +1757,6 @@
           id="copyBulkGarminUserscriptButton"
         >
           📋 Copy Userscript
-        </button>
-
-        <button
-          type="button"
-          class="button-garmin"
-          id="copyBulkBookmarkletButton"
-        >
-          📋 Copy Bookmarklet Link
         </button>
 
         <button
@@ -6006,19 +5926,6 @@ return {
       );
     }
 
-    function setBookmarkletLink(
-      linkId,
-      script
-    ) {
-      document
-        .getElementById(linkId)
-        .setAttribute(
-          "href",
-          "javascript:" +
-            encodeURIComponent(script)
-        );
-    }
-
     function openGarminUploadModal(
       weekNumber,
       sessionIndex
@@ -6036,11 +5943,6 @@ return {
         document.getElementById(
           "garminScriptOutput"
         ).value = script;
-
-        setBookmarkletLink(
-          "garminBookmarkletLink",
-          script
-        );
 
         document.getElementById(
           "garminScriptStatus"
@@ -6194,11 +6096,6 @@ return {
         delay
       );
 
-    setBookmarkletLink(
-      "bulkBookmarkletLink",
-      output.value
-    );
-
     pendingBulkGarminSend = {
       payloads,
       delay
@@ -6217,20 +6114,11 @@ return {
         selectedWeeks.length === 1
           ? ""
           : "s"
-      }. Copy the userscript, bookmarklet, or console script below to send it.`,
+      }. Copy the userscript or console script below to send it.`,
       "success"
     );
   } catch (error) {
     output.value = "";
-
-    document
-      .getElementById(
-        "bulkBookmarkletLink"
-      )
-      .setAttribute(
-        "href",
-        "javascript:void(0)"
-      );
 
     pendingBulkGarminSend = null;
 
@@ -6337,31 +6225,6 @@ return {
         textarea.value,
         statusId
       );
-    }
-
-    function copyBookmarkletLink(
-      linkId,
-      statusId
-    ) {
-      const href =
-        document
-          .getElementById(linkId)
-          .getAttribute("href");
-
-      if (
-        !href ||
-        href === "javascript:void(0)"
-      ) {
-        setStatus(
-          statusId,
-          "Generate the script first.",
-          "error"
-        );
-
-        return;
-      }
-
-      copyPlainText(href, statusId);
     }
 
     function setStatus(
@@ -7686,18 +7549,6 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
       );
 
       document.getElementById(
-        "copyGarminBookmarkletButton"
-      ).addEventListener(
-        "click",
-        () => {
-          copyBookmarkletLink(
-            "garminBookmarkletLink",
-            "garminScriptStatus"
-          );
-        }
-      );
-
-      document.getElementById(
         "copyGarminUserscriptButton"
       ).addEventListener(
         "click",
@@ -7718,18 +7569,6 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
         () => {
           copyText(
             "bulkScriptOutput",
-            "bulkStatus"
-          );
-        }
-      );
-
-      document.getElementById(
-        "copyBulkBookmarkletButton"
-      ).addEventListener(
-        "click",
-        () => {
-          copyBookmarkletLink(
-            "bulkBookmarkletLink",
             "bulkStatus"
           );
         }
@@ -7774,13 +7613,6 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
       "bulkScriptOutput"
     ).value = "";
 
-    document.getElementById(
-      "bulkBookmarkletLink"
-    ).setAttribute(
-      "href",
-      "javascript:void(0)"
-    );
-
     pendingBulkGarminSend = null;
 
     setStatus(
@@ -7812,13 +7644,6 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
     document.getElementById(
       "bulkScriptOutput"
     ).value = "";
-
-    document.getElementById(
-      "bulkBookmarkletLink"
-    ).setAttribute(
-      "href",
-      "javascript:void(0)"
-    );
 
     pendingBulkGarminSend = null;
 
