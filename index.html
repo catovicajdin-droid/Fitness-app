@@ -1570,14 +1570,16 @@
       </h2>
 
       <div class="instructions">
-        <strong>Send via Cloud</strong> is the most reliable option and
-        works on any device, including phones — it signs in to Garmin on a
-        server and creates the workout directly, no browser tricks needed.
-        Requires the Cloud send to be set up (see Settings) and you to be
-        signed in above.
+        <strong>Send via Cloud</strong> signs in to Garmin on a server and
+        creates the workout directly. Requires the Cloud send to be set up
+        (see Settings) and you to be signed in above.
+        <strong>Known issue:</strong> Garmin currently blocks requests from
+        the cloud server this uses, so this option may fail with
+        "Too Many Requests" regardless of retries — use the userscript
+        option below on a phone until that's resolved.
         <br><br>
-        The bookmarklet and console-script options below are manual
-        fallbacks that run in your own browser instead.
+        The userscript, bookmarklet, and console-script options below all
+        run in your own browser instead, using your own network.
       </div>
 
       <div class="form-group">
@@ -1593,21 +1595,40 @@
 
       <div class="form-group">
         <label class="form-label">
-          Send via bookmarklet (browser fallback)
+          Send via Kiwi Browser userscript (recommended on phone)
         </label>
 
         <div class="instructions">
-          <strong>Desktop:</strong> drag the button below to your bookmarks
-          bar, then click it while viewing a Garmin Connect Workouts page.
+          Chrome on Android blocks bookmarklets from running, but a real
+          browser extension is not affected. <strong>Kiwi Browser</strong>
+          (free, Chromium-based) supports extensions on Android, including
+          <strong>Tampermonkey</strong>.
           <br><br>
-          <strong>Phone:</strong> tap "Copy Bookmarklet Link" below. Then
-          bookmark any page in your browser, open your bookmarks, edit that
-          bookmark, and paste the copied link over its address. Open
-          <code>connect.garmin.com</code> in your phone's browser (not the
-          Garmin Connect app), go to Workouts, then open your bookmarks and
-          tap the one you just edited. Note: some mobile browsers restrict
-          bookmarklets and may not run this even when set up correctly —
-          if so, use Send via Cloud instead.
+          One-time setup: install Kiwi Browser, then install the
+          Tampermonkey extension inside it (Kiwi's menu → Extensions →
+          load from the Chrome Web Store works the same as desktop Chrome).
+          <br><br>
+          Each time you want to send a workout: tap "Copy Userscript"
+          below, open Tampermonkey's dashboard in Kiwi, tap "+" to create a
+          new script, select all the placeholder text and paste over it,
+          then save. Open <code>connect.garmin.com</code> in Kiwi and go to
+          Workouts — the script runs automatically on that page. It only
+          runs once per browser tab session, so open a new tab (or close
+          and reopen Kiwi) before sending another workout with a freshly
+          copied script.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          Send via bookmarklet (desktop fallback)
+        </label>
+
+        <div class="instructions">
+          Drag the button below to your bookmarks bar, then click it while
+          viewing a Garmin Connect Workouts page. On phone, Chrome blocks
+          this even when set up correctly — use the userscript option
+          above instead.
         </div>
 
         <a
@@ -1634,6 +1655,14 @@
       </div>
 
       <div class="modal-actions">
+        <button
+          type="button"
+          class="button-garmin"
+          id="copyGarminUserscriptButton"
+        >
+          📋 Copy Userscript
+        </button>
+
         <button
           type="button"
           class="button-garmin"
@@ -1767,33 +1796,54 @@
         </button>
 
         <div class="instructions">
-          Most reliable option, and works on any device including phones —
-          signs in to Garmin on a server and creates each selected workout
+          Signs in to Garmin on a server and creates each selected workout
           directly. Requires the Cloud send to be set up (see Settings) and
           you to be signed in above. Press "Generate Script" first to build
           the payloads, then use this button instead of copying anything.
+          <strong>Known issue:</strong> Garmin currently blocks requests
+          from the cloud server this uses, so this may fail with
+          "Too Many Requests" regardless of retries — use the userscript
+          option below on a phone until that's resolved.
         </div>
       </div>
 
       <div class="form-group">
         <label class="form-label">
-          Send via bookmarklet (browser fallback)
+          Send via Kiwi Browser userscript (recommended on phone)
         </label>
 
         <div class="instructions">
-          <strong>Desktop:</strong> drag the button below to your bookmarks
-          bar, then click it while viewing a Garmin Connect Workouts page.
+          Chrome on Android blocks bookmarklets from running, but a real
+          browser extension is not affected. <strong>Kiwi Browser</strong>
+          (free, Chromium-based) supports extensions on Android, including
+          <strong>Tampermonkey</strong>.
           <br><br>
-          <strong>Phone:</strong> tap "Copy Bookmarklet Link" below. Then
-          bookmark any page in your browser, open your bookmarks, edit that
-          bookmark, and paste the copied link over its address. Open
-          <code>connect.garmin.com</code> in your phone's browser (not the
-          Garmin Connect app), go to Workouts, then open your bookmarks and
-          tap the one you just edited. Note: some mobile browsers restrict
-          bookmarklets and may not run this even when set up correctly —
-          if so, use Send via Cloud instead.
+          One-time setup: install Kiwi Browser, then install the
+          Tampermonkey extension inside it (Kiwi's menu → Extensions →
+          load from the Chrome Web Store works the same as desktop Chrome).
           <br><br>
-          Each selected workout adds to the link's length. If your phone's
+          Each time you want to send: press "Generate Script" above first,
+          then tap "Copy Userscript" below, open Tampermonkey's dashboard
+          in Kiwi, tap "+" to create a new script, select all the
+          placeholder text and paste over it, then save. Open
+          <code>connect.garmin.com</code> in Kiwi and go to Workouts — the
+          script runs automatically. It only runs once per browser tab
+          session, so open a new tab before sending another batch.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          Send via bookmarklet (desktop fallback)
+        </label>
+
+        <div class="instructions">
+          Drag the button below to your bookmarks bar, then click it while
+          viewing a Garmin Connect Workouts page. On phone, Chrome blocks
+          this even when set up correctly — use the userscript option
+          above instead.
+          <br><br>
+          Each selected workout adds to the link's length. If your
           browser won't save it as a bookmark, select fewer weeks.
         </div>
 
@@ -1812,6 +1862,14 @@
           id="generateBulkScriptButton"
         >
           ⚙️ Generate Script
+        </button>
+
+        <button
+          type="button"
+          class="button-garmin"
+          id="copyBulkGarminUserscriptButton"
+        >
+          📋 Copy Userscript
         </button>
 
         <button
@@ -5798,12 +5856,11 @@ return {
         isWheelchair: false
       };
     }
-    function createGarminScript(
+    function createGarminUploadBody(
       payloads,
       delay = 2000
     ) {
-      return `void (async () => {
-  const payloads = ${JSON.stringify(
+      return `const payloads = ${JSON.stringify(
     payloads
   )};
 
@@ -5894,8 +5951,62 @@ return {
 
   alert(
     "Garmin upload finished. See the Console for details."
-  );
+  );`;
+    }
+
+    function createGarminScript(
+      payloads,
+      delay = 2000
+    ) {
+      return `void (async () => {
+  ${createGarminUploadBody(
+    payloads,
+    delay
+  )}
 })();`;
+    }
+
+    function createGarminUserscript(
+      payloads,
+      delay = 2000,
+      scriptName = "Send Workout to Garmin"
+    ) {
+      const safeName = String(
+        scriptName
+      ).replace(/[\r\n]/g, " ");
+
+      return `// ==UserScript==
+// @name         ${safeName}
+// @namespace    fitness-tracker-garmin-send
+// @version      ${Date.now()}
+// @description  Generated by the Fitness Tracker app. Sends the selected workout(s) to Garmin Connect on page load. Disable or delete this script in Tampermonkey after it runs once.
+// @match        https://connect.garmin.com/*
+// @grant        none
+// ==/UserScript==
+
+(async function () {
+  "use strict";
+
+  const sentFlag = "fitnessTrackerGarminUserscriptSent";
+
+  if (sessionStorage.getItem(sentFlag)) {
+    console.log(
+      "Fitness Tracker userscript already ran once this session -- skipping. Close this tab (or open a new one) before pasting a new script to send another workout."
+    );
+
+    return;
+  }
+
+  try {
+    ${createGarminUploadBody(
+      payloads,
+      delay
+    )}
+  } finally {
+    sessionStorage.setItem(sentFlag, "1");
+  }
+})();
+`;
     }
 
     function formatGarminCloudResults(
@@ -6021,6 +6132,57 @@ return {
         document.getElementById(
           "sendBulkGarminCloudButton"
         )
+      );
+    }
+
+    function copySingleGarminUserscript() {
+      if (!pendingSingleGarminSend) {
+        setStatus(
+          "garminScriptStatus",
+          "Generate the script first.",
+          "error"
+        );
+
+        return;
+      }
+
+      const userscript =
+        createGarminUserscript(
+          [pendingSingleGarminSend.payload],
+          2000,
+          `Send Garmin: ${pendingSingleGarminSend.payload.workoutName}`
+        );
+
+      copyPlainText(
+        userscript,
+        "garminScriptStatus"
+      );
+    }
+
+    function copyBulkGarminUserscript() {
+      if (
+        !pendingBulkGarminSend ||
+        !pendingBulkGarminSend.payloads.length
+      ) {
+        setStatus(
+          "bulkStatus",
+          "Generate the script first.",
+          "error"
+        );
+
+        return;
+      }
+
+      const userscript =
+        createGarminUserscript(
+          pendingBulkGarminSend.payloads,
+          pendingBulkGarminSend.delay,
+          "Send Garmin: Bulk Weeks"
+        );
+
+      copyPlainText(
+        userscript,
+        "bulkStatus"
       );
     }
 
@@ -7723,10 +7885,24 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
       );
 
       document.getElementById(
+        "copyGarminUserscriptButton"
+      ).addEventListener(
+        "click",
+        copySingleGarminUserscript
+      );
+
+      document.getElementById(
         "sendBulkGarminCloudButton"
       ).addEventListener(
         "click",
         sendBulkWorkoutsViaCloud
+      );
+
+      document.getElementById(
+        "copyBulkGarminUserscriptButton"
+      ).addEventListener(
+        "click",
+        copyBulkGarminUserscript
       );
 
       document.getElementById(
