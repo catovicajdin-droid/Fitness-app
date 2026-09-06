@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fitness Tracker | 12 Week Chest and Core Program</title>
 
+  <link rel="manifest" href="./manifest.webmanifest">
+  <meta name="theme-color" content="#010409">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Fitness">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="icon" href="./icon-192.png">
+
   <style>
     * {
       box-sizing: border-box;
@@ -655,6 +664,31 @@
     .modal-actions button {
       flex: 1;
       min-width: 130px;
+    }
+
+    .desktop-fallback {
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--background);
+      padding: 0 0.85rem;
+    }
+
+    .desktop-fallback > summary {
+      cursor: pointer;
+      padding: 0.75rem 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .desktop-fallback[open] > summary {
+      margin-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .desktop-fallback > *:last-child {
+      margin-bottom: 0.85rem;
     }
 
     .notice {
@@ -1544,50 +1578,41 @@
       </h2>
 
       <div class="form-group">
-        <label class="form-label">
-          Send via Kiwi Browser userscript (phone)
-        </label>
+        <button
+          type="button"
+          class="button-success"
+          id="queueGarminButton"
+          style="width: 100%;"
+        >
+          📲 Queue for Garmin
+        </button>
 
         <div class="instructions">
-          One-time: install <strong>Kiwi Browser</strong> +
-          <strong>Tampermonkey</strong> extension.
-          <br><br>
-          Each send: tap "Copy Userscript", paste into a new Tampermonkey
-          script, save, then open <code>connect.garmin.com</code> in Kiwi.
-          Runs once per tab — open a new tab for each additional send.
+          Queues this workout, then open <code>connect.garmin.com</code> in
+          Kiwi and it gets created automatically. Needs the queue userscript
+          installed once (Settings).
         </div>
       </div>
 
-      <div class="form-group">
-        <label
-          class="form-label"
-          for="garminScriptOutput"
-        >
-          Console script (desktop)
-        </label>
+      <details class="desktop-fallback">
+        <summary>Console script (desktop)</summary>
 
         <textarea
           id="garminScriptOutput"
           readonly
         ></textarea>
-      </div>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            id="copyGarminScriptButton"
+          >
+            📋 Copy Script
+          </button>
+        </div>
+      </details>
 
       <div class="modal-actions">
-        <button
-          type="button"
-          class="button-garmin"
-          id="copyGarminUserscriptButton"
-        >
-          📋 Copy Userscript
-        </button>
-
-        <button
-          type="button"
-          id="copyGarminScriptButton"
-        >
-          📋 Copy Script
-        </button>
-
         <button
           type="button"
           class="button-secondary"
@@ -1625,8 +1650,8 @@
       </h2>
 
       <div class="instructions">
-        Import the Garmin catalog first, select weeks, press Generate
-        Script, then send via console (desktop) or userscript (phone).
+        Import the Garmin catalog in Settings first, then pick the weeks to
+        send.
       </div>
 
       <div class="form-group">
@@ -1663,75 +1688,66 @@
       </div>
 
       <div class="form-group">
-        <label
-          class="form-label"
-          for="bulkDelayInput"
+        <button
+          type="button"
+          class="button-success"
+          id="queueBulkGarminButton"
+          style="width: 100%;"
         >
-          Delay between uploads
-        </label>
+          📲 Queue Selected Weeks
+        </button>
 
-        <select id="bulkDelayInput">
-          <option value="1000">1 second</option>
-          <option value="2000" selected>2 seconds</option>
-          <option value="3000">3 seconds</option>
-          <option value="5000">5 seconds</option>
-        </select>
+        <div class="instructions">
+          Queues every workout in the selected weeks, then open
+          <code>connect.garmin.com</code> in Kiwi and they get created
+          automatically. Needs the queue userscript installed once
+          (Settings).
+        </div>
       </div>
 
-      <div class="form-group">
-        <label
-          class="form-label"
-          for="bulkScriptOutput"
-        >
-          Bulk script
-        </label>
+      <details class="desktop-fallback">
+        <summary>Console script (desktop)</summary>
+
+        <div class="form-group">
+          <label
+            class="form-label"
+            for="bulkDelayInput"
+          >
+            Delay between uploads
+          </label>
+
+          <select id="bulkDelayInput">
+            <option value="1000">1 second</option>
+            <option value="2000" selected>2 seconds</option>
+            <option value="3000">3 seconds</option>
+            <option value="5000">5 seconds</option>
+          </select>
+        </div>
 
         <textarea
           id="bulkScriptOutput"
           readonly
           placeholder="Generate the script after selecting one or more weeks."
         ></textarea>
-      </div>
 
-      <div class="form-group">
-        <label class="form-label">
-          Send via Kiwi Browser userscript (phone)
-        </label>
+        <div class="modal-actions">
+          <button
+            type="button"
+            id="generateBulkScriptButton"
+          >
+            ⚙️ Generate Script
+          </button>
 
-        <div class="instructions">
-          One-time: install <strong>Kiwi Browser</strong> +
-          <strong>Tampermonkey</strong> extension.
-          <br><br>
-          Each send: Generate Script above, tap "Copy Userscript", paste
-          into a new Tampermonkey script, save, then open
-          <code>connect.garmin.com</code> in Kiwi. Runs once per tab — open
-          a new tab for each additional batch.
+          <button
+            type="button"
+            id="copyBulkScriptButton"
+          >
+            📋 Copy Script
+          </button>
         </div>
-      </div>
+      </details>
 
       <div class="modal-actions">
-        <button
-          type="button"
-          id="generateBulkScriptButton"
-        >
-          ⚙️ Generate Script
-        </button>
-
-        <button
-          type="button"
-          class="button-garmin"
-          id="copyBulkGarminUserscriptButton"
-        >
-          📋 Copy Userscript
-        </button>
-
-        <button
-          type="button"
-          id="copyBulkScriptButton"
-        >
-          📋 Copy Script
-        </button>
-
         <button
           type="button"
           class="button-secondary"
@@ -1815,6 +1831,59 @@
           class="catalog-status"
           id="catalogStatus"
         ></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          Garmin queue userscript (one-time)
+        </label>
+
+        <div class="instructions">
+          Install <strong>Kiwi Browser</strong> +
+          <strong>Tampermonkey</strong>, then paste this into a new
+          Tampermonkey script once. After that, "Queue for Garmin" in the
+          app is all you need — queued workouts get created next time you
+          open <code>connect.garmin.com</code> in Kiwi.
+        </div>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="button-garmin"
+            id="copyQueueUserscriptButton"
+          >
+            📋 Copy Userscript
+          </button>
+        </div>
+
+        <div
+          class="catalog-status"
+          id="queueUserscriptStatus"
+        ></div>
+      </div>
+
+      <div
+        class="form-group"
+        id="installAppGroup"
+        hidden
+      >
+        <label class="form-label">
+          Install on this device
+        </label>
+
+        <div class="instructions">
+          Adds the app to your home screen so it opens full screen without
+          browser chrome.
+        </div>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            id="installAppButton"
+          >
+            📱 Install App
+          </button>
+        </div>
       </div>
 
       <div class="form-group">
@@ -1911,7 +1980,8 @@
   exerciseAdjustments: {},
   appliedExerciseRecommendations: {},
   lastSync: null,
-  garminCatalog: null
+  garminCatalog: null,
+  garminQueueToken: null
 };
 
     let pendingTcxResult = null;
@@ -2359,7 +2429,10 @@ appliedExerciseRecommendations:
           state.lastSync || null,
 
         garminCatalog:
-          state.garminCatalog || null
+          state.garminCatalog || null,
+
+        garminQueueToken:
+          state.garminQueueToken || null
       };
     }
 
@@ -2494,6 +2567,11 @@ appliedExerciseRecommendations:
           )
             ? remote.garminCatalog
             : local.garminCatalog,
+
+        garminQueueToken:
+          local.garminQueueToken ||
+          remote.garminQueueToken ||
+          null,
 
         lastSync:
           remote.lastSync ||
@@ -5797,98 +5875,283 @@ return {
 })();`;
     }
 
-    function createGarminUserscript(
+    function getGarminQueueToken() {
+      if (appState.garminQueueToken) {
+        return appState.garminQueueToken;
+      }
+
+      const bytes =
+        new Uint8Array(16);
+
+      crypto.getRandomValues(bytes);
+
+      appState.garminQueueToken =
+        Array.from(bytes)
+          .map(byte =>
+            byte
+              .toString(16)
+              .padStart(2, "0")
+          )
+          .join("");
+
+      saveState();
+
+      return appState.garminQueueToken;
+    }
+
+    function getGarminQueueReference() {
+      return firebaseDatabase.ref(
+        `garminQueue/${getGarminQueueToken()}`
+      );
+    }
+
+    function queuePayloadsForGarmin(
       payloads,
-      delay = 2000,
-      scriptName = "Send Workout to Garmin"
+      statusId,
+      button
     ) {
-      const safeName = String(
-        scriptName
-      ).replace(/[\r\n]/g, " ");
+      if (!payloads.length) {
+        return Promise.resolve();
+      }
+
+      if (!currentFirebaseUser) {
+        setStatus(
+          statusId,
+          "Sign in first so the queue can reach your phone.",
+          "error"
+        );
+
+        return Promise.resolve();
+      }
+
+      if (button) {
+        button.disabled = true;
+      }
+
+      setStatus(
+        statusId,
+        `Queueing ${payloads.length} workout${
+          payloads.length === 1 ? "" : "s"
+        }...`,
+        ""
+      );
+
+      const queueReference =
+        getGarminQueueReference();
+
+      const queuedAt =
+        new Date().toISOString();
+
+      return Promise.all(
+        payloads.map(payload =>
+          queueReference.push({
+            workoutName:
+              payload.workoutName,
+            payload,
+            queuedAt
+          })
+        )
+      )
+        .then(() => {
+          setStatus(
+            statusId,
+            `Queued ${payloads.length} workout${
+              payloads.length === 1 ? "" : "s"
+            }. Open connect.garmin.com in Kiwi to finish sending.`,
+            "success"
+          );
+        })
+        .catch(error => {
+          setStatus(
+            statusId,
+            `Could not queue: ${
+              error.message || error
+            }`,
+            "error"
+          );
+        })
+        .finally(() => {
+          if (button) {
+            button.disabled = false;
+          }
+        });
+    }
+
+    function createGarminQueueUserscript() {
+      const databaseUrl =
+        firebaseConfig.databaseURL.replace(
+          /\/+$/,
+          ""
+        );
+
+      const databaseHost =
+        new URL(databaseUrl).host;
+
+      const queueUrl =
+        `${databaseUrl}/garminQueue/${getGarminQueueToken()}`;
 
       return `// ==UserScript==
-// @name         ${safeName}
+// @name         Fitness Tracker to Garmin
 // @namespace    fitness-tracker-garmin-send
-// @version      ${Date.now()}
-// @description  Sends the selected workout(s) to Garmin Connect on page load.
+// @version      2.0.0
+// @description  Creates any workouts queued by the Fitness Tracker app whenever you open Garmin Connect.
 // @match        https://connect.garmin.com/*
-// @grant        none
+// @grant        GM_xmlhttpRequest
+// @connect      ${databaseHost}
 // ==/UserScript==
 
-(async function () {
+(function () {
   "use strict";
 
-  const sentFlag = "fitnessTrackerGarminUserscriptSent";
+  const QUEUE_URL = ${JSON.stringify(queueUrl)};
 
-  if (sessionStorage.getItem(sentFlag)) {
-    console.log(
-      "Fitness Tracker userscript already ran once this session -- skipping. Close this tab (or open a new one) before pasting a new script to send another workout."
+  function sleep(milliseconds) {
+    return new Promise(resolve => {
+      setTimeout(resolve, milliseconds);
+    });
+  }
+
+  function queueRequest(method, path, body) {
+    return new Promise((resolve, reject) => {
+      GM_xmlhttpRequest({
+        method: method,
+        url: QUEUE_URL + path,
+        headers: { "Content-Type": "application/json" },
+        data: body ? JSON.stringify(body) : undefined,
+        onload: function (response) {
+          if (response.status >= 200 && response.status < 300) {
+            try {
+              resolve(
+                response.responseText
+                  ? JSON.parse(response.responseText)
+                  : null
+              );
+            } catch (error) {
+              reject(error);
+            }
+          } else {
+            reject(
+              new Error(
+                "Queue HTTP " + response.status + " " + response.responseText
+              )
+            );
+          }
+        },
+        onerror: function () {
+          reject(new Error("Could not reach the workout queue."));
+        }
+      });
+    });
+  }
+
+  function toast(message, isError) {
+    const box = document.createElement("div");
+
+    box.textContent = message;
+    box.style.position = "fixed";
+    box.style.zIndex = "999999";
+    box.style.left = "50%";
+    box.style.top = "16px";
+    box.style.transform = "translateX(-50%)";
+    box.style.maxWidth = "90vw";
+    box.style.padding = "12px 16px";
+    box.style.borderRadius = "8px";
+    box.style.font = "600 14px system-ui, sans-serif";
+    box.style.whiteSpace = "pre-wrap";
+    box.style.color = "#fff";
+    box.style.background = isError ? "#b3261e" : "#1e7a3c";
+    box.style.boxShadow = "0 4px 16px rgba(0,0,0,0.3)";
+
+    document.body.appendChild(box);
+
+    setTimeout(function () {
+      box.remove();
+    }, 10000);
+  }
+
+  function getCsrfToken() {
+    const meta = document.querySelector(
+      'meta[name="csrf-token"], meta[name="connect-csrf-token"]'
     );
 
-    return;
+    if (meta && meta.content) {
+      return meta.content;
+    }
+
+    return prompt("Paste the current Connect-Csrf-Token:");
   }
 
-  try {
-    ${createGarminUploadBody(
-      payloads,
-      delay
-    )}
-  } finally {
-    sessionStorage.setItem(sentFlag, "1");
+  async function run() {
+    const queue = await queueRequest("GET", ".json");
+    const keys = queue ? Object.keys(queue) : [];
+
+    if (!keys.length) {
+      return;
+    }
+
+    const csrfToken = getCsrfToken();
+
+    if (!csrfToken) {
+      toast("No CSRF token available, so nothing was sent.", true);
+      return;
+    }
+
+    let created = 0;
+    const failures = [];
+
+    for (const key of keys) {
+      const entry = queue[key] || {};
+      const name = entry.workoutName || "Workout";
+
+      try {
+        const response = await fetch("/gc-api/workout-service/workout", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Accept": "*/*",
+            "Content-Type": "application/json",
+            "Connect-Csrf-Token": csrfToken
+          },
+          body: JSON.stringify(entry.payload)
+        });
+
+        const text = await response.text();
+
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status + " " + text);
+        }
+
+        await queueRequest("DELETE", "/" + key + ".json");
+        created += 1;
+      } catch (error) {
+        failures.push(name + ": " + error.message);
+      }
+
+      await sleep(1500);
+    }
+
+    if (failures.length) {
+      toast(
+        "Created " + created + ", failed " + failures.length + ":\\n" +
+          failures.join("\\n"),
+        true
+      );
+    } else {
+      toast("Created " + created + " Garmin workout(s).", false);
+    }
   }
+
+  run().catch(function (error) {
+    toast("Fitness Tracker queue failed: " + error.message, true);
+  });
 })();
 `;
     }
 
-
-    function copySingleGarminUserscript() {
-      if (!pendingSingleGarminSend) {
-        setStatus(
-          "garminScriptStatus",
-          "Generate the script first.",
-          "error"
-        );
-
-        return;
-      }
-
-      const userscript =
-        createGarminUserscript(
-          [pendingSingleGarminSend.payload],
-          2000,
-          `Send Garmin: ${pendingSingleGarminSend.payload.workoutName}`
-        );
-
+    function copyGarminQueueUserscript() {
       copyPlainText(
-        userscript,
-        "garminScriptStatus"
-      );
-    }
-
-    function copyBulkGarminUserscript() {
-      if (
-        !pendingBulkGarminSend ||
-        !pendingBulkGarminSend.payloads.length
-      ) {
-        setStatus(
-          "bulkStatus",
-          "Generate the script first.",
-          "error"
-        );
-
-        return;
-      }
-
-      const userscript =
-        createGarminUserscript(
-          pendingBulkGarminSend.payloads,
-          pendingBulkGarminSend.delay,
-          "Send Garmin: Bulk Weeks"
-        );
-
-      copyPlainText(
-        userscript,
-        "bulkStatus"
+        createGarminQueueUserscript(),
+        "queueUserscriptStatus"
       );
     }
 
@@ -5966,137 +6229,186 @@ return {
       }
     }
 
-    function generateBulkScript() {
-  const select =
-    document.getElementById(
-      "bulkWeekSelect"
-    );
+    function getSelectedBulkWeeks() {
+      return Array.from(
+        document.getElementById(
+          "bulkWeekSelect"
+        ).selectedOptions
+      ).map(option =>
+        Number(option.value)
+      );
+    }
 
-  const output =
-    document.getElementById(
-      "bulkScriptOutput"
-    );
+    function buildBulkGarminPayloads(
+      selectedWeeks
+    ) {
+      const payloads = [];
 
-  const selectedWeeks =
-    Array.from(
-      select.selectedOptions
-    ).map(option =>
-      Number(option.value)
-    );
+      selectedWeeks.forEach(
+        weekNumber => {
+          const week =
+            workoutPlan[
+              `week${weekNumber}`
+            ];
 
-  output.value = "";
+          if (
+            !week ||
+            !Array.isArray(week.workouts)
+          ) {
+            throw new Error(
+              `Week ${weekNumber} could not be found in the workout plan.`
+            );
+          }
 
-  if (!selectedWeeks.length) {
-    setStatus(
-      "bulkStatus",
-      "Select at least one week before generating the Garmin script.",
-      "error"
-    );
+          week.workouts.forEach(
+            (_, sessionIndex) => {
+              payloads.push(
+                createGarminPayload(
+                  weekNumber,
+                  sessionIndex
+                )
+              );
 
-    return;
-  }
-
-  setStatus(
-    "bulkStatus",
-    `Preparing Garmin workouts for ${
-      selectedWeeks.length
-    } selected week${
-      selectedWeeks.length === 1
-        ? ""
-        : "s"
-    }...`,
-    ""
-  );
-
-  try {
-    const payloads = [];
-
-    selectedWeeks.forEach(
-      weekNumber => {
-        const week =
-          workoutPlan[
-            `week${weekNumber}`
-          ];
-
-        if (
-          !week ||
-          !Array.isArray(
-            week.workouts
-          )
-        ) {
-          throw new Error(
-            `Week ${weekNumber} could not be found in the workout plan.`
+              appState.garminUploadedWorkouts[
+                getSessionKey(
+                  weekNumber,
+                  sessionIndex
+                )
+              ] = true;
+            }
           );
         }
-
-        week.workouts.forEach(
-          (_, sessionIndex) => {
-            payloads.push(
-              createGarminPayload(
-                weekNumber,
-                sessionIndex
-              )
-            );
-
-            appState.garminUploadedWorkouts[
-              getSessionKey(
-                weekNumber,
-                sessionIndex
-              )
-            ] = true;
-          }
-        );
-      }
-    );
-
-    const delay =
-      Number(
-        document.getElementById(
-          "bulkDelayInput"
-        ).value
-      ) || 2000;
-
-    output.value =
-      createGarminScript(
-        payloads,
-        delay
       );
 
-    pendingBulkGarminSend = {
-      payloads,
-      delay
-    };
+      return payloads;
+    }
 
-    saveState();
-    renderApp();
+    function queueSingleWorkoutForGarmin() {
+      if (!pendingSingleGarminSend) {
+        return;
+      }
 
-    setStatus(
-      "bulkStatus",
-      `Generated ${
-        payloads.length
-      } Garmin workouts from ${
-        selectedWeeks.length
-      } selected week${
-        selectedWeeks.length === 1
-          ? ""
-          : "s"
-      }. Copy the userscript or console script below to send it.`,
-      "success"
-    );
-  } catch (error) {
-    output.value = "";
+      queuePayloadsForGarmin(
+        [pendingSingleGarminSend.payload],
+        "garminScriptStatus",
+        document.getElementById(
+          "queueGarminButton"
+        )
+      );
+    }
 
-    pendingBulkGarminSend = null;
+    function queueBulkWorkoutsForGarmin() {
+      const selectedWeeks =
+        getSelectedBulkWeeks();
 
-    setStatus(
-      "bulkStatus",
-      `Bulk generation failed: ${
-        error.message
-      }`,
-      "error"
-    );
-  }
-}
+      if (!selectedWeeks.length) {
+        setStatus(
+          "bulkStatus",
+          "Select at least one week first.",
+          "error"
+        );
+
+        return;
+      }
+
+      let payloads;
+
+      try {
+        payloads =
+          buildBulkGarminPayloads(
+            selectedWeeks
+          );
+      } catch (error) {
+        setStatus(
+          "bulkStatus",
+          `Could not build workouts: ${error.message}`,
+          "error"
+        );
+
+        return;
+      }
+
+      saveState();
+      renderApp();
+
+      queuePayloadsForGarmin(
+        payloads,
+        "bulkStatus",
+        document.getElementById(
+          "queueBulkGarminButton"
+        )
+      );
+    }
+
+    function generateBulkScript() {
+      const output =
+        document.getElementById(
+          "bulkScriptOutput"
+        );
+
+      const selectedWeeks =
+        getSelectedBulkWeeks();
+
+      output.value = "";
+
+      if (!selectedWeeks.length) {
+        setStatus(
+          "bulkStatus",
+          "Select at least one week first.",
+          "error"
+        );
+
+        return;
+      }
+
+      try {
+        const payloads =
+          buildBulkGarminPayloads(
+            selectedWeeks
+          );
+
+        const delay =
+          Number(
+            document.getElementById(
+              "bulkDelayInput"
+            ).value
+          ) || 2000;
+
+        output.value =
+          createGarminScript(
+            payloads,
+            delay
+          );
+
+        pendingBulkGarminSend = {
+          payloads,
+          delay
+        };
+
+        saveState();
+        renderApp();
+
+        setStatus(
+          "bulkStatus",
+          `Generated ${
+            payloads.length
+          } workouts. Copy the console script below.`,
+          "success"
+        );
+      } catch (error) {
+        output.value = "";
+
+        pendingBulkGarminSend = null;
+
+        setStatus(
+          "bulkStatus",
+          `Could not build workouts: ${
+            error.message
+          }`,
+          "error"
+        );
+      }
+    }
     function copyPlainText(
       text,
       statusId
@@ -7515,17 +7827,24 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
       );
 
       document.getElementById(
-        "copyGarminUserscriptButton"
+        "copyQueueUserscriptButton"
       ).addEventListener(
         "click",
-        copySingleGarminUserscript
+        copyGarminQueueUserscript
       );
 
       document.getElementById(
-        "copyBulkGarminUserscriptButton"
+        "queueGarminButton"
       ).addEventListener(
         "click",
-        copyBulkGarminUserscript
+        queueSingleWorkoutForGarmin
+      );
+
+      document.getElementById(
+        "queueBulkGarminButton"
+      ).addEventListener(
+        "click",
+        queueBulkWorkoutsForGarmin
       );
 
       document.getElementById(
@@ -7617,7 +7936,7 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
 
     setStatus(
       "bulkStatus",
-      "Select one or more weeks, then press Generate Script.",
+      "Select one or more weeks, then queue them.",
       ""
     );
 
@@ -7729,10 +8048,84 @@ return `${name}: ${match.displayName} [category=${match.category}, exerciseName=
         }
       );
     }
+    let deferredInstallPrompt = null;
+
+    function setupInstallPrompt() {
+      const group =
+        document.getElementById(
+          "installAppGroup"
+        );
+
+      const button =
+        document.getElementById(
+          "installAppButton"
+        );
+
+      if (!group || !button) {
+        return;
+      }
+
+      window.addEventListener(
+        "beforeinstallprompt",
+        event => {
+          event.preventDefault();
+
+          deferredInstallPrompt = event;
+          group.hidden = false;
+        }
+      );
+
+      window.addEventListener(
+        "appinstalled",
+        () => {
+          deferredInstallPrompt = null;
+          group.hidden = true;
+        }
+      );
+
+      button.addEventListener(
+        "click",
+        () => {
+          if (!deferredInstallPrompt) {
+            return;
+          }
+
+          deferredInstallPrompt.prompt();
+          deferredInstallPrompt = null;
+          group.hidden = true;
+        }
+      );
+    }
+
+    function registerServiceWorker() {
+      if (
+        !("serviceWorker" in navigator) ||
+        location.protocol === "file:"
+      ) {
+        return;
+      }
+
+      window.addEventListener(
+        "load",
+        () => {
+          navigator.serviceWorker
+            .register("./sw.js")
+            .catch(error => {
+              console.warn(
+                "Service worker registration failed.",
+                error
+              );
+            });
+        }
+      );
+    }
+
     loadState();
     setupEventListeners();
     setupAuthListener();
     renderApp();
+    setupInstallPrompt();
+    registerServiceWorker();
   </script>
 </body>
 </html>
