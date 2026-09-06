@@ -1844,6 +1844,13 @@
           Tampermonkey script once. After that, "Queue for Garmin" in the
           app is all you need — queued workouts get created next time you
           open <code>connect.garmin.com</code> in Kiwi.
+          <br><br>
+          <strong>Tip:</strong> links can't auto-open in Kiwi from another
+          browser (Android blocks that). Instead, open
+          <code>connect.garmin.com/modern/workouts</code> in Kiwi once,
+          then use Kiwi's menu → <strong>Add to Home screen</strong>. That
+          shortcut always opens in Kiwi, so it's a real one-tap way to
+          drain the queue after sending from the app.
         </div>
 
         <div class="modal-actions">
@@ -1948,29 +1955,7 @@
       "https://connect.garmin.com/modern/workouts";
     const GARMIN_ACTIVITIES_URL =
   "https://connect.garmin.com/modern/activities";
-    const KIWI_BROWSER_PACKAGE = "com.kiwibrowser.browser";
-
     function openGarminWorkouts() {
-      const isAndroid = /Android/i.test(
-        navigator.userAgent
-      );
-
-      if (isAndroid) {
-        const hostAndPath =
-          GARMIN_WORKOUTS_URL.replace(
-            /^https?:\/\//,
-            ""
-          );
-
-        const intentUrl =
-          `intent://${hostAndPath}#Intent;scheme=https;package=${KIWI_BROWSER_PACKAGE};S.browser_fallback_url=${encodeURIComponent(
-            GARMIN_WORKOUTS_URL
-          )};end;`;
-
-        window.location.href = intentUrl;
-        return;
-      }
-
       window.open(
         GARMIN_WORKOUTS_URL,
         "_blank",
